@@ -43,7 +43,7 @@ const SUM_KEYS=['funded','refused','loans','debt','indebted','fund','refusedDebt
 const PER_RUN={
   mean:(x,e)=>e.mean, bottom10:(x,e)=>e.bottom10, top1:(x,e)=>e.top1==null?NaN:e.top1, gini:(x,e,T)=>x.gi[T-1],
   funded:x=>x.funded, refused:x=>x.refused, indebted:(x,e)=>e.indebted, totE:(x,e,T)=>x.tot[T-1]+x.uT[T-1],
-  fUnowned:x=>x.fUnowned, fDied:x=>x.fDied, interest:x=>x.interest, qratio:(x,e,T,q)=>q[0].mean>0?q[4].mean/q[0].mean:NaN};
+  fUnowned:x=>x.fUnowned, cons:(x,e,T)=>x.rCons[T-1], util:(x,e,T)=>x.rUtil[T-1], fDied:x=>x.fDied, interest:x=>x.interest, qratio:(x,e,T,q)=>q[0].mean>0?q[4].mean/q[0].mean:NaN};
 // moyenne élément par élément des diagnostics (tableaux), en ignorant les cases vides
 function meanDiagnostics(xs){const dg={},R=xs.length;for(const k in xs[0].dg){const v=xs[0].dg[k];
   if(Array.isArray(v)){const sm=v.map(()=>0),cn=v.map(()=>0);for(const x of xs)x.dg[k].forEach((y,g)=>{if(isFinite(y)){sm[g]+=y;cn[g]++;}});dg[k]=sm.map((y,g)=>cn[g]?y/cn[g]:NaN);}
@@ -53,12 +53,12 @@ function spreadOf(a){const y=Array.from(a).filter(v=>isFinite(v)).sort((a,b)=>a-
 
 /* Agrège des simulations déjà calculées (une par tirage, dans l'ordre des graines) */
 function aggFrom(world,P,xs){
-  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),cov=new Float64Array(T),sDebt=new Float64Array(T),sDef=new Float64Array(T),lor0=new Float64Array(41);let g0=0;
+  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),cov=new Float64Array(T),sDebt=new Float64Array(T),sDef=new Float64Array(T),rCons=new Float64Array(T),rConsMean=new Float64Array(T),rNdp=new Float64Array(T),rUtil=new Float64Array(T),rK=new Float64Array(T),lor0=new Float64Array(41);let g0=0;
   const o={};for(const k of SUM_KEYS)o[k]=0;
   const nets=[],grps=[],owes=[],qis=[],refs=[];
   const per={};for(const k in PER_RUN)per[k]=new Float64Array(R);
   for(let s=0;s<R;s++){const x=xs[s];
-    for(let t=0;t<T;t++){tot[t]+=x.tot[t]/R;gi[t]+=x.gi[t]/R;uT[t]+=x.uT[t]/R;cov[t]+=x.cCov[t]/R;sDebt[t]+=x.sDebt[t]/R;sDef[t]+=x.sDef[t]/R;}
+    for(let t=0;t<T;t++){tot[t]+=x.tot[t]/R;gi[t]+=x.gi[t]/R;uT[t]+=x.uT[t]/R;cov[t]+=x.cCov[t]/R;sDebt[t]+=x.sDebt[t]/R;sDef[t]+=x.sDef[t]/R;rCons[t]+=x.rCons[t]/R;rConsMean[t]+=x.rConsMean[t]/R;rNdp[t]+=x.rNdp[t]/R;rUtil[t]+=x.rUtil[t]/R;rK[t]+=x.rK[t]/R;}
     for(let k=0;k<=40;k++)lor[k]+=x.lor[k]/R;
     if(x.lor0){for(let k=0;k<=40;k++)lor0[k]+=x.lor0[k]/R;g0+=x.gini0/R;}
     for(const k of SUM_KEYS)o[k]+=x[k]/R;
@@ -66,7 +66,7 @@ function aggFrom(world,P,xs){
     const e=equity(x.net,x.grp,x.owes),q=byQuint(x.net,x.grp,x.qi,x.refI);for(const k in PER_RUN)per[k][s]=PER_RUN[k](x,e,T,q);}
   const spread={};for(const k in per)spread[k]=spreadOf(per[k]);
   const hasStart=P.ini||(P.firm&&P.exist);
-  return {tot,gi,uT,cov,sDebt,sDef,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
+  return {tot,gi,uT,cov,sDebt,sDef,rCons,rConsMean,rNdp,rUtil,rK,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
     eqReturn:o.eqRaised>0?o.eqPaid/o.eqRaised-1:null,holdersPer:o.issues>0?o.holders/o.issues:null,
     eq:equity(nets,grps,owes),byq:byQuint(nets,grps,qis,refs),per,spread,R,dg:meanDiagnostics(xs)};
 }

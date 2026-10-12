@@ -15,6 +15,8 @@ function verdictItems(L){
   if(P.firm)V.push({l:'Richesse totale de l\'économie (population et entreprises)',get:w=>w.tot[L]+w.uT[L],f:int,dir:'high',k:'totE'},
     {l:'Valeur des entreprises sans propriétaire',get:w=>w.fUnowned,f:int,dir:null,k:'fUnowned'},
     {l:'Entreprises disparues',get:w=>w.fDied,f:int,dir:'low',k:'fDied'});
+  if(P.firm&&P.closed)V.push({l:'Consommation du ménage médian, la dernière année',get:w=>w.rCons[L]*UNIT_EUR,f:v=>fr(Math.round(v/100)*100)+' €',dir:'high',k:'cons'},
+    {l:'Utilisation des capacités, la dernière année',get:w=>w.rUtil[L],f:pct,dir:null,k:'util'});
   if(P.bank||P.firm)V.push({l:'Intérêts reçus par les déposants',get:w=>w.interest,f:int,dir:null,k:'interest'});
   return V;
 }

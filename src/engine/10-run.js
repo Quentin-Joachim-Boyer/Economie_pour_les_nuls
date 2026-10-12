@@ -48,6 +48,10 @@ function run(world,seed,P){
      pool : ventes de l'année, payées par les dépenses de l'année précédente (poolNext) ; feePot : coûts de la banque et des fonds,
      reversés en salaires. Au départ, le pool vaut salaires + profits notionnels des entreprises existantes. */
   let WB=0;for(let i=0;i<N;i++)WB+=wage[i];
+  // indicateurs d'économie réelle (Stiglitz, Sen et Fitoussi 2009) : consommation médiane et moyenne par ménage, production nette
+  // de l'usure, utilisation des capacités (ventes / ventes que permettrait le capital, au rythme du départ)
+  const consH=new Float64Array(N),consMed=new Float64Array(T),consMean=new Float64Array(T),ndp=new Float64Array(T),util=new Float64Array(T),kNet=new Float64Array(T);
+  let cap0=0,K0=0,wearY=0;
   let pool=0,poolNext=0,feePot=0;const cc={wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
   const money=()=>{let m=F+pool+poolNext+feePot+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
   // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
@@ -62,6 +66,7 @@ function run(world,seed,P){
       // dette de départ : une partie des liquidités des ménages est en fait détenue en obligations publiques
       let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const b=Math.min(P.debt0*gdp,0.9*tw);
       if(tw>0)for(let i=0;i<N;i++){const x=b*Math.max(0,W[i])/tw;W[i]-=x;Bh[i]+=x;}pubDebt=b;}
+    cap0=pool;for(const fm of firms)if(!fm.dead)K0+=fm.K;
     M0=money();}
 
   for(let t=0;t<T;t++){
@@ -73,7 +78,7 @@ function run(world,seed,P){
 
     /* ---------- économie bouclée : salaires payés sur les ventes, puis sur la trésorerie des entreprises ---------- */
     let ratio=1,sales=0,GW=0;
-    if(closed){sales=pool;
+    if(closed){sales=pool;{let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;util[t]=cap0>0&&K>0&&K0>0?sales/(cap0*K/K0):0;}
       if(stateOn){// impôt sur les ventes, puis dépenses (fonctionnaires, achats, intérêts) ; le déficit est emprunté aux ménages
         const tax=tau*pool;pool-=tax;Sc+=tax;sc.tax+=tax;
         GW=P.gW*GDPprev;let GP=P.gP*GDPprev,INT=rB*pubDebt;
@@ -95,7 +100,7 @@ function run(world,seed,P){
         const c=(1-sr[i])*inc+P.mpcW*Math.max(0,t===0?init0[i]:net[i]);
         let pc=Math.min(c,Math.max(0,W[i]));W[i]-=pc;
         if(c-pc>eps&&bank){const x=Math.min(c-pc,D[i],Math.max(F,0));D[i]-=x;F-=x;pc+=x;}
-        poolNext+=pc;cc.cons+=pc;cc.inc+=inc;cc.save+=inc-pc;capInc[i]=0;
+        poolNext+=pc;cc.cons+=pc;consH[i]=pc;cc.inc+=inc;cc.save+=inc-pc;capInc[i]=0;
         let s=y-pc;if(s<=eps)continue;
         if(L[i]>eps){const p=Math.min(s,L[i]);L[i]-=p;W[i]-=p;F+=p;s-=p;}
         const d=s*depE,q=part[i]?s*invE:0;D[i]+=d;F+=d;eqSave[i]+=q;W[i]-=d+q;}}
@@ -132,7 +137,7 @@ function run(world,seed,P){
           let pay=Math.min(pi,due);pi-=pay;if(pay<due){const take=Math.min(fm.R,due-pay);fm.R-=take;pay+=take;}
           fm.debt-=pay;F+=pay;}
         // usure : le capital perd une part P.depr de sa valeur ; seul le profit net d'usure peut être versé
-        const wear=P.depr*fm.K;fm.K-=wear;fs.wear+=wear;const net=Math.max(0,pi-wear);
+        const wear=P.depr*fm.K;fm.K-=wear;fs.wear+=wear;wearY+=wear;const net=Math.max(0,pi-wear);
         // gains libres : une part P.payout du profit net est versée ; gains interdits : tout est versé, dans la limite des mises
         if(world==='L'){const d=net*P.payout;fm.R+=pi-d+distribute(fm,d,capped,W,funds.income,fs,capInc);}
         else{const keep=pi-net;fm.R+=keep+distribute(fm,net,capped,W,funds.income,fs,capInc);fm.Rw=(fm.Rw||0)+keep;}
@@ -217,11 +222,14 @@ function run(world,seed,P){
       let sw=0;for(let i=0;i<N;i++)sw+=wage[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]/sw;W[i]+=x;capInc[i]+=x;}
       feePot=0;pool+=poolNext;poolNext=0;
       if(stateOn){GDPprev=sales+GW;debtR[t]=GDPprev>0?pubDebt/GDPprev:0;}
+      {const y=Float64Array.from(consH).sort();consMed[t]=y[Math.floor(N/2)];let sm=0;for(let i=0;i<N;i++)sm+=consH[i];consMean[t]=sm/N;
+       ndp[t]=(sales+GW-wearY)/N;let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;kNet[t]=K/N;}
       cc.drift=Math.max(cc.drift,Math.abs(money()-M0)/M0);}
     const eqv=new Float64Array(N);let unowned=0,firmV=0;funds.stake.fill(0);
     if(firmOn)for(const fm of firms){if(fm.dead)continue;const V=Math.max(0,fm.K+fm.R-fm.debt);firmV+=V;unowned+=V-valueHoldings(fm,V,capped,eqv,funds.stake);}
     {const fv=funds.value(eqv);fs.fundV=fv.total;fs.fundUn=fv.unclaimed;unowned+=fv.unclaimed;}
     fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned;
+    wearY=0;
     let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i];s+=net[i];}tot[t]=s;gi[t]=gini(net);
   }
 
@@ -237,7 +245,7 @@ function run(world,seed,P){
   return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned,fValue:fs.firmV,
-    cCov:cov,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
+    cCov:cov,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
     sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(net).sort();const c9=y[Math.floor(0.9*N)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&WB>0?cc.wageShort/(WB*T):0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     fFundPaid:fs.fundPaid,fFundV:fs.fundV,fFundUn:fs.fundUn,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
     net:Float64Array.from(net),grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};

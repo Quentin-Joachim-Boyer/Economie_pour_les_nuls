@@ -7,7 +7,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
-  renderKpis(W);renderVerdict(W,P.T-1);renderAge(W);
+  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
@@ -33,6 +33,24 @@ function renderBank(W){
     crow('Intérêts versés aux déposants','Transférés des emprunteurs vers les déposants.',at(W,w=>w.interest),int)+
     crow('Dette restante','',at(W,w=>w.debt),int)+
     crow('Fonds inutilisés en caisse','',at(W,w=>w.fund),int));
+}
+
+// économie réelle (économie bouclée) : consommation médiane, production nette, capacités, capital
+function renderReal(W){
+  const on=!!(P.firm&&P.closed);show('realcard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),year={xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,xTicks:P.T%4===0?4:2};
+  const k=a=>Array.from(a,v=>v*UNIT_EUR/1000),kf=v=>fr(Math.round(v))+' k€';
+  const mx=(...a)=>niceMax(Math.max(...a.flat()));
+  const cL=k(W[0].rCons),cI=k(W[1].rCons),mL=k(W[0].rConsMean),mI=k(W[1].rConsMean);
+  lineChart($('ch_cons'),{...year,W:380,H:260,xs,yMax:mx(cL,cI,mL,mI),yTicks:4,yFmt:kf,
+    series:[{ys:mI,color:'var(--i)',dash:true,name:'Interdits, moy.'},{ys:mL,color:'var(--l)',dash:true,name:'Libres, moy.'},{ys:cI,color:'var(--i)',name:'Interdits'},{ys:cL,color:'var(--l)',name:'Libres'}]});
+  const nL=k(W[0].rNdp),nI=k(W[1].rNdp);
+  lineChart($('ch_ndp'),{...year,W:380,H:260,xs,yMax:mx(nL,nI),yTicks:4,yFmt:kf,series:seriesLI(nL,nI)});
+  const uL=Array.from(W[0].rUtil,v=>v*100),uI=Array.from(W[1].rUtil,v=>v*100);
+  lineChart($('ch_util'),{...year,W:380,H:260,xs,yMax:mx(uL,uI,[100]),yTicks:4,yFmt:v=>Math.round(v)+' %',series:[{ys:xs.map(()=>100),color:'var(--muted)',dash:true,name:'Départ'},...seriesLI(uL,uI)]});
+  setText('utilnote','Ventes rapportées à ce que le capital permet de produire, au rythme du départ (100 %). Au-dessus de 100 %, les entreprises vendent plus qu\'elles ne pourraient produire : le modèle n\'a encore ni limite de production ni prix qui monteraient, et ce signal montre où cela commence à compter.');
+  const kL=k(W[0].rK),kI=k(W[1].rK);
+  lineChart($('ch_k'),{...year,W:380,H:260,xs,yMax:mx(kL,kI),yTicks:4,yFmt:kf,series:seriesLI(kL,kI)});
 }
 
 // économie bouclée : la demande suffit-elle à faire les profits ? où s'arrête la monnaie ?
