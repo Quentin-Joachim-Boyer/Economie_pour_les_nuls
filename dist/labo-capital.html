@@ -343,6 +343,16 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
     </div>
   </section>
 
+  <section class="card" id="moneycard">
+    <h2>Où est la monnaie ?</h2>
+    <p>La quantité de monnaie ne change pas : elle ne fait que passer de main en main. Chaque bande montre la part qu'en détient un groupe à la fin de chaque année. Les ménages sont classés par patrimoine net. Leurs dépôts sont dans la caisse de la banque, qui en prête une partie : cette monnaie prêtée apparaît chez l'emprunteur. Ce que l'État emprunte n'apparaît pas ici : il le dépense aussitôt, et les obligations reçues en échange sont un titre, pas de la monnaie.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Gains libres</h3><div class="chartwrap"><svg id="ch_monL" viewBox="0 0 380 260" role="img" aria-label="Répartition de la monnaie, gains libres"></svg></div></div>
+      <div><h3 class="sub">Gains interdits</h3><div class="chartwrap"><svg id="ch_monI" viewBox="0 0 380 260" role="img" aria-label="Répartition de la monnaie, gains interdits"></svg></div></div>
+    </div>
+    <p class="note">« Ventes à encaisser » : ce que les ménages et l'État ont dépensé dans l'année et que les entreprises recevront l'année suivante. Ce décalage d'un an vient du pas de temps annuel du modèle ; dans la réalité, les paiements circulent en quelques semaines (Banque de France : délais de paiement interentreprises d'environ 45 jours).</p>
+  </section>
+
   <section class="card" id="totcard">
     <h2>Richesse au fil du temps</h2>
     <p id="totlede">Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.</p>
@@ -870,6 +880,9 @@ function run(world,seed,P){
   // de l'usure, utilisation des capacités (ventes / ventes que permettrait le capital, au rythme du départ)
   const consH=new Float64Array(N),consMed=new Float64Array(T),consMean=new Float64Array(T),ndp=new Float64Array(T),util=new Float64Array(T),kNet=new Float64Array(T);
   let cap0=0,K0=0,wearY=0;
+  // où est la monnaie, en fin d'année (part de la monnaie totale) : ménages selon leur patrimoine net (50 % les moins dotés, 40 % suivants, 10 % les plus dotés),
+  // trésorerie des entreprises, ventes de l'année à encaisser l'an prochain, reste (caisse de la banque, qui contient les dépôts, fonds, État)
+  const mPoor=new Float64Array(T),mMid=new Float64Array(T),mTop=new Float64Array(T),mFirm=new Float64Array(T),mSale=new Float64Array(T),mOther=new Float64Array(T);
   let pool=0,poolNext=0,feePot=0;const cc={wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
   const money=()=>{let m=F+pool+poolNext+feePot+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
   // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
@@ -1049,6 +1062,10 @@ function run(world,seed,P){
     fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned;
     wearY=0;
     let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i];s+=net[i];}tot[t]=s;gi[t]=gini(net);
+    if(closed&&M0>0){const y=Float64Array.from(net).sort(),c5=y[Math.floor(0.5*N)],c9=y[Math.floor(0.9*N)];let h0=0,h1=0,h2=0,R=0;
+      for(let i=0;i<N;i++){const h=W[i]+eqSave[i];if(net[i]>=c9)h2+=h;else if(net[i]>=c5)h1+=h;else h0+=h;}
+      for(const fm of firms)if(!fm.dead)R+=fm.R;
+      mPoor[t]=h0/M0;mMid[t]=h1/M0;mTop[t]=h2/M0;mFirm[t]=R/M0;mSale[t]=(pool+poolNext+feePot)/M0;mOther[t]=(F+funds.cash()+Sc)/M0;}
   }
 
   /* ---------- résultats ---------- */
@@ -1063,7 +1080,7 @@ function run(world,seed,P){
   return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned,fValue:fs.firmV,
-    cCov:cov,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
+    cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
     sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(net).sort();const c9=y[Math.floor(0.9*N)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&WB>0?cc.wageShort/(WB*T):0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     fFundPaid:fs.fundPaid,fFundV:fs.fundV,fFundUn:fs.fundUn,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
     net:Float64Array.from(net),grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
@@ -1080,6 +1097,8 @@ function endDiagnostics(C,dg,part){dg.pQ1=groupMean(C.N,5,i=>C.qi[i],i=>part[i])
 /* =====================================================================
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
+// répartition de la monnaie (séries, moyennées sur les simulations)
+const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
@@ -1132,12 +1151,13 @@ function spreadOf(a){const y=Array.from(a).filter(v=>isFinite(v)).sort((a,b)=>a-
 
 /* Agrège des simulations déjà calculées (une par tirage, dans l'ordre des graines) */
 function aggFrom(world,P,xs){
-  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),cov=new Float64Array(T),sDebt=new Float64Array(T),sDef=new Float64Array(T),rCons=new Float64Array(T),rConsMean=new Float64Array(T),rNdp=new Float64Array(T),rUtil=new Float64Array(T),rK=new Float64Array(T),lor0=new Float64Array(41);let g0=0;
+  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),cov=new Float64Array(T),sDebt=new Float64Array(T),sDef=new Float64Array(T),rCons=new Float64Array(T),rConsMean=new Float64Array(T),rNdp=new Float64Array(T),rUtil=new Float64Array(T),rK=new Float64Array(T),mon={},lor0=new Float64Array(41);let g0=0;
   const o={};for(const k of SUM_KEYS)o[k]=0;
   const nets=[],grps=[],owes=[],qis=[],refs=[];
   const per={};for(const k in PER_RUN)per[k]=new Float64Array(R);
   for(let s=0;s<R;s++){const x=xs[s];
     for(let t=0;t<T;t++){tot[t]+=x.tot[t]/R;gi[t]+=x.gi[t]/R;uT[t]+=x.uT[t]/R;cov[t]+=x.cCov[t]/R;sDebt[t]+=x.sDebt[t]/R;sDef[t]+=x.sDef[t]/R;rCons[t]+=x.rCons[t]/R;rConsMean[t]+=x.rConsMean[t]/R;rNdp[t]+=x.rNdp[t]/R;rUtil[t]+=x.rUtil[t]/R;rK[t]+=x.rK[t]/R;}
+    for(const k of MONEY_KEYS){if(!mon[k])mon[k]=new Float64Array(T);for(let t=0;t<T;t++)mon[k][t]+=x[k][t]/R;}
     for(let k=0;k<=40;k++)lor[k]+=x.lor[k]/R;
     if(x.lor0){for(let k=0;k<=40;k++)lor0[k]+=x.lor0[k]/R;g0+=x.gini0/R;}
     for(const k of SUM_KEYS)o[k]+=x[k]/R;
@@ -1145,7 +1165,7 @@ function aggFrom(world,P,xs){
     const e=equity(x.net,x.grp,x.owes),q=byQuint(x.net,x.grp,x.qi,x.refI);for(const k in PER_RUN)per[k][s]=PER_RUN[k](x,e,T,q);}
   const spread={};for(const k in per)spread[k]=spreadOf(per[k]);
   const hasStart=P.ini||(P.firm&&P.exist);
-  return {tot,gi,uT,cov,sDebt,sDef,rCons,rConsMean,rNdp,rUtil,rK,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
+  return {tot,gi,uT,cov,sDebt,sDef,rCons,rConsMean,rNdp,rUtil,rK,...mon,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
     eqReturn:o.eqRaised>0?o.eqPaid/o.eqRaised-1:null,holdersPer:o.issues>0?o.holders/o.issues:null,
     eq:equity(nets,grps,owes),byq:byQuint(nets,grps,qis,refs),per,spread,R,dg:meanDiagnostics(xs)};
 }
@@ -1280,6 +1300,31 @@ function lineChart(svg,{W,H,xs,series,yMin=0,yMax,yTicks,xTicks=5,xLabel,yFmt,xF
     tip.hidden=false;const px=gx/W*r.width;const wr=wrap.getBoundingClientRect();tip.style.left=Math.min(px+12,wr.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
   hit.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('visibility','hidden');dots.forEach(d=>d.setAttribute('visibility','hidden'));});
 }
+/* Aires empilées (parts d'un total, de 0 à 100 %). layers : [{ys, color, name}], de bas en haut. */
+function stackChart(svg,{W,H,xs,layers,xMax,xTicks=4,xLabel,xFmt=fmtN,tipX=null}){
+  svg.innerHTML='';const m={l:44,r:130,t:10,b:34};const iw=W-m.l-m.r,ih=H-m.t-m.b;
+  const X=x=>m.l+(x-xs[0]+1)/(xMax)*iw,Y=y=>m.t+ih-y*ih;const n=xs.length;
+  for(let i=0;i<=4;i++){const v=i/4;el('line',{x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v),stroke:'var(--grid)'},svg);el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end'},svg,Math.round(v*100)+' %');}
+  for(let i=0;i<=xTicks;i++){const v=xMax*i/xTicks;el('text',{x:m.l+v/xMax*iw,y:m.t+ih+18,'text-anchor':i===0?'start':i===xTicks?'end':'middle'},svg,xFmt(v));}
+  el('text',{x:m.l+iw,y:H-2,'text-anchor':'end'},svg,xLabel);
+  const lo=new Float64Array(n),ends=[];
+  for(const L of layers){const hi=Float64Array.from(lo,(v,i)=>v+Math.max(0,L.ys[i]));
+    let d='';for(let i=0;i<n;i++)d+=(i?'L':'M')+X(xs[i]).toFixed(1)+' '+Y(hi[i]).toFixed(1);
+    for(let i=n-1;i>=0;i--)d+='L'+X(xs[i]).toFixed(1)+' '+Y(lo[i]).toFixed(1);
+    el('path',{d:d+'Z',fill:L.color,stroke:'var(--panel)','stroke-width':0.8},svg);
+    ends.push({y:Y((lo[n-1]+hi[n-1])/2),name:L.name,color:L.color});lo.set(hi);}
+  // étiquettes en bout de bande, écartées si elles se chevauchent
+  ends.sort((a,b)=>a.y-b.y);for(let k=1;k<ends.length;k++)if(ends[k].y-ends[k-1].y<14)ends[k].y=ends[k-1].y+14;
+  for(const e of ends){el('rect',{x:m.l+iw+6,y:e.y-5,width:8,height:8,fill:e.color},svg);el('text',{x:m.l+iw+18,y:e.y+4,class:'lab'},svg,e.name);}
+  const wrap=svg.parentNode;let tip=wrap.querySelector('.tip');if(!tip){tip=document.createElement('div');tip.className='tip';tip.hidden=true;wrap.appendChild(tip);}
+  const guide=el('line',{x1:0,x2:0,y1:m.t,y2:m.t+ih,stroke:'var(--muted)',visibility:'hidden'},svg);
+  const hit=el('rect',{x:m.l,y:m.t,width:iw,height:ih,fill:'transparent'},svg);
+  hit.addEventListener('pointermove',ev=>{const r=svg.getBoundingClientRect();const sx=(ev.clientX-r.left)/r.width*W;let bi=0,bd=1e9;xs.forEach((x,i)=>{const d=Math.abs(X(x)-sx);if(d<bd){bd=d;bi=i;}});
+    const gx=X(xs[bi]);guide.setAttribute('x1',gx);guide.setAttribute('x2',gx);guide.setAttribute('visibility','visible');
+    tip.innerHTML=`<div>${(tipX||xFmt)(xs[bi])}</div>`+layers.slice().reverse().map(L=>`<div class="tr"><i style="background:${L.color}"></i>${L.name}<b>${Math.round(L.ys[bi]*100)} %</b></div>`).join('');
+    tip.hidden=false;const px=gx/W*r.width;const wr=wrap.getBoundingClientRect();tip.style.left=Math.min(px+12,wr.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
+  hit.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('visibility','hidden');});
+}
 /* Histogramme en échelle logarithmique (36 classes), avec médiane et moyenne. S : distStats(...) ; what : ce que l'on compte. */
 function hist(svg,S,fmt,xlab='années de revenu',what='des créations'){
   svg.innerHTML='';const W=380,H=220,m={l:44,r:12,t:16,b:34};const iw=W-m.l-m.r,ih=H-m.t-m.b;const y=S.y;
@@ -1340,7 +1385,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
-  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderAge(W);
+  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderMoney(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
@@ -1384,6 +1429,20 @@ function renderReal(W){
   setText('utilnote','Ventes rapportées à ce que le capital permet de produire, au rythme du départ (100 %). Au-dessus de 100 %, les entreprises vendent plus qu\'elles ne pourraient produire : le modèle n\'a encore ni limite de production ni prix qui monteraient, et ce signal montre où cela commence à compter.');
   const kL=k(W[0].rK),kI=k(W[1].rK);
   lineChart($('ch_k'),{...year,W:380,H:260,xs,yMax:mx(kL,kI),yTicks:4,yFmt:kf,series:seriesLI(kL,kI)});
+}
+
+// où est la monnaie ? sa quantité est fixe : on suit qui la détient, année par année
+function renderMoney(W){
+  const on=!!(P.firm&&P.closed);show('moneycard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1);
+  const lay=w=>[
+    {ys:w.mPoor,color:'#9fc3e6',name:'50 % les moins dotés'},
+    {ys:w.mMid,color:'#4f8fcc',name:'40 % suivants'},
+    {ys:w.mTop,color:'#1f4f86',name:'10 % les plus dotés'},
+    {ys:w.mSale,color:'#e9b77a',name:'Ventes à encaisser'},
+    {ys:w.mFirm,color:'#c0762a',name:'Entreprises'},
+    {ys:w.mOther,color:'#a3a3a3',name:'Banque, fonds, État'}];
+  for(const [id,w] of [['ch_monL',W[0]],['ch_monI',W[1]]])stackChart($(id),{W:380,H:260,xs,layers:lay(w),xMax:P.T,xTicks:P.T%4===0?4:2,xLabel:'année',xFmt:v=>Math.round(v),tipX:v=>'Année '+v});
 }
 
 // économie bouclée : la demande suffit-elle à faire les profits ? où s'arrête la monnaie ?

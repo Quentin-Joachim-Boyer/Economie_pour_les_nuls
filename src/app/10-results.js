@@ -7,7 +7,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
-  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderAge(W);
+  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderMoney(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
@@ -51,6 +51,20 @@ function renderReal(W){
   setText('utilnote','Ventes rapportées à ce que le capital permet de produire, au rythme du départ (100 %). Au-dessus de 100 %, les entreprises vendent plus qu\'elles ne pourraient produire : le modèle n\'a encore ni limite de production ni prix qui monteraient, et ce signal montre où cela commence à compter.');
   const kL=k(W[0].rK),kI=k(W[1].rK);
   lineChart($('ch_k'),{...year,W:380,H:260,xs,yMax:mx(kL,kI),yTicks:4,yFmt:kf,series:seriesLI(kL,kI)});
+}
+
+// où est la monnaie ? sa quantité est fixe : on suit qui la détient, année par année
+function renderMoney(W){
+  const on=!!(P.firm&&P.closed);show('moneycard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1);
+  const lay=w=>[
+    {ys:w.mPoor,color:'#9fc3e6',name:'50 % les moins dotés'},
+    {ys:w.mMid,color:'#4f8fcc',name:'40 % suivants'},
+    {ys:w.mTop,color:'#1f4f86',name:'10 % les plus dotés'},
+    {ys:w.mSale,color:'#e9b77a',name:'Ventes à encaisser'},
+    {ys:w.mFirm,color:'#c0762a',name:'Entreprises'},
+    {ys:w.mOther,color:'#a3a3a3',name:'Banque, fonds, État'}];
+  for(const [id,w] of [['ch_monL',W[0]],['ch_monI',W[1]]])stackChart($(id),{W:380,H:260,xs,layers:lay(w),xMax:P.T,xTicks:P.T%4===0?4:2,xLabel:'année',xFmt:v=>Math.round(v),tipX:v=>'Année '+v});
 }
 
 // économie bouclée : la demande suffit-elle à faire les profits ? où s'arrête la monnaie ?

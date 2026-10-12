@@ -66,6 +66,31 @@ function lineChart(svg,{W,H,xs,series,yMin=0,yMax,yTicks,xTicks=5,xLabel,yFmt,xF
     tip.hidden=false;const px=gx/W*r.width;const wr=wrap.getBoundingClientRect();tip.style.left=Math.min(px+12,wr.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
   hit.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('visibility','hidden');dots.forEach(d=>d.setAttribute('visibility','hidden'));});
 }
+/* Aires empilées (parts d'un total, de 0 à 100 %). layers : [{ys, color, name}], de bas en haut. */
+function stackChart(svg,{W,H,xs,layers,xMax,xTicks=4,xLabel,xFmt=fmtN,tipX=null}){
+  svg.innerHTML='';const m={l:44,r:130,t:10,b:34};const iw=W-m.l-m.r,ih=H-m.t-m.b;
+  const X=x=>m.l+(x-xs[0]+1)/(xMax)*iw,Y=y=>m.t+ih-y*ih;const n=xs.length;
+  for(let i=0;i<=4;i++){const v=i/4;el('line',{x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v),stroke:'var(--grid)'},svg);el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end'},svg,Math.round(v*100)+' %');}
+  for(let i=0;i<=xTicks;i++){const v=xMax*i/xTicks;el('text',{x:m.l+v/xMax*iw,y:m.t+ih+18,'text-anchor':i===0?'start':i===xTicks?'end':'middle'},svg,xFmt(v));}
+  el('text',{x:m.l+iw,y:H-2,'text-anchor':'end'},svg,xLabel);
+  const lo=new Float64Array(n),ends=[];
+  for(const L of layers){const hi=Float64Array.from(lo,(v,i)=>v+Math.max(0,L.ys[i]));
+    let d='';for(let i=0;i<n;i++)d+=(i?'L':'M')+X(xs[i]).toFixed(1)+' '+Y(hi[i]).toFixed(1);
+    for(let i=n-1;i>=0;i--)d+='L'+X(xs[i]).toFixed(1)+' '+Y(lo[i]).toFixed(1);
+    el('path',{d:d+'Z',fill:L.color,stroke:'var(--panel)','stroke-width':0.8},svg);
+    ends.push({y:Y((lo[n-1]+hi[n-1])/2),name:L.name,color:L.color});lo.set(hi);}
+  // étiquettes en bout de bande, écartées si elles se chevauchent
+  ends.sort((a,b)=>a.y-b.y);for(let k=1;k<ends.length;k++)if(ends[k].y-ends[k-1].y<14)ends[k].y=ends[k-1].y+14;
+  for(const e of ends){el('rect',{x:m.l+iw+6,y:e.y-5,width:8,height:8,fill:e.color},svg);el('text',{x:m.l+iw+18,y:e.y+4,class:'lab'},svg,e.name);}
+  const wrap=svg.parentNode;let tip=wrap.querySelector('.tip');if(!tip){tip=document.createElement('div');tip.className='tip';tip.hidden=true;wrap.appendChild(tip);}
+  const guide=el('line',{x1:0,x2:0,y1:m.t,y2:m.t+ih,stroke:'var(--muted)',visibility:'hidden'},svg);
+  const hit=el('rect',{x:m.l,y:m.t,width:iw,height:ih,fill:'transparent'},svg);
+  hit.addEventListener('pointermove',ev=>{const r=svg.getBoundingClientRect();const sx=(ev.clientX-r.left)/r.width*W;let bi=0,bd=1e9;xs.forEach((x,i)=>{const d=Math.abs(X(x)-sx);if(d<bd){bd=d;bi=i;}});
+    const gx=X(xs[bi]);guide.setAttribute('x1',gx);guide.setAttribute('x2',gx);guide.setAttribute('visibility','visible');
+    tip.innerHTML=`<div>${(tipX||xFmt)(xs[bi])}</div>`+layers.slice().reverse().map(L=>`<div class="tr"><i style="background:${L.color}"></i>${L.name}<b>${Math.round(L.ys[bi]*100)} %</b></div>`).join('');
+    tip.hidden=false;const px=gx/W*r.width;const wr=wrap.getBoundingClientRect();tip.style.left=Math.min(px+12,wr.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
+  hit.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('visibility','hidden');});
+}
 /* Histogramme en échelle logarithmique (36 classes), avec médiane et moyenne. S : distStats(...) ; what : ce que l'on compte. */
 function hist(svg,S,fmt,xlab='années de revenu',what='des créations'){
   svg.innerHTML='';const W=380,H=220,m={l:44,r:12,t:16,b:34};const iw=W-m.l-m.r,ih=H-m.t-m.b;const y=S.y;
