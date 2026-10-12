@@ -6,7 +6,7 @@
    par les détenteurs), et chaque porteur ne récupère du fonds que ce qu'il y a versé (capF).
    ===================================================================== */
 function makeFunds(C){
-  const {N,P,prng,W,eqSave,fs}=C;const capped=C.world==='I',eps=1e-9;
+  const {N,P,prng,W,eqSave,fs,capInc}=C;const capped=C.world==='I',eps=1e-9;
   const NF=Math.max(1,Math.round(P.nfd||10)),M=Math.max(1,Math.round(P.m));
   const fundOf=new Int32Array(N);for(let i=0;i<N;i++)fundOf[i]=Math.min(NF-1,Math.floor(prng()*NF));
   // FC trésorerie, FU nombre de parts, FS valeur des participations (dernière évaluation), FI reçu dans l'année
@@ -31,8 +31,10 @@ function makeFunds(C){
       return {hi,hc,got};},
     // reversement aux porteurs de ce que les fonds ont reçu dans l'année
     payout(){let any=false;for(let f=0;f<NF;f++)if(FI[f]>eps)any=true;if(!any)return;
-      const left=Float64Array.from(FI);for(let i=0;i<N;i++){const f=fundOf[i];if(FI[f]<=eps||uF[i]<=eps)continue;let x=FI[f]*uF[i]/FU[f];if(capped){x=Math.min(x,capF[i]);capF[i]-=x;}W[i]+=x;left[f]-=x;fs.fundPaid+=x;}
+      const left=Float64Array.from(FI);for(let i=0;i<N;i++){const f=fundOf[i];if(FI[f]<=eps||uF[i]<=eps)continue;let x=FI[f]*uF[i]/FU[f];if(capped){x=Math.min(x,capF[i]);capF[i]-=x;}W[i]+=x;if(capInc)capInc[i]+=x;left[f]-=x;fs.fundPaid+=x;}
       for(let f=0;f<NF;f++){FC[f]+=Math.max(0,left[f]);FI[f]=0;}syncFC();},
+    // monnaie détenue par les fonds (trésorerie et reçu de l'année pas encore reversé)
+    cash(){let s=0;for(let f=0;f<NF;f++)s+=FC[f]+FI[f];return s;},
     // valeur des parts de fonds de chaque ménage (après évaluation des participations dans FS) ; renvoie {total, unclaimed}
     value(eqv){const pr=new Float64Array(NF);let fv=0;for(let f=0;f<NF;f++){pr[f]=FU[f]>eps?(FC[f]+FS[f])/FU[f]:0;fv+=FC[f]+FS[f];}let claimed=0;
       for(let i=0;i<N;i++){if(uF[i]<=eps)continue;let v=uF[i]*pr[fundOf[i]];if(capped)v=Math.min(v,capF[i]);eqv[i]+=v;claimed+=v;}

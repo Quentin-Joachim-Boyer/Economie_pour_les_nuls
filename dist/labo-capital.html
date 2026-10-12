@@ -239,6 +239,10 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
           <div class="ctl"><div class="top"><label for="depr">Usure du capital</label><output id="depr_o"></output></div><input type="range" id="depr" min="0" max="0.2" step="0.001"><small>Part du capital perdue chaque année (usure, obsolescence). Sociétés non financières en 2023 : 282 Md€, soit 9,3 % du capital. Elle est prise sur le profit avant tout versement ; avec gains interdits comme avec gains libres, elle fait baisser la valeur des parts.</small></div>
           <div class="ctl"><div class="top"><label for="payout">Part des profits distribuée <span class="scope l">gains libres</span></label><output id="payout_o"></output></div><input type="range" id="payout" min="0" max="1" step="0.05"><small>Avec gains libres : part versée aux propriétaires, le reste est mis en réserve. Avec gains interdits : chaque propriétaire reçoit au plus sa mise, le reste appartient à l'entreprise.</small></div>
           <div class="ctl"><div class="top"><label for="ageb">Robustesse des entreprises anciennes</label><output id="ageb_o"></output></div><input type="range" id="ageb" min="0" max="3" step="0.1"><small>Après 5 ans, le risque de disparaître est multiplié par (5 / âge) à cette puissance. À 0, l'âge ne compte pas. À 1,2, une entreprise de 8 ans a environ 0,57 fois le risque d'une jeune, comme dans les données américaines ; à 20 ans, environ 0,19 fois.</small></div>
+          <label class="switch" for="closed"><input type="checkbox" id="closed"><span><b>Économie bouclée</b><span class="hint">Monnaie en quantité fixe : les salaires viennent des ventes des entreprises, les ménages leur achètent des biens, et le profit dépend de ce que tous dépensent.</span></span></label>
+          <div class="inner" id="in_closed">
+            <div class="ctl"><div class="top"><label for="mpcW">Consommation tirée du patrimoine</label><output id="mpcW_o"></output></div><input type="range" id="mpcW" min="0" max="0.1" step="0.001"><small>Part de son patrimoine qu'un ménage dépense chaque année, en plus de son revenu non épargné. France : 14 % des actifs liquides, 2,2 % des actifs financiers peu liquides, 1,3 % de l'immobilier (Chauvin et Muellbauer, 2018) ; pondéré par la composition du patrimoine des ménages : 2,9 %.</small></div>
+          </div>
           <label class="switch" for="exist"><input type="checkbox" id="exist"><span><b>Entreprises existantes au départ</b><span class="hint">Leurs propriétaires et actionnaires sont des personnes de la population.</span></span></label>
           <div class="inner" id="in_exist">
             <div class="ctl"><div class="top"><label for="k0">Capital existant par personne</label><output id="k0_o"></output></div><input type="range" id="k0" min="0" max="10" step="0.25"><small>En années de revenu médian. Capital productif fixe des sociétés non financières : environ 3 000 milliards d'euros fin 2023, soit environ 3,75 ans de revenu par actif.</small></div>
@@ -359,6 +363,13 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
   </div>
 
   <div class="tabpane" data-pane="fin">
+  <section class="card" id="circuitcard">
+    <h2>Le circuit économique</h2>
+    <p id="covlede">Ventes moins salaires, rapportées aux profits « notionnels » (rentabilité Insee × capital). À 100 %, la demande suffit à faire les profits observés en France ; en dessous, les entreprises vendent moins qu'elles ne le pourraient.</p>
+    <div class="chartwrap"><svg id="ch_cov" viewBox="0 0 760 260" role="img" aria-label="Profits réalisés rapportés aux profits notionnels, année par année"></svg></div>
+    <div class="crows" id="circrows"></div>
+  </section>
+
   <section class="card" id="firmcard">
     <h2>Les entreprises en fin de simulation</h2>
     <p>Ce que sont devenues les entreprises, en moyenne par simulation, en années de revenu médian.</p>
@@ -457,6 +468,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li><b>Taille des entreprises existantes : catégories Insee.</b> En 2023 : 327 grandes entreprises, 7 296 ETI, 172 520 PME et 4,83 millions de microentreprises ; leurs immobilisations corporelles représentent respectivement 49 %, 27 %, 14 % et 10 % du total (immobilisations par salarié × effectifs, <a href="https://www.insee.fr/fr/statistiques/2016091">Insee, Ésane</a>). Le modèle garde au moins une entreprise par catégorie et répartit le capital de chaque catégorie selon ces parts, avec une dispersion log-normale à l'intérieur. À 500 ménages, une microentreprise ou une PME a sa taille réelle (environ 60 000 € et 2,5 M€), mais une grande entreprise ou une ETI n'est qu'une tranche de la réalité. Leur capital est dispersé entre 40 actionnaires sans propriétaire principal (choix de travail).</li>
       <li><b>Entreprises existantes : 3,75 ans de revenu par personne.</b> Actifs fixes produits des sociétés non financières : environ 3 033 milliards d'euros fin 2023 (<a href="https://www.banque-france.fr/system/files/2024-12/BDF255_3_Le-patrimoine-economique-national-en-2023.pdf">Banque de France et Insee</a>), pour 31,4 millions d'actifs. Les ménages détiennent environ 1 743 milliards d'actions et autres participations. Ces entreprises appartiennent à des personnes de la population (voir détention d'entreprises). Nombre d'entreprises, part du propriétaire principal (50 %), 10 actionnaires par entreprise et absence de dette initiale : choix de travail.</li>
       <li><b>Bourse : via des fonds.</b> En 2022, 6,7 % des Français de 15 ans et plus détiennent des actions en direct, 13,4 % une assurance-vie en unités de compte (<a href="https://www.amf-france.org/sites/institutionnel/files/private/2023-11/loe-49.pdf">AMF, Observatoire de l'épargne</a>) ; 16,7 % des ménages détiennent des valeurs mobilières (Insee). Le modèle fait passer toute l'épargne-actions par des fonds. Qui épargne en actions dépend chaque année du rang de patrimoine : taux de détention d'actions selon le patrimoine financier en 2017, 0,9 % (25 % les moins dotés), 2,6 %, 7,5 %, 16,6 %, 37,9 % (90-99e centiles) et 75,8 % (1 % le plus riche) (<a href="https://www.amf-france.org/sites/institutionnel/files/private/2021-02/la-demande-dactifs-risques-en-france-au-xxie-siecle-presentation-luc-arrondel_0.pdf">Arrondel, d'après l'Insee</a>), remis à l'échelle pour atteindre la part choisie (20 % par défaut : actions en direct 9,9 %, fonds actions 2,4 %, assurance-vie en unités de compte 13,7 %, qui se recoupent). L'âge joue aussi : détention de valeurs mobilières début 2021 de 8,6 % avant 30 ans, 14,4 %, 19,8 %, 17,8 %, 16,4 % puis 18,4 % après 70 ans (<a href="https://www.insee.fr/fr/statistiques/7941419">Insee</a>). Le modèle ajuste ses facteurs patrimoine et âge pour reproduire ces deux profils au départ. Le revenu module ensuite la probabilité, avec les effets « toutes choses égales par ailleurs » estimés par l'Insee en 2015 : −8, −5, −2, 0 et +4 points du premier au dernier cinquième de revenu, autour d'un taux de 9 % (<a href="https://www.insee.fr/fr/statistiques/fichier/2017607/REVPMEN16b_VE2_actifspatrimoniaux.pdf">Insee, Les revenus et le patrimoine des ménages 2016</a> ; lecture d'un tableau extrait, à confirmer). Chaque ménage a en plus un goût propre et fixe pour le risque, tiré au hasard. Le diplôme, l'héritage reçu et le fait d'avoir des parents actionnaires jouent aussi dans la littérature, mais ne sont pas modélisés. Règle de dispersion des OPCVM : 5 % de l'actif au plus chez un même émetteur, 10 % par dérogation dans la limite de 40 % (code monétaire et financier, art. R. 214-21 ; <a href="https://www.afg.asso.fr/app/uploads/2022/03/Recueil-complet-des-tableaux-de-regles-investissement_Mars-2022.pdf">AFG</a>). Nombre de fonds et rattachement au hasard : choix de travail. Avec gains interdits, un fonds ne récupère sur chaque entreprise que ce qu'il y a mis, et chaque porteur ne récupère du fonds que ce qu'il y a versé.</li>
+      <li><b>Économie bouclée : monnaie fixe, un seul bien.</b> Démarche des modèles « stock-flux cohérents » (Godley et Lavoie, <i>Monetary Economics</i>, 2007) et des modèles multi-agents macroéconomiques (Lengnick, 2013 ; Caiani et coauteurs, 2016) : chaque euro versé est reçu par quelqu'un, et le modèle vérifie chaque année que la monnaie totale ne varie pas. Les salaires sont payés sur les ventes ; ventes = consommation + investissement + créations de l'année précédente ; profit brut d'ensemble = ventes − salaires, réparti selon la rentabilité de chaque entreprise. Consommation : revenu non épargné, plus une part du patrimoine (France : 14 % des actifs liquides, 2,2 % des actifs financiers peu liquides, 1,3 % de l'immobilier, Chauvin et Muellbauer, <a href="https://www.insee.fr/fr/statistiques/fichier/3622027/500-501-502_Chauvin-Muellbauer_FR.pdf">Économie et Statistique, 2018</a>, pondérés par la composition du patrimoine : 2,9 %). Trésorerie des entreprises : elles gardent ce qu'il faut pour investir et versent le reste (sociétés non financières 2023 : épargne brute 320 Md€, investissement 336 Md€, dividendes versés 263 Md€, Insee, tableau 7.101). Les coûts de la banque et des fonds deviennent des salaires ; la trésorerie d'une entreprise qui disparaît rembourse d'abord la banque, et ce qui n'appartient à personne lui revient.</li>
       <li><b>Coûts de fonctionnement de la banque et de la bourse.</b> Choix de travail, sans source.</li>
     </ul>
   </section>
@@ -476,7 +488,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li>La population représente la société entière (tous âges) au départ ; mais personne ne vieillit, ne meurt ni n'hérite pendant les 40 ans simulés.</li>
       <li>Les entreprises n'emploient personne et ne paient pas de salaires ; avec gains interdits, leurs profits non distribués n'appartiennent à personne et sont perdus si elles disparaissent.</li>
       <li>Dans le scénario « gains interdits », personne ne contourne la règle.</li>
-      <li>Le système n'est pas fermé : les revenus apparaissent chaque année sans venir de nulle part, et les coûts de fonctionnement de la banque et de la bourse sortent de l'économie au lieu de payer des salaires.</li>
+      <li>Économie bouclée : sans État, sans étranger, sans logement neuf ni prix qui bougent. En France, une partie de l'épargne des ménages est absorbée par l'achat de logements neufs et par le déficit public ; ici, elle ne peut l'être que par l'investissement des entreprises, d'où un excès d'épargne. Avec gains interdits, les profits qui dépassent les mises restent immobilisés dans les entreprises.</li>
     </ul>
   </section>
   </div>
@@ -539,6 +551,13 @@ const SNF_CAPITAL_EUR=3033e9, SNF_CCF_EUR=282e9, SNF_GFCF_EUR=336e9;
 const RHO_CAP=1.5;                    // rentabilité maximale d'une entreprise
 const HAZARD_MAX=0.9;                 // probabilité annuelle maximale de disparition
 const DEBT_AMORT=0.1;                 // remboursement annuel du capital emprunté
+
+/* ---------- consommation (économie bouclée) ----------
+   propension à consommer le revenu : 1 − taux d'épargne (Insee) ; propension à consommer le patrimoine, France 1981-2016
+   (Chauvin et Muellbauer, Économie et Statistique 2018) : 0,14 pour les actifs financiers liquides, 0,022 pour les actifs
+   financiers peu liquides, 0,013 pour l'immobilier ; pondérée par la composition du patrimoine brut des ménages en 2021
+   (Insee : financier 20,9 % dont environ la moitié liquide, immobilier 61,9 %, professionnel 10,6 %, autres 6,5 %) : ≈ 2,9 % par an */
+const MPC_WEALTH=0.105*0.14+0.105*0.022+0.619*0.013+0.171*0.022;
 
 /* ---------- fonds ---------- */
 const FUND_ID_BASE=-10;               // un fonds f apparaît parmi les détenteurs sous l'identifiant −10 − f
@@ -618,10 +637,11 @@ function freeHoldings(fm){fm.hi=fm.hc=fm.hr=fm.hk=null;fm.n=0;}
 // total des pondérations (mises + part sans propriétaire)
 function totalStake(fm){let t=fm.selfC;const hc=fm.hc;for(let k=0;k<fm.n;k++)t+=hc[k];return t;}
 /* Verse `amount` aux détenteurs, au prorata de leur mise ; avec gains interdits (capped), chacun au plus ce qui lui reste à récupérer.
-   Les ménages reçoivent sur W, les fonds sur income. Renvoie ce qui reste dans l'entreprise. */
-function distribute(fm,amount,capped,W,income,fs){if(amount<=1e-9)return 0;const totC=totalStake(fm);if(totC<=1e-9)return amount;
+   Les ménages reçoivent sur W (et, si inc est fourni, le montant est noté comme revenu du capital), les fonds sur income.
+   Renvoie ce qui reste dans l'entreprise. */
+function distribute(fm,amount,capped,W,income,fs,inc){if(amount<=1e-9)return 0;const totC=totalStake(fm);if(totC<=1e-9)return amount;
   let kept=amount*fm.selfC/totC,paid=0;const a=amount/totC,hi=fm.hi,hc=fm.hc,hr=fm.hr;
-  for(let k=0;k<fm.n;k++){let x=a*hc[k];if(capped){const c=hr[k]>0?hr[k]:0;if(x>c){kept+=x-c;x=c;}hr[k]-=x;}const j=hi[k];if(j<=FUND_ID_BASE)income[FUND_ID_BASE-j]+=x;else W[j]+=x;paid+=x;}
+  for(let k=0;k<fm.n;k++){let x=a*hc[k];if(capped){const c=hr[k]>0?hr[k]:0;if(x>c){kept+=x-c;x=c;}hr[k]-=x;}const j=hi[k];if(j<=FUND_ID_BASE)income[FUND_ID_BASE-j]+=x;else{W[j]+=x;if(inc)inc[j]+=x;}paid+=x;}
   fs.divPaid+=paid;return kept;}
 /* Valeur des parts : V au prorata des mises ; avec gains interdits, chacune au plus ce qui reste à récupérer.
    Ajoute aux ménages (eqv) et aux fonds (fundStake) ; renvoie la part de V attribuée. */
@@ -637,7 +657,7 @@ function valueHoldings(fm,V,capped,eqv,fundStake){const totC=totalStake(fm);let 
    par les détenteurs), et chaque porteur ne récupère du fonds que ce qu'il y a versé (capF).
    ===================================================================== */
 function makeFunds(C){
-  const {N,P,prng,W,eqSave,fs}=C;const capped=C.world==='I',eps=1e-9;
+  const {N,P,prng,W,eqSave,fs,capInc}=C;const capped=C.world==='I',eps=1e-9;
   const NF=Math.max(1,Math.round(P.nfd||10)),M=Math.max(1,Math.round(P.m));
   const fundOf=new Int32Array(N);for(let i=0;i<N;i++)fundOf[i]=Math.min(NF-1,Math.floor(prng()*NF));
   // FC trésorerie, FU nombre de parts, FS valeur des participations (dernière évaluation), FI reçu dans l'année
@@ -662,8 +682,10 @@ function makeFunds(C){
       return {hi,hc,got};},
     // reversement aux porteurs de ce que les fonds ont reçu dans l'année
     payout(){let any=false;for(let f=0;f<NF;f++)if(FI[f]>eps)any=true;if(!any)return;
-      const left=Float64Array.from(FI);for(let i=0;i<N;i++){const f=fundOf[i];if(FI[f]<=eps||uF[i]<=eps)continue;let x=FI[f]*uF[i]/FU[f];if(capped){x=Math.min(x,capF[i]);capF[i]-=x;}W[i]+=x;left[f]-=x;fs.fundPaid+=x;}
+      const left=Float64Array.from(FI);for(let i=0;i<N;i++){const f=fundOf[i];if(FI[f]<=eps||uF[i]<=eps)continue;let x=FI[f]*uF[i]/FU[f];if(capped){x=Math.min(x,capF[i]);capF[i]-=x;}W[i]+=x;if(capInc)capInc[i]+=x;left[f]-=x;fs.fundPaid+=x;}
       for(let f=0;f<NF;f++){FC[f]+=Math.max(0,left[f]);FI[f]=0;}syncFC();},
+    // monnaie détenue par les fonds (trésorerie et reçu de l'année pas encore reversé)
+    cash(){let s=0;for(let f=0;f<NF;f++)s+=FC[f]+FI[f];return s;},
     // valeur des parts de fonds de chaque ménage (après évaluation des participations dans FS) ; renvoie {total, unclaimed}
     value(eqv){const pr=new Float64Array(NF);let fv=0;for(let f=0;f<NF;f++){pr[f]=FU[f]>eps?(FC[f]+FS[f])/FU[f]:0;fv+=FC[f]+FS[f];}let claimed=0;
       for(let i=0;i<N;i++){if(uF[i]<=eps)continue;let v=uF[i]*pr[fundOf[i]];if(capped)v=Math.min(v,capF[i]);eqv[i]+=v;claimed+=v;}
@@ -754,11 +776,16 @@ function makeParticipation(C){
 /* =====================================================================
    Une simulation : world 'L' (gains libres) ou 'I' (gains interdits), une graine, des paramètres.
    Deux générateurs : prng pour la population (identique dans les deux scénarios), rnd pour les événements.
-   Chaque année : qui épargne en actions → intérêts → épargne → fonds → entreprises → idées → versements des fonds → bilan.
+   Chaque année : qui épargne en actions → intérêts → (salaires et consommation) → épargne → fonds → entreprises → idées
+   → versements des fonds → bilan.
+   Économie bouclée (P.closed, avec la brique entreprises) : la monnaie est en quantité fixe. Les ménages reçoivent leurs salaires
+   des entreprises et leur achètent des biens ; ce que dépensent ménages et entreprises (consommation, investissement, créations)
+   forme les ventes de l'année suivante ; les ventes moins les salaires forment le profit brut des entreprises, réparti selon leur
+   rentabilité (qui n'est plus qu'une rentabilité « notionnelle ») ; les coûts de la banque et des fonds paient des salaires.
    ===================================================================== */
 function run(world,seed,P){
   const N=P.N,T=P.T,eps=1e-9;
-  const bank=!!P.bank,stock=!!P.stock,firmOn=!!P.firm,capped=world==='I';
+  const bank=!!P.bank,stock=!!P.stock,firmOn=!!P.firm,capped=world==='I',closed=firmOn&&!!P.closed;
   const rate=world==='L'?P.rl:0;                       // taux d'intérêt (nul avec gains interdits)
   const depE=bank?P.dep:0,invE=stock?Math.min(P.inv,1-depE):0; // parts de l'épargne déposée et placée en actions
   const phi=stock?(bank?P.phi:1):0;                    // part d'un besoin de financement demandée à la bourse
@@ -769,6 +796,9 @@ function run(world,seed,P){
   const W=C.W=new Float64Array(N),D=new Float64Array(N),eqSave=C.eqSave=new Float64Array(N),L=new Float64Array(N),net=new Float64Array(N);
   const lent=new Float64Array(N);                      // prêt direct : apport de chacun au projet en cours
   const ideas=new Int32Array(N),succ=new Int32Array(N),fail=new Int32Array(N),refI=new Int32Array(N);
+
+  // revenus du capital reçus en liquide dans l'année (économie bouclée : ils sont en partie consommés l'année suivante)
+  const capInc=closed?(C.capInc=new Float64Array(N)):null;
 
   /* ---------- départ ---------- */
   const pop=makePopulation(P,N,C.prng);const {wage,sr,qi,age0}=pop;
@@ -786,6 +816,15 @@ function run(world,seed,P){
   const st={funded:0,refused:0,loans:0,refusedDebt:0,refusedFund:0,interest:0,issues:0,eqRaised:0,eqPaid:0,holders:0};
   const tot=new Float64Array(T),gi=new Float64Array(T),uT=new Float64Array(T);
 
+  /* ---------- circuit (économie bouclée) ----------
+     pool : ventes de l'année, payées par les dépenses de l'année précédente (poolNext) ; feePot : coûts de la banque et des fonds,
+     reversés en salaires. Au départ, le pool vaut salaires + profits notionnels des entreprises existantes. */
+  let WB=0;for(let i=0;i<N;i++)WB+=wage[i];
+  let pool=0,poolNext=0,feePot=0;const cc={wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
+  const money=()=>{let m=F+pool+poolNext+feePot+funds.cash();for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
+  let M0=0;
+  if(closed){let notional=0;for(const fm of firms)notional+=fm.rho*fm.K;pool=WB+notional;M0=money();}
+
   for(let t=0;t<T;t++){
     if(t>0)partic.update(net,t);
 
@@ -793,16 +832,40 @@ function run(world,seed,P){
     if(bank&&rate>0){let acc=0,sumD=0;for(let i=0;i<N;i++){if(L[i]>eps){const x=L[i]*rate;L[i]+=x;acc+=x;}sumD+=D[i];}
       if(acc>0&&sumD>0){for(let j=0;j<N;j++)D[j]+=acc*D[j]/sumD;st.interest+=acc;}}
 
+    /* ---------- économie bouclée : salaires payés sur les ventes, puis sur la trésorerie des entreprises ---------- */
+    let ratio=1;
+    if(closed){let paid=Math.min(pool,WB);pool-=paid;
+      if(paid<WB){const need=WB-paid;let totK=0;for(const fm of firms)if(!fm.dead)totK+=fm.K;
+        if(totK>0)for(const fm of firms){if(fm.dead)continue;const x=Math.min(fm.R,need*fm.K/totK);fm.R-=x;paid+=x;}}
+      ratio=WB>0?paid/WB:0;cc.wagePaid+=paid;cc.wageShort+=WB-paid;}
+
     /* ---------- épargne : remboursement des dettes, dépôt, actions, liquidités ---------- */
-    for(let i=0;i<N;i++){let s=wage[i]*sr[i];
+    if(closed){// le ménage reçoit son salaire, consomme (revenu et patrimoine), puis place ce qui reste
+      for(let i=0;i<N;i++){const y=wage[i]*ratio;W[i]+=y;const inc=y+capInc[i];
+        const c=(1-sr[i])*inc+P.mpcW*Math.max(0,t===0?init0[i]:net[i]);
+        let pc=Math.min(c,Math.max(0,W[i]));W[i]-=pc;
+        if(c-pc>eps&&bank){const x=Math.min(c-pc,D[i],Math.max(F,0));D[i]-=x;F-=x;pc+=x;}
+        poolNext+=pc;cc.cons+=pc;cc.inc+=inc;cc.save+=inc-pc;capInc[i]=0;
+        let s=y-pc;if(s<=eps)continue;
+        if(L[i]>eps){const p=Math.min(s,L[i]);L[i]-=p;W[i]-=p;F+=p;s-=p;}
+        const d=s*depE,q=part[i]?s*invE:0;D[i]+=d;F+=d;eqSave[i]+=q;W[i]-=d+q;}}
+    else for(let i=0;i<N;i++){let s=wage[i]*sr[i];
       if(L[i]>eps){const p=Math.min(s,L[i]);L[i]-=p;F+=p;s-=p;}
       const d=s*depE,q=part[i]?s*invE:0;D[i]+=d;F+=d;eqSave[i]+=q;W[i]+=s-d-q;}
     funds.subscribe();
 
     /* ---------- entreprises : profit, échéances, disparition, versements, investissement ---------- */
+    // économie bouclée : le profit brut de l'ensemble (ventes − salaires) est réparti entre les entreprises en retirant à toutes la
+    // même rentabilité kappa à leur rentabilité notionnelle (sans descendre sous zéro) ; ce qui n'est pas attribué reste à vendre
+    let kappa=0,E=0,piPaid=0;
+    if(closed){E=pool;pool=0;let totK=0,notional=0,maxR=0;for(const fm of firms)if(!fm.dead){totK+=fm.K;notional+=fm.rho*fm.K;if(fm.rho>maxR)maxR=fm.rho;}
+      cov[t]=notional>0?E/notional:0;
+      if(totK<=0){poolNext+=E;E=0;}
+      else if(E>=notional)kappa=(notional-E)/totK;
+      else{let lo=0,hi=maxR;for(let it=0;it<60;it++){const m=(lo+hi)/2;let sm=0;for(const fm of firms)if(!fm.dead&&fm.rho>m)sm+=(fm.rho-m)*fm.K;if(sm>E)lo=m;else hi=m;}kappa=hi;}}
     if(firmOn&&firms.length){let sumD=0;for(let j=0;j<N;j++)sumD+=D[j];let dInt=0,dLoss=0;
       for(const fm of firms){if(fm.dead)continue;fm.age++;
-        let pi=fm.rho*fm.K,due=0;
+        let pi=closed?Math.max(0,fm.rho-kappa)*fm.K:fm.rho*fm.K,due=0;
         if(fm.debt>eps){// intérêts (gains libres seulement), reversés aux déposants ; échéance : intérêts + 10 % de la dette
           const intr=fm.debt*rate;if(intr>0){fm.debt+=intr;dInt+=intr;st.interest+=intr;}
           due=Math.min(intr+fm.debt*DEBT_AMORT,fm.debt);}
@@ -810,16 +873,19 @@ function run(world,seed,P){
         const margin=(pi-due)/Math.max(fm.K,eps);
         if(rnd()<hazard(margin,fm.age)){if(margin<=0)fs.bankrupt++;
           fm.dead=true;fs.died++;if(fm.f>=0){if(fm.age<5)fail[fm.f]++;else succ[fm.f]++;}
+          // économie bouclée : la trésorerie rembourse d'abord la banque ; ce qui n'appartient à personne lui revient aussi
+          if(closed&&fm.debt>eps&&fm.R>0){const p=Math.min(fm.R,fm.debt);fm.R-=p;fm.debt-=p;F+=p;}
           if(fm.debt>eps){fs.bankLoss+=fm.debt;dLoss+=fm.debt;fm.debt=0;}
-          fs.lostR+=distribute(fm,fm.R,capped,W,funds.income,fs);fm.R=0;freeHoldings(fm);continue;}
+          const lost=distribute(fm,fm.R,capped,W,funds.income,fs,capInc);if(closed)F+=lost;else fs.lostR+=lost;fm.R=0;freeHoldings(fm);continue;}
+        piPaid+=pi;
         if(due>0){// l'échéance est payée sur le profit, puis sur les réserves ; ce qui manque reste dû
           let pay=Math.min(pi,due);pi-=pay;if(pay<due){const take=Math.min(fm.R,due-pay);fm.R-=take;pay+=take;}
           fm.debt-=pay;F+=pay;}
         // usure : le capital perd une part P.depr de sa valeur ; seul le profit net d'usure peut être versé
         const wear=P.depr*fm.K;fm.K-=wear;fs.wear+=wear;const net=Math.max(0,pi-wear);
         // gains libres : une part P.payout du profit net est versée ; gains interdits : tout est versé, dans la limite des mises
-        if(world==='L'){const d=net*P.payout;fm.R+=pi-d+distribute(fm,d,capped,W,funds.income,fs);}
-        else{const keep=pi-net;fm.R+=keep+distribute(fm,net,capped,W,funds.income,fs);fm.Rw=(fm.Rw||0)+keep;}
+        if(world==='L'){const d=net*P.payout;fm.R+=pi-d+distribute(fm,d,capped,W,funds.income,fs,capInc);}
+        else{const keep=pi-net;fm.R+=keep+distribute(fm,net,capped,W,funds.income,fs,capInc);fm.Rw=(fm.Rw||0)+keep;}
         // investissement : d'abord sur les réserves, puis bourse et banque pour le reste
         // gains interdits : les réserves réinvesties n'appartiennent à personne, sauf la part qui ne fait que compenser l'usure (Rw)
         const I=P.invest*fm.K;const fromR=Math.min(fm.R,I);fm.R-=fromR;
@@ -832,8 +898,14 @@ function run(world,seed,P){
             if(world==='L'){const totC=totalStake(fm);const V=Math.max(eps,fm.K+fm.R-fm.debt);const f=V/Math.max(totC,eps);const hc=fm.hc;for(let k=0;k<fm.n;k++)hc[k]*=f;fm.selfC*=f;}
             const res=funds.raise(nE);for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);got+=res.got;fs.extE+=res.got;}
           if(nB>eps){F-=nB;fm.debt+=nB;got+=nB;fs.extB+=nB;}}
-        fm.K+=fromR+got;fs.invested+=fromR+got;}
+        fm.K+=fromR+got;fs.invested+=fromR+got;
+        if(closed){poolNext+=fromR+got;
+          // trésorerie : l'entreprise garde ce qu'il lui faut pour investir l'année suivante et verse le reste à ses propriétaires
+          // (sociétés non financières 2023 : épargne brute 320 Md€ pour 336 Md€ d'investissement, autofinancement ≈ 95 %) ;
+          // avec gains interdits, ce qui dépasse les mises des propriétaires reste dans l'entreprise
+          const target=P.invest*fm.K;if(fm.R>target){const ex=fm.R-target;fm.R=target+distribute(fm,ex,capped,W,funds.income,fs,capInc);if(capped)fm.Rw=Math.min(fm.Rw||0,fm.R);}}}
       if(sumD>0&&(dInt>0||dLoss>0)){const f=(dInt-dLoss)/sumD;for(let j=0;j<N;j++)D[j]+=D[j]*f;}}
+    if(closed){poolNext+=E-piPaid;cc.profit+=piPaid;}
 
     /* ---------- idées de création ---------- */
     for(let i=0;i<N;i++){
@@ -870,6 +942,7 @@ function run(world,seed,P){
         const totalE=needE+P.feeE;res=funds.raise(totalE);
         raised=totalE;st.issues++;st.eqRaised+=totalE;st.holders+=res.hi.length;}
       st.funded++;
+      if(closed){poolNext+=ci;feePot+=(needB>0?P.fee:0)+(needE>0?P.feeE:0);}
       if(firmOn){// le projet devient une entreprise : capital, dette propre, propriétaires (fondateur et fonds)
         const fm=newHoldings({},8);addHolder(fm,i,Math.max(own,1e-6),Math.max(own,1e-6));
         if(raised>0)for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);
@@ -890,6 +963,9 @@ function run(world,seed,P){
 
     /* ---------- versements des fonds, puis bilan de l'année ---------- */
     funds.payout();
+    if(closed){// les coûts de la banque et des fonds sont les salaires de leurs employés (répartis comme les salaires) ; les dépenses de l'année font les ventes de la suivante
+      let sw=0;for(let i=0;i<N;i++)sw+=wage[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]/sw;W[i]+=x;capInc[i]+=x;}
+      feePot=0;pool+=poolNext;poolNext=0;cc.drift=Math.max(cc.drift,Math.abs(money()-M0)/M0);}
     const eqv=new Float64Array(N);let unowned=0,firmV=0;funds.stake.fill(0);
     if(firmOn)for(const fm of firms){if(fm.dead)continue;const V=Math.max(0,fm.K+fm.R-fm.debt);firmV+=V;unowned+=V-valueHoldings(fm,V,capped,eqv,funds.stake);}
     {const fv=funds.value(eqv);fs.fundV=fv.total;fs.fundUn=fv.unclaimed;unowned+=fv.unclaimed;}
@@ -909,6 +985,7 @@ function run(world,seed,P){
   return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned,fValue:fs.firmV,
+    cCov:cov,cDrift:cc.drift,cWageShort:closed&&WB>0?cc.wageShort/(WB*T):0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     fFundPaid:fs.fundPaid,fFundV:fs.fundV,fFundUn:fs.fundUn,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
     net:Float64Array.from(net),grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
 }
@@ -961,7 +1038,7 @@ function atkinson(x,eps){
 // résultats scalaires moyennés sur les simulations
 const SUM_KEYS=['funded','refused','loans','debt','indebted','fund','refusedDebt','refusedFund','interest','issues','eqRaised','eqPaid','holders',
   'fCreated','fAlive','fBiz5','fBizEx','fOld0','fOldAlive','fDied','fBankrupt','fBankLoss','fDiv','fWear','fInvested','fExtE','fExtB','fUnowned','fValue',
-  'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T'];
+  'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T','cDrift','cWageShort','cSaveRate','cWageShare'];
 // indicateurs calculés simulation par simulation, pour mesurer la dispersion d'un tirage à l'autre
 const PER_RUN={
   mean:(x,e)=>e.mean, bottom10:(x,e)=>e.bottom10, top1:(x,e)=>e.top1==null?NaN:e.top1, gini:(x,e,T)=>x.gi[T-1],
@@ -976,12 +1053,12 @@ function spreadOf(a){const y=Array.from(a).filter(v=>isFinite(v)).sort((a,b)=>a-
 
 /* Agrège des simulations déjà calculées (une par tirage, dans l'ordre des graines) */
 function aggFrom(world,P,xs){
-  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),lor0=new Float64Array(41);let g0=0;
+  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),cov=new Float64Array(T),lor0=new Float64Array(41);let g0=0;
   const o={};for(const k of SUM_KEYS)o[k]=0;
   const nets=[],grps=[],owes=[],qis=[],refs=[];
   const per={};for(const k in PER_RUN)per[k]=new Float64Array(R);
   for(let s=0;s<R;s++){const x=xs[s];
-    for(let t=0;t<T;t++){tot[t]+=x.tot[t]/R;gi[t]+=x.gi[t]/R;uT[t]+=x.uT[t]/R;}
+    for(let t=0;t<T;t++){tot[t]+=x.tot[t]/R;gi[t]+=x.gi[t]/R;uT[t]+=x.uT[t]/R;cov[t]+=x.cCov[t]/R;}
     for(let k=0;k<=40;k++)lor[k]+=x.lor[k]/R;
     if(x.lor0){for(let k=0;k<=40;k++)lor0[k]+=x.lor0[k]/R;g0+=x.gini0/R;}
     for(const k of SUM_KEYS)o[k]+=x[k]/R;
@@ -989,7 +1066,7 @@ function aggFrom(world,P,xs){
     const e=equity(x.net,x.grp,x.owes),q=byQuint(x.net,x.grp,x.qi,x.refI);for(const k in PER_RUN)per[k][s]=PER_RUN[k](x,e,T,q);}
   const spread={};for(const k in per)spread[k]=spreadOf(per[k]);
   const hasStart=P.ini||(P.firm&&P.exist);
-  return {tot,gi,uT,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
+  return {tot,gi,uT,cov,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
     eqReturn:o.eqRaised>0?o.eqPaid/o.eqRaised-1:null,holdersPer:o.issues>0?o.holders/o.issues:null,
     eq:equity(nets,grps,owes),byq:byQuint(nets,grps,qis,refs),per,spread,R,dg:meanDiagnostics(xs)};
 }
@@ -1021,14 +1098,14 @@ const fmtN=v=>{if(Math.abs(v)>=10000)return Math.round(v/1000)+' k';if(Math.abs(
    Pour ajouter un paramètre : une entrée dans DEF, un format dans FMT, un curseur (id = clé, sortie = clé_o) dans page.html,
    puis augmenter PARAMS_KEY si l'ancienne valeur mémorisée ne doit pas être reprise.
    ===================================================================== */
-const DEF={N:2000,T:40,save:0.18,inc:1,sigI:0.49,sprof:1,ini:1,m0:1,alW:1.85,pidea:0.012,cost:4.3,pok:0.6,payoff:11,vary:1,firm:1,rho:0.107,payout:0.5,invest:0.11,depr:0.093,exist:1,k0:3.75,nf:17,own:0.5,hold:0.16,rhoIW:0.25,ageb:1.2,sig:2.4,alpha:1.5,bank:1,stock:1,r:0.8,dep:0.5,fee:0.05,rl:0.035,inv:0.25,phi:0.5,m:10,nfd:10,part:0.2,feeE:0.05,runs:30};
-const SWITCHES=['inc','sprof','ini','vary','firm','exist','bank','stock'];   // cases à cocher (0 ou 1)
+const DEF={N:2000,T:40,save:0.18,inc:1,sigI:0.49,sprof:1,ini:1,m0:1,alW:1.85,pidea:0.012,cost:4.3,pok:0.6,payoff:11,vary:1,firm:1,rho:0.107,payout:0.5,invest:0.11,depr:0.093,closed:1,mpcW:0.029,exist:1,k0:3.75,nf:17,own:0.5,hold:0.16,rhoIW:0.25,ageb:1.2,sig:2.4,alpha:1.5,bank:1,stock:1,r:0.8,dep:0.5,fee:0.05,rl:0.035,inv:0.25,phi:0.5,m:10,nfd:10,part:0.2,feeE:0.05,runs:30};
+const SWITCHES=['inc','sprof','ini','vary','firm','exist','closed','bank','stock'];   // cases à cocher (0 ou 1)
 const ids=Object.keys(DEF);
 const none=()=>'',dec=n=>v=>fr(v,{maximumFractionDigits:n});
 const FMT={N:v=>fr(v),T:v=>v,save:v=>v.toFixed(2),runs:v=>v,
   sigI:v=>v.toFixed(2),m0:v=>'× '+fr(v,{maximumFractionDigits:2}),alW:dec(2),rhoIW:dec(2),
   pidea:v=>fr(v*100,{maximumFractionDigits:1})+' %',cost:v=>fr(v)+' an'+(v>1?'s':'')+' de revenu',pok:pct,payoff:v=>fr(v),sig:v=>v.toFixed(1),alpha:v=>fr(v,{minimumFractionDigits:1,maximumFractionDigits:1}),
-  rho:v=>fr(v*100,{maximumFractionDigits:1})+' %',payout:pct,invest:pct,depr:pct1,ageb:dec(1),k0:v=>fr(v)+' an'+(v>=2?'s':''),nf:v=>v,own:pct,hold:pct,
+  rho:v=>fr(v*100,{maximumFractionDigits:1})+' %',payout:pct,invest:pct,depr:pct1,mpcW:pct1,ageb:dec(1),k0:v=>fr(v)+' an'+(v>=2?'s':''),nf:v=>v,own:pct,hold:pct,
   r:pct,dep:pct,fee:v=>v.toFixed(2),rl:ratePct,inv:pct,phi:pct,m:v=>v,nfd:v=>v,part:pct,feeE:v=>v.toFixed(2)};
 for(const k of SWITCHES)FMT[k]=none;
 // curseurs à échelle non linéaire : nombre de ménages de 100 à 50 000, arrondi à deux chiffres significatifs
@@ -1036,7 +1113,7 @@ const SCALE={N:{from:s=>{const v=100*Math.pow(500,s/100);const p=Math.pow(10,Mat
 
 // mémoire du navigateur (peut être indisponible : toutes les lectures et écritures sont protégées)
 const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
-const PARAMS_KEY='labo-params-v22';
+const PARAMS_KEY='labo-params-v23';
 let P={...DEF};
 try{const s=JSON.parse(store.get(PARAMS_KEY)||'null');if(s)for(const k of ids)if(typeof s[k]==='number')P[k]=s[k];}catch(e){}
 const saveParams=()=>store.set(PARAMS_KEY,JSON.stringify(P));
@@ -1185,7 +1262,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
   renderKpis(W);renderVerdict(W,P.T-1);renderAge(W);
-  renderBank(W);renderFirms(W);renderStock(W);renderQuintiles(W);
+  renderBank(W);renderCircuit(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
   const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
@@ -1210,6 +1287,19 @@ function renderBank(W){
     crow('Intérêts versés aux déposants','Transférés des emprunteurs vers les déposants.',at(W,w=>w.interest),int)+
     crow('Dette restante','',at(W,w=>w.debt),int)+
     crow('Fonds inutilisés en caisse','',at(W,w=>w.fund),int));
+}
+
+// économie bouclée : la demande suffit-elle à faire les profits ? où s'arrête la monnaie ?
+function renderCircuit(W){
+  const on=!!(P.firm&&P.closed);show('circuitcard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1);const ys=W.map(w=>Array.from(w.cov,v=>v*100));
+  lineChart($('ch_cov'),{W:760,H:260,xs,xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,yMax:niceMax(Math.max(100,...ys[0],...ys[1])),yTicks:4,xTicks:P.T%5===0?5:2,
+    yFmt:v=>Math.round(v)+' %',marks:[],series:[{ys:xs.map(()=>100),color:'var(--muted)',dash:true,name:'Notionnel'},...seriesLI(ys[0],ys[1])]});
+  setHTML('circrows',
+    crow('Part des salaires dans la valeur ajoutée','Salaires / (salaires + profits bruts), sur toute la vie. Sociétés non financières en 2023 : 65 % (Insee, tableau 7.101).',at(W,w=>w.cWageShare),pct)+
+    crow('Taux d\'épargne observé des ménages','Revenus non dépensés / revenus (salaires et revenus du capital). Il tient compte de la consommation tirée du patrimoine. Insee : 18 % du revenu disponible, dont environ la moitié placée en logement.',at(W,w=>w.cSaveRate),pct1)+
+    crow('Salaires non versés','Part de la masse salariale que les entreprises n\'ont pas pu payer, faute de ventes et de trésorerie.',at(W,w=>w.cWageShort),pct1,{domain:[0,1]})+
+    crow('Contrôle de la monnaie','Écart maximal entre la monnaie totale et celle du départ. Proche de zéro : rien ne fuit, rien n\'apparaît.',at(W,w=>w.cDrift),v=>v==null?'n.d.':v<1e-9?'< 0,000 000 1 %':pct1(v),{domain:[0,1]}));
 }
 
 function renderFirms(W){
@@ -1465,7 +1555,7 @@ function derived(){
 function syncScopes(){
   const lb=document.querySelector('label[for="pok"]');if(lb)lb.textContent=P.firm?'Survie à 5 ans':'Chance de réussite';
   $('payoff').closest('.ctl').hidden=!!P.firm;
-  for(const [box,on] of [['in_exist',P.exist],['in_firm',P.firm],['in_inc',P.inc],['in_ini',P.ini],['in_vary',P.vary],['in_bank',P.bank],['in_stock',P.stock],['in_direct',!(P.bank||P.stock)],['wrap_phi',P.bank&&P.stock]])$(box).hidden=!on;
+  for(const [box,on] of [['in_exist',P.exist],['in_closed',P.closed],['in_firm',P.firm],['in_inc',P.inc],['in_ini',P.ini],['in_vary',P.vary],['in_bank',P.bank],['in_stock',P.stock],['in_direct',!(P.bank||P.stock)],['wrap_phi',P.bank&&P.stock]])$(box).hidden=!on;
   setText('sum_soc',`${P.N} pers. · ${P.T} ans · épargne ${pct(P.save)}${P.inc?' · revenus inégaux':''}${P.ini?' · patrimoine':''}`);
   setText('sum_proj',`idée ${FMT.pidea(P.pidea)}/an · coût ${fr(P.cost)} · ${P.vary?'inégaux':'identiques'}${P.firm?' · entreprises':''}`);
   setText('sum_fin',P.bank&&P.stock?'banque + bourse':P.bank?'banque':P.stock?'bourse':'prêt direct');

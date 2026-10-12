@@ -8,7 +8,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
   renderKpis(W);renderVerdict(W,P.T-1);renderAge(W);
-  renderBank(W);renderFirms(W);renderStock(W);renderQuintiles(W);
+  renderBank(W);renderCircuit(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
   const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
@@ -33,6 +33,19 @@ function renderBank(W){
     crow('Intérêts versés aux déposants','Transférés des emprunteurs vers les déposants.',at(W,w=>w.interest),int)+
     crow('Dette restante','',at(W,w=>w.debt),int)+
     crow('Fonds inutilisés en caisse','',at(W,w=>w.fund),int));
+}
+
+// économie bouclée : la demande suffit-elle à faire les profits ? où s'arrête la monnaie ?
+function renderCircuit(W){
+  const on=!!(P.firm&&P.closed);show('circuitcard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1);const ys=W.map(w=>Array.from(w.cov,v=>v*100));
+  lineChart($('ch_cov'),{W:760,H:260,xs,xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,yMax:niceMax(Math.max(100,...ys[0],...ys[1])),yTicks:4,xTicks:P.T%5===0?5:2,
+    yFmt:v=>Math.round(v)+' %',marks:[],series:[{ys:xs.map(()=>100),color:'var(--muted)',dash:true,name:'Notionnel'},...seriesLI(ys[0],ys[1])]});
+  setHTML('circrows',
+    crow('Part des salaires dans la valeur ajoutée','Salaires / (salaires + profits bruts), sur toute la vie. Sociétés non financières en 2023 : 65 % (Insee, tableau 7.101).',at(W,w=>w.cWageShare),pct)+
+    crow('Taux d\'épargne observé des ménages','Revenus non dépensés / revenus (salaires et revenus du capital). Il tient compte de la consommation tirée du patrimoine. Insee : 18 % du revenu disponible, dont environ la moitié placée en logement.',at(W,w=>w.cSaveRate),pct1)+
+    crow('Salaires non versés','Part de la masse salariale que les entreprises n\'ont pas pu payer, faute de ventes et de trésorerie.',at(W,w=>w.cWageShort),pct1,{domain:[0,1]})+
+    crow('Contrôle de la monnaie','Écart maximal entre la monnaie totale et celle du départ. Proche de zéro : rien ne fuit, rien n\'apparaît.',at(W,w=>w.cDrift),v=>v==null?'n.d.':v<1e-9?'< 0,000 000 1 %':pct1(v),{domain:[0,1]}));
 }
 
 function renderFirms(W){

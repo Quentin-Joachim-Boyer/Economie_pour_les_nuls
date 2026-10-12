@@ -7,13 +7,13 @@ const ctx={console,Math,Float64Array,Int32Array,Int8Array,Uint8Array,Array,Objec
 vm.runInContext(m[1]+'\nthis.run=run;this.aggFrom=aggFrom;',ctx);
 const defM=html.match(/const DEF=(\{[^;]*\});/);const DEF=eval('('+defM[1]+')');
 const base={...DEF,N:300,runs:2};
-const CONFIGS={def:{},noFirm:{firm:0},noBank:{bank:0},noStock:{stock:0},direct:{bank:0,stock:0},noIni:{ini:0},noInc:{inc:0},noExist:{exist:0},noVary:{vary:0},noFirmDirect:{firm:0,bank:0,stock:0},small:{N:120,T:15}};
+const CONFIGS={def:{},open:{closed:0},noFirm:{firm:0},noBank:{bank:0},noStock:{stock:0},direct:{bank:0,stock:0},noIni:{ini:0},noInc:{inc:0},noExist:{exist:0},noVary:{vary:0},noFirmDirect:{firm:0,bank:0,stock:0},small:{N:120,T:15}};
 const round=v=>typeof v==='number'?(isFinite(v)?Number(v.toPrecision(10)):String(v)):v;
 const ser=x=>{if(x==null)return x;if(ArrayBuffer.isView(x))return Array.from(x,round);if(Array.isArray(x))return x.map(ser);if(typeof x==='object'){const o={};for(const k of Object.keys(x).sort())o[k]=ser(x[k]);return o;}return round(x);};
 // sorties retirées volontairement lors du nettoyage (toujours nulles ou inutilisées)
 const REMOVED=new Set(['pA1','pW0','pW1','eqFees','fDebt','fDivOut','fOutV','fPaidOut','fPart0T','fees','first','init0m','oT']);
 const out={};const t0=Date.now();
-for(const [name,c] of Object.entries(CONFIGS)){const P={...base,...c};for(const w of ['L','I'])for(const s of [1000,1001]){const x=ctx.run(w,s,P);out[`${name}/${w}/${s}`]=ser(x);}
+for(const [name,c] of Object.entries(CONFIGS)){const P={...base,...c};for(const w of ['L','I'])for(const s of [1000,1001]){const x=ctx.run(w,s,P);if(x.cDrift>1e-9){console.log('MONNAIE NON CONSERVÉE',name,w,s,x.cDrift);process.exitCode=1;}out[`${name}/${w}/${s}`]=ser(x);}
   const xsL=[ctx.run('L',1000,P),ctx.run('L',1001,P)];const a=ctx.aggFrom('L',P,xsL);const eq={...a.eq};delete eq.net;out[`${name}/aggL`]=ser({eq,byq:a.byq,spread:a.spread,dg:a.dg,gi:a.gi});}
 const ref=path.join(__dirname,'reference.json');
 if(process.argv.includes('--save')){fs.writeFileSync(ref,JSON.stringify(out));console.log('référence enregistrée',Object.keys(out).length,'cas',Date.now()-t0,'ms');}

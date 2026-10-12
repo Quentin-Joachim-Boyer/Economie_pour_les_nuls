@@ -52,5 +52,12 @@ const RHO_CAP=1.5;                    // rentabilité maximale d'une entreprise
 const HAZARD_MAX=0.9;                 // probabilité annuelle maximale de disparition
 const DEBT_AMORT=0.1;                 // remboursement annuel du capital emprunté
 
+/* ---------- consommation (économie bouclée) ----------
+   propension à consommer le revenu : 1 − taux d'épargne (Insee) ; propension à consommer le patrimoine, France 1981-2016
+   (Chauvin et Muellbauer, Économie et Statistique 2018) : 0,14 pour les actifs financiers liquides, 0,022 pour les actifs
+   financiers peu liquides, 0,013 pour l'immobilier ; pondérée par la composition du patrimoine brut des ménages en 2021
+   (Insee : financier 20,9 % dont environ la moitié liquide, immobilier 61,9 %, professionnel 10,6 %, autres 6,5 %) : ≈ 2,9 % par an */
+const MPC_WEALTH=0.105*0.14+0.105*0.022+0.619*0.013+0.171*0.022;
+
 /* ---------- fonds ---------- */
 const FUND_ID_BASE=-10;               // un fonds f apparaît parmi les détenteurs sous l'identifiant −10 − f

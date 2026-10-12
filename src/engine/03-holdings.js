@@ -17,10 +17,11 @@ function freeHoldings(fm){fm.hi=fm.hc=fm.hr=fm.hk=null;fm.n=0;}
 // total des pondérations (mises + part sans propriétaire)
 function totalStake(fm){let t=fm.selfC;const hc=fm.hc;for(let k=0;k<fm.n;k++)t+=hc[k];return t;}
 /* Verse `amount` aux détenteurs, au prorata de leur mise ; avec gains interdits (capped), chacun au plus ce qui lui reste à récupérer.
-   Les ménages reçoivent sur W, les fonds sur income. Renvoie ce qui reste dans l'entreprise. */
-function distribute(fm,amount,capped,W,income,fs){if(amount<=1e-9)return 0;const totC=totalStake(fm);if(totC<=1e-9)return amount;
+   Les ménages reçoivent sur W (et, si inc est fourni, le montant est noté comme revenu du capital), les fonds sur income.
+   Renvoie ce qui reste dans l'entreprise. */
+function distribute(fm,amount,capped,W,income,fs,inc){if(amount<=1e-9)return 0;const totC=totalStake(fm);if(totC<=1e-9)return amount;
   let kept=amount*fm.selfC/totC,paid=0;const a=amount/totC,hi=fm.hi,hc=fm.hc,hr=fm.hr;
-  for(let k=0;k<fm.n;k++){let x=a*hc[k];if(capped){const c=hr[k]>0?hr[k]:0;if(x>c){kept+=x-c;x=c;}hr[k]-=x;}const j=hi[k];if(j<=FUND_ID_BASE)income[FUND_ID_BASE-j]+=x;else W[j]+=x;paid+=x;}
+  for(let k=0;k<fm.n;k++){let x=a*hc[k];if(capped){const c=hr[k]>0?hr[k]:0;if(x>c){kept+=x-c;x=c;}hr[k]-=x;}const j=hi[k];if(j<=FUND_ID_BASE)income[FUND_ID_BASE-j]+=x;else{W[j]+=x;if(inc)inc[j]+=x;}paid+=x;}
   fs.divPaid+=paid;return kept;}
 /* Valeur des parts : V au prorata des mises ; avec gains interdits, chacune au plus ce qui reste à récupérer.
    Ajoute aux ménages (eqv) et aux fonds (fundStake) ; renvoie la part de V attribuée. */

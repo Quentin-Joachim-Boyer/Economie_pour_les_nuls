@@ -19,7 +19,7 @@ function derived(){
 function syncScopes(){
   const lb=document.querySelector('label[for="pok"]');if(lb)lb.textContent=P.firm?'Survie à 5 ans':'Chance de réussite';
   $('payoff').closest('.ctl').hidden=!!P.firm;
-  for(const [box,on] of [['in_exist',P.exist],['in_firm',P.firm],['in_inc',P.inc],['in_ini',P.ini],['in_vary',P.vary],['in_bank',P.bank],['in_stock',P.stock],['in_direct',!(P.bank||P.stock)],['wrap_phi',P.bank&&P.stock]])$(box).hidden=!on;
+  for(const [box,on] of [['in_exist',P.exist],['in_closed',P.closed],['in_firm',P.firm],['in_inc',P.inc],['in_ini',P.ini],['in_vary',P.vary],['in_bank',P.bank],['in_stock',P.stock],['in_direct',!(P.bank||P.stock)],['wrap_phi',P.bank&&P.stock]])$(box).hidden=!on;
   setText('sum_soc',`${P.N} pers. · ${P.T} ans · épargne ${pct(P.save)}${P.inc?' · revenus inégaux':''}${P.ini?' · patrimoine':''}`);
   setText('sum_proj',`idée ${FMT.pidea(P.pidea)}/an · coût ${fr(P.cost)} · ${P.vary?'inégaux':'identiques'}${P.firm?' · entreprises':''}`);
   setText('sum_fin',P.bank&&P.stock?'banque + bourse':P.bank?'banque':P.stock?'bourse':'prêt direct');
