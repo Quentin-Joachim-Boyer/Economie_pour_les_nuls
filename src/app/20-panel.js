@@ -4,10 +4,10 @@
 // ordres de grandeur affichés sous les réglages (calculs simples, sans simulation)
 function payback(D,s,r){if(r<=0)return Math.ceil(D/s);if(r*D>=s)return null;return Math.ceil(-Math.log(1-r*D/s)/Math.log(1+r));}
 function derived(){
-  const ev=P.pok*P.payoff-P.cost,wait=Math.ceil(P.cost/P.save);
+  const ev=P.pok*P.payoff-P.cost,yS=P.save*P.incM,wait=Math.ceil(P.cost/yS);
   const sg=(v,u='')=>`<b>${v>=0?'+':''}${v.toFixed(2).replace('.',',')}${u}</b>`;
   let h=`<div><span>Gain moyen d'une création</span>${sg(ev)}</div><div><span>Attente pour financer seul</span><b>${wait} ans</b></div>`;
-  if(P.bank){const D=P.cost+P.fee;const pl=payback(D,P.save,P.rl),pi=payback(D,P.save,0);
+  if(P.bank){const D=P.cost+P.fee;const pl=payback(D,yS,P.rl),pi=payback(D,yS,0);
     h+=`<div><span>Rembourser un prêt complet après un échec</span><b>libres ${pl==null?'jamais':pl+' ans'}<br>interdits ${pi} ans</b></div>`;}
   if(P.stock){const ret=P.pok*P.payoff/P.cost-1;
     h+=`<div><span>Rendement d'une action si toute la création était financée ainsi</span><b>libres ${(ret>=0?'+':'')+Math.round(ret*100)} %<br>interdits ${Math.round((P.pok-1)*100)} %</b></div>`;}
@@ -20,7 +20,7 @@ function syncScopes(){
   const lb=document.querySelector('label[for="pok"]');if(lb)lb.textContent=P.firm?'Survie à 5 ans':'Chance de réussite';
   $('payoff').closest('.ctl').hidden=!!P.firm;
   for(const [box,on] of [['in_exist',P.exist],['in_closed',P.closed],['in_state',P.state],['in_firm',P.firm],['in_inc',P.inc],['in_ini',P.ini],['in_vary',P.vary],['in_bank',P.bank],['in_stock',P.stock],['in_direct',!(P.bank||P.stock)],['wrap_phi',P.bank&&P.stock]])$(box).hidden=!on;
-  setText('sum_soc',`${P.N} pers. · ${P.T} ans · épargne ${pct(P.save)}${P.inc?' · revenus inégaux':''}${P.ini?' · patrimoine':''}`);
+  setText('sum_soc',`${fr(P.N)} ménages · ${P.T} ans · épargne ${pct(P.save)}${P.inc?' · revenus inégaux':''}${P.ini?' · patrimoine':''}`);
   setText('sum_proj',`idée ${FMT.pidea(P.pidea)}/an · coût ${fr(P.cost)} · ${P.vary?'inégaux':'identiques'}${P.firm?' · entreprises':''}`);
   setText('sum_fin',P.bank&&P.stock?'banque + bourse':P.bank?'banque':P.stock?'bourse':'prêt direct');
   setText('sum_mes',`aversion ${f2(EPS)}`);

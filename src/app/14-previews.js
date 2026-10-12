@@ -13,7 +13,7 @@ function drawProjects(){
     setText('cost_note',`Créations identiques : chacune coûte ${yrs(P.cost)} de revenu.`);
     setText('gain_note',`Chaque succès rapporte ${yrs(P.payoff)} de revenu.`);
   }else{
-    setText('cost_note',`Médiane ${yrs(C.med)} (≈ ${eur(C.med)}), moyenne ${yrs(C.mean)} (≈ ${eur(C.mean)}). Une création sur dix coûte plus de ${yrs(C.p90)} (≈ ${eur(C.p90)}), soit plus de ${Math.round(C.p90/P.save)} ans d'épargne.`);
+    setText('cost_note',`Médiane ${yrs(C.med)} (≈ ${eur(C.med)}), moyenne ${yrs(C.mean)} (≈ ${eur(C.mean)}). Une création sur dix coûte plus de ${yrs(C.p90)} (≈ ${eur(C.p90)}), soit plus de ${Math.round(C.p90/(P.save*P.incM))} ans d'épargne.`);
     setText('gain_note',`Médiane ${yrs(G.med)} (≈ ${eur(G.med)}), moyenne ${yrs(G.mean)}. Les 10 % de succès les plus gros font ${Math.round(G.top10*100)} % de tous les gains ; un sur cent dépasse ${yrs(G.p99)} (≈ ${eur(G.p99)}).`);
   }
 }
@@ -21,10 +21,10 @@ function drawProjects(){
 function drawPopulation(){
   // aperçu sur 20 000 ménages (le lien avec l'âge n'y est pas représenté)
   const n=20000,nrm=normalFrom(rng(11));const inc=new Float64Array(n),w0=new Float64Array(n);const c=P.inc?P.rhoIW:0;
-  for(let k=0;k<n;k++){const z1=nrm();inc[k]=P.inc?Math.exp(P.sigI*z1):1;w0[k]=P.ini?P.m0*wealthQuantile(Phi(c*z1+Math.sqrt(1-c*c)*nrm()),P.alW):0;}
-  if(P.inc){const I=distStats(inc);hist($('ch_inc'),I,v=>fr(v,{maximumFractionDigits:2})+' fois le médian','multiple du revenu médian','des ménages');
-    setText('inc_note',`Médiane 1 (≈ ${eur(I.med)}), moyenne ${fr(I.mean,{maximumFractionDigits:2})}. Les 10 % les plus modestes gagnent moins de ${eur(I.d1)}, les 10 % les plus aisés plus de ${eur(I.d9)} : rapport ${fr(I.d9/I.d1,{maximumFractionDigits:1})}.`);}
-  else{blankChart('ch_inc','Revenus égaux : 1 pour tous');setText('inc_note',`Chacun gagne le niveau de vie médian, ${fr(UNIT_EUR)} € par an.`);}
+  for(let k=0;k<n;k++){const z1=nrm();inc[k]=P.inc?P.incM*Math.exp(P.sigI*z1):P.incM;w0[k]=P.ini?P.m0*wealthQuantile(Phi(c*z1+Math.sqrt(1-c*c)*nrm()),P.alW):0;}
+  if(P.inc){const I=distStats(inc);hist($('ch_inc'),I,v=>eur(v),'années de niveau de vie médian','des ménages');
+    setText('inc_note',`Revenu disponible par ménage : médiane ${eur(I.med)}, moyenne ${eur(I.mean)}. Les 10 % les plus modestes gagnent moins de ${eur(I.d1)}, les 10 % les plus aisés plus de ${eur(I.d9)} : rapport ${fr(I.d9/I.d1,{maximumFractionDigits:1})}.`);}
+  else{blankChart('ch_inc','Revenus égaux');setText('inc_note',`Chaque ménage gagne ${eur(P.incM)} par an.`);}
   if(P.ini&&P.m0>0){const S=distStats(w0);hist($('ch_w0'),S,yrs,'années de revenu','des ménages');
     setText('w0_note',`Médiane ${yrs(S.med)} (≈ ${eur(S.med)}), moyenne ${yrs(S.mean)} (≈ ${eur(S.mean)}). Les 10 % les mieux dotés détiennent ${Math.round(S.top10*100)} % du patrimoine de départ.`);}
   else{blankChart('ch_w0','Patrimoine de départ nul pour tous');setText('w0_note','Tout le monde commence sans patrimoine.');}

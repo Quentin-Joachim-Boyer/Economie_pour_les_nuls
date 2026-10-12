@@ -11,6 +11,12 @@ const toUnit=e=>e/UNIT_EUR;
    au 9e décile), puis loi de Pareto au-delà du 99e centile (indice réglable, 1,85 par défaut) */
 const WEALTH_Q=[[0,0],[.1,3000],[.2,10400],[.3,26500],[.4,67100],[.5,124800],[.6,192100],[.7,274700],[.8,394300],[.9,633200],[.95,915000],[.99,1980000]].map(([p,v])=>[p,toUnit(v)]);
 
+/* ---------- revenu des ménages : par ménage, et non par unité de consommation ----------
+   revenu disponible par ménage, France métropolitaine 2015 (Insee) : médiane 30 040 €, moyenne 36 300 €, D9/D1 = 4,6 ;
+   niveau de vie médian 2015 : 20 300 € par unité de consommation, d'où un revenu médian par ménage ≈ 1,48 niveau de vie médian ;
+   loi log-normale d'écart-type ln(4,6) / (2 × 1,2816) ≈ 0,595 */
+const HH_INCOME_MEDIAN=30040/20300, HH_INCOME_SIGMA=Math.log(4.6)/(2*1.2816);
+
 /* ---------- épargne selon le revenu : taux par quintile de niveau de vie, 2017 (Insee) ---------- */
 const SAVE_BY_QUINTILE=[2.71,4.99,9.65,11.23,28.37];
 

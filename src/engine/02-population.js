@@ -11,13 +11,13 @@ const ageGroup=a=>a<30?0:a<40?1:a<50?2:a<60?3:a<70?4:5;
 const AGE_WEALTH_SHIFT=AGE_WEALTH_PCT.map(p=>1.05*PhiInv(p/100));
 
 /* Tire la population avec le générateur `prng` (identique dans les deux scénarios). L'ordre des tirages compte :
-   revenus, âges, puis patrimoine. Renvoie wage (revenu), sr (taux d'épargne), qi (quintile de revenu), age0, W0 (patrimoine). */
+   revenus, âges, puis patrimoine. Renvoie wage (revenu disponible du ménage, en années de niveau de vie médian), sr (taux d'épargne), qi (quintile de revenu), age0, W0 (patrimoine). */
 function makePopulation(P,N,prng){
   const nrm=normalFrom(prng);
-  const wage=new Float64Array(N).fill(1),sr=new Float64Array(N).fill(P.save),W0=new Float64Array(N),qi=new Int8Array(N);
+  const wage=new Float64Array(N).fill(P.incM),sr=new Float64Array(N).fill(P.save),W0=new Float64Array(N),qi=new Int8Array(N);
   // revenus log-normaux
   const zI=new Float64Array(N);for(let i=0;i<N;i++)zI[i]=nrm();
-  if(P.inc)for(let i=0;i<N;i++)wage[i]=Math.exp(P.sigI*zI[i]);
+  if(P.inc)for(let i=0;i<N;i++)wage[i]=P.incM*Math.exp(P.sigI*zI[i]);
   {const idx=Array.from({length:N},(_,i)=>i).sort((a,b)=>wage[a]-wage[b]);idx.forEach((i,r)=>{qi[i]=Math.min(4,Math.floor(r*5/N));});}
   // les plus aisés épargnent davantage : profil Insee, remis à l'échelle pour garder le taux moyen
   if(P.inc&&P.sprof){const prof=SAVE_BY_QUINTILE;let sw=0,swp=0;for(let i=0;i<N;i++){sw+=wage[i];swp+=wage[i]*prof[qi[i]];}const k=P.save*sw/swp;for(let i=0;i<N;i++)sr[i]=Math.min(0.9,prof[qi[i]]*k);}
