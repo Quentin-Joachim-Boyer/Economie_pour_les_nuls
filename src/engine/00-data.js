@@ -45,6 +45,9 @@ const SHAREHOLDERS_BIG=40;            // actionnaires d'une grande entreprise ou
 const EXIST_AGE_MIN=5, EXIST_AGE_SPAN=36; // âge des entreprises existantes : 5 à 40 ans
 // détenteurs d'entreprises tirés avec un poids patrimoine^2,5 : les 5 % qui en détiennent le plus en ont alors environ 94 % (Insee : 95 %)
 const HOLD_GAMMA=2.5;
+/* usure du capital : compte des sociétés non financières 2023 (Insee, tableau 7.101) : consommation de capital fixe 282 Md€,
+   investissement brut 336 Md€ ; rapportés au capital fixe net (~3 033 Md€, Banque de France) : usure ≈ 9,3 % et investissement ≈ 11 % par an */
+const SNF_CAPITAL_EUR=3033e9, SNF_CCF_EUR=282e9, SNF_GFCF_EUR=336e9;
 const RHO_CAP=1.5;                    // rentabilité maximale d'une entreprise
 const HAZARD_MAX=0.9;                 // probabilité annuelle maximale de disparition
 const DEBT_AMORT=0.1;                 // remboursement annuel du capital emprunté

@@ -37,7 +37,7 @@ function atkinson(x,eps){
 
 // résultats scalaires moyennés sur les simulations
 const SUM_KEYS=['funded','refused','loans','debt','indebted','fund','refusedDebt','refusedFund','interest','issues','eqRaised','eqPaid','holders',
-  'fCreated','fAlive','fBiz5','fBizEx','fOld0','fOldAlive','fDied','fBankrupt','fBankLoss','fDiv','fInvested','fExtE','fExtB','fUnowned','fValue',
+  'fCreated','fAlive','fBiz5','fBizEx','fOld0','fOldAlive','fDied','fBankrupt','fBankLoss','fDiv','fWear','fInvested','fExtE','fExtB','fUnowned','fValue',
   'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T'];
 // indicateurs calculés simulation par simulation, pour mesurer la dispersion d'un tirage à l'autre
 const PER_RUN={

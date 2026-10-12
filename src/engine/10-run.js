@@ -10,7 +10,7 @@ function run(world,seed,P){
   const depE=bank?P.dep:0,invE=stock?Math.min(P.inv,1-depE):0; // parts de l'épargne déposée et placée en actions
   const phi=stock?(bank?P.phi:1):0;                    // part d'un besoin de financement demandée à la bourse
   const C={world,seed,P,N,T,stock,prng:rng(seed*7919+13),rnd:rng(seed),firms:[],
-    fs:{created:0,died:0,bankrupt:0,bankLoss:0,divPaid:0,lostR:0,invested:0,extE:0,extB:0,fundPaid:0,fundV:0,fundUn:0,unowned:0,firmV:0}};
+    fs:{wear:0,created:0,died:0,bankrupt:0,bankLoss:0,divPaid:0,lostR:0,invested:0,extE:0,extB:0,fundPaid:0,fundV:0,fundUn:0,unowned:0,firmV:0}};
   const {rnd,firms,fs}=C;
   // W liquidités, D dépôts, eqSave épargne-actions de l'année (versée aux fonds), L dette personnelle, net patrimoine net
   const W=C.W=new Float64Array(N),D=new Float64Array(N),eqSave=C.eqSave=new Float64Array(N),L=new Float64Array(N),net=new Float64Array(N);
@@ -62,11 +62,15 @@ function run(world,seed,P){
         if(due>0){// l'échéance est payée sur le profit, puis sur les réserves ; ce qui manque reste dû
           let pay=Math.min(pi,due);pi-=pay;if(pay<due){const take=Math.min(fm.R,due-pay);fm.R-=take;pay+=take;}
           fm.debt-=pay;F+=pay;}
-        // gains libres : une part P.payout du profit est versée ; gains interdits : tout est versé, dans la limite des mises
-        if(world==='L'){const d=pi*P.payout;fm.R+=pi-d+distribute(fm,d,capped,W,funds.income,fs);}
-        else fm.R+=distribute(fm,pi,capped,W,funds.income,fs);
+        // usure : le capital perd une part P.depr de sa valeur ; seul le profit net d'usure peut être versé
+        const wear=P.depr*fm.K;fm.K-=wear;fs.wear+=wear;const net=Math.max(0,pi-wear);
+        // gains libres : une part P.payout du profit net est versée ; gains interdits : tout est versé, dans la limite des mises
+        if(world==='L'){const d=net*P.payout;fm.R+=pi-d+distribute(fm,d,capped,W,funds.income,fs);}
+        else{const keep=pi-net;fm.R+=keep+distribute(fm,net,capped,W,funds.income,fs);fm.Rw=(fm.Rw||0)+keep;}
         // investissement : d'abord sur les réserves, puis bourse et banque pour le reste
-        const I=P.invest*fm.K;const fromR=Math.min(fm.R,I);fm.R-=fromR;if(capped)fm.selfC+=fromR;
+        // gains interdits : les réserves réinvesties n'appartiennent à personne, sauf la part qui ne fait que compenser l'usure (Rw)
+        const I=P.invest*fm.K;const fromR=Math.min(fm.R,I);fm.R-=fromR;
+        if(capped){const fromW=Math.min(fm.Rw||0,fromR);fm.Rw=Math.min((fm.Rw||0)-fromW,fm.R);fm.selfC+=fromR-fromW;}
         let rem=I-fromR,got=0;
         if(rem>eps&&(bank||stock)){const capE=stock?funds.capacity():0,capB=bank?Math.max(0,F):0;
           let nE=rem*phi,nB=rem-nE;
@@ -151,7 +155,7 @@ function run(world,seed,P){
   const hasStart=P.ini||(firmOn&&P.exist);
   return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
-    fDiv:fs.divPaid,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned,fValue:fs.firmV,
+    fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned,fValue:fs.firmV,
     fFundPaid:fs.fundPaid,fFundV:fs.fundV,fFundUn:fs.fundUn,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
     net:Float64Array.from(net),grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
 }

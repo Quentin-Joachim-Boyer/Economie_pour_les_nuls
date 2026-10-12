@@ -45,6 +45,7 @@ function renderFirms(W){
   h+=crow('Valeur des entreprises en vie','Capital + réserves − dettes.',at(W,w=>w.fValue),int)+
     crow('Dont sans propriétaire','Ce qui n\'appartient à personne : profits gardés par l\'entreprise au-delà des mises.',at(W,w=>w.fUnowned),int,{subs:at(W,w=>w.fValue>0?pct(w.fUnowned/w.fValue)+' de la valeur':'')})+
     crow('Versé aux ménages propriétaires','Dividendes et remboursements de mises, sur toute la vie.',at(W,w=>w.fDiv),int)+
+    crow('Usure du capital','Total sur la vie : valeur perdue par les équipements qui s\'usent, prise sur le profit avant tout versement.',at(W,w=>w.fWear),int)+
     crow('Investissement des entreprises','Total sur la vie, dont part financée par l\'épargne des ménages.',at(W,w=>w.fInvested),int,{subs:at(W,w=>w.fInvested>0?pct((w.fExtE+w.fExtB)/w.fInvested)+' de l\'extérieur':'')})+
     crow('Pertes de la banque sur faillites','Supportées par les déposants.',at(W,w=>w.fBankLoss),int);
   setHTML('firmrows',h);
