@@ -38,7 +38,7 @@ function atkinson(x,eps){
 // résultats scalaires moyennés sur les simulations
 const SUM_KEYS=['funded','refused','loans','debt','indebted','fund','refusedDebt','refusedFund','interest','issues','eqRaised','eqPaid','holders',
   'fCreated','fAlive','fBiz5','fBizEx','fOld0','fOldAlive','fDied','fBankrupt','fBankLoss','fDiv','fWear','fInvested','fExtE','fExtB','fUnowned','fValue',
-  'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T','cDrift','cWageShort','cSaveRate','cWageShare'];
+  'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T','cDrift','cWageShort','cSaveRate','cWageShare','sTau','sTax','sWages','sPurch','sInt','sCut','sBond10'];
 // indicateurs calculés simulation par simulation, pour mesurer la dispersion d'un tirage à l'autre
 const PER_RUN={
   mean:(x,e)=>e.mean, bottom10:(x,e)=>e.bottom10, top1:(x,e)=>e.top1==null?NaN:e.top1, gini:(x,e,T)=>x.gi[T-1],
@@ -53,12 +53,12 @@ function spreadOf(a){const y=Array.from(a).filter(v=>isFinite(v)).sort((a,b)=>a-
 
 /* Agrège des simulations déjà calculées (une par tirage, dans l'ordre des graines) */
 function aggFrom(world,P,xs){
-  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),cov=new Float64Array(T),lor0=new Float64Array(41);let g0=0;
+  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),cov=new Float64Array(T),sDebt=new Float64Array(T),sDef=new Float64Array(T),lor0=new Float64Array(41);let g0=0;
   const o={};for(const k of SUM_KEYS)o[k]=0;
   const nets=[],grps=[],owes=[],qis=[],refs=[];
   const per={};for(const k in PER_RUN)per[k]=new Float64Array(R);
   for(let s=0;s<R;s++){const x=xs[s];
-    for(let t=0;t<T;t++){tot[t]+=x.tot[t]/R;gi[t]+=x.gi[t]/R;uT[t]+=x.uT[t]/R;cov[t]+=x.cCov[t]/R;}
+    for(let t=0;t<T;t++){tot[t]+=x.tot[t]/R;gi[t]+=x.gi[t]/R;uT[t]+=x.uT[t]/R;cov[t]+=x.cCov[t]/R;sDebt[t]+=x.sDebt[t]/R;sDef[t]+=x.sDef[t]/R;}
     for(let k=0;k<=40;k++)lor[k]+=x.lor[k]/R;
     if(x.lor0){for(let k=0;k<=40;k++)lor0[k]+=x.lor0[k]/R;g0+=x.gini0/R;}
     for(const k of SUM_KEYS)o[k]+=x[k]/R;
@@ -66,7 +66,7 @@ function aggFrom(world,P,xs){
     const e=equity(x.net,x.grp,x.owes),q=byQuint(x.net,x.grp,x.qi,x.refI);for(const k in PER_RUN)per[k][s]=PER_RUN[k](x,e,T,q);}
   const spread={};for(const k in per)spread[k]=spreadOf(per[k]);
   const hasStart=P.ini||(P.firm&&P.exist);
-  return {tot,gi,uT,cov,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
+  return {tot,gi,uT,cov,sDebt,sDef,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
     eqReturn:o.eqRaised>0?o.eqPaid/o.eqRaised-1:null,holdersPer:o.issues>0?o.holders/o.issues:null,
     eq:equity(nets,grps,owes),byq:byQuint(nets,grps,qis,refs),per,spread,R,dg:meanDiagnostics(xs)};
 }

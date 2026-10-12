@@ -7,10 +7,13 @@
    des entreprises et leur achètent des biens ; ce que dépensent ménages et entreprises (consommation, investissement, créations)
    forme les ventes de l'année suivante ; les ventes moins les salaires forment le profit brut des entreprises, réparti selon leur
    rentabilité (qui n'est plus qu'une rentabilité « notionnelle ») ; les coûts de la banque et des fonds paient des salaires.
+   État minimal (P.state, en économie bouclée) : il prélève un impôt sur les ventes des entreprises, paie une partie des salaires
+   (fonctionnaires), achète des biens aux entreprises et finance son déficit en vendant des obligations aux ménages, qui lui paient
+   des intérêts avec gains libres et aucun avec gains interdits.
    ===================================================================== */
 function run(world,seed,P){
   const N=P.N,T=P.T,eps=1e-9;
-  const bank=!!P.bank,stock=!!P.stock,firmOn=!!P.firm,capped=world==='I',closed=firmOn&&!!P.closed;
+  const bank=!!P.bank,stock=!!P.stock,firmOn=!!P.firm,capped=world==='I',closed=firmOn&&!!P.closed,stateOn=closed&&!!P.state;
   const rate=world==='L'?P.rl:0;                       // taux d'intérêt (nul avec gains interdits)
   const depE=bank?P.dep:0,invE=stock?Math.min(P.inv,1-depE):0; // parts de l'épargne déposée et placée en actions
   const phi=stock?(bank?P.phi:1):0;                    // part d'un besoin de financement demandée à la bourse
@@ -46,9 +49,20 @@ function run(world,seed,P){
      reversés en salaires. Au départ, le pool vaut salaires + profits notionnels des entreprises existantes. */
   let WB=0;for(let i=0;i<N;i++)WB+=wage[i];
   let pool=0,poolNext=0,feePot=0;const cc={wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
-  const money=()=>{let m=F+pool+poolNext+feePot+funds.cash();for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
+  const money=()=>{let m=F+pool+poolNext+feePot+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
+  // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
+  const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,pubDebt=0,GDPprev=0;const rB=stateOn&&world==='L'?P.rB:0;
+  const sc={tax:0,gw:0,gp:0,int:0,cut:0,spend:0};
   let M0=0;
-  if(closed){let notional=0;for(const fm of firms)notional+=fm.rho*fm.K;pool=WB+notional;M0=money();}
+  if(closed){let notional=0;for(const fm of firms)notional+=fm.rho*fm.K;pool=WB+notional;
+    if(stateOn){// calage : à l'année 0, ventes = salaires privés + profits notionnels + impôt, et l'impôt laisse le déficit visé
+      // (même taux dans les deux scénarios : il est calé avec le taux d'intérêt observé)
+      let gdp=WB+notional;for(let it=0;it<60;it++){const GW=P.gW*gdp,T0=(P.gW+P.gP+P.rB*P.debt0-P.defT)*gdp;pool=WB-GW+notional+T0;tau=T0/pool;gdp=pool+GW;}
+      GDPprev=gdp;
+      // dette de départ : une partie des liquidités des ménages est en fait détenue en obligations publiques
+      let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const b=Math.min(P.debt0*gdp,0.9*tw);
+      if(tw>0)for(let i=0;i<N;i++){const x=b*Math.max(0,W[i])/tw;W[i]-=x;Bh[i]+=x;}pubDebt=b;}
+    M0=money();}
 
   for(let t=0;t<T;t++){
     if(t>0)partic.update(net,t);
@@ -58,11 +72,22 @@ function run(world,seed,P){
       if(acc>0&&sumD>0){for(let j=0;j<N;j++)D[j]+=acc*D[j]/sumD;st.interest+=acc;}}
 
     /* ---------- économie bouclée : salaires payés sur les ventes, puis sur la trésorerie des entreprises ---------- */
-    let ratio=1;
-    if(closed){let paid=Math.min(pool,WB);pool-=paid;
-      if(paid<WB){const need=WB-paid;let totK=0;for(const fm of firms)if(!fm.dead)totK+=fm.K;
+    let ratio=1,sales=0,GW=0;
+    if(closed){sales=pool;
+      if(stateOn){// impôt sur les ventes, puis dépenses (fonctionnaires, achats, intérêts) ; le déficit est emprunté aux ménages
+        const tax=tau*pool;pool-=tax;Sc+=tax;sc.tax+=tax;
+        GW=P.gW*GDPprev;let GP=P.gP*GDPprev,INT=rB*pubDebt;
+        const need=GW+GP+INT-Sc;
+        if(need>0){let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const x=Math.min(need,tw);
+          if(x>0){for(let i=0;i<N;i++){const b=x*Math.max(0,W[i])/tw;W[i]-=b;Bh[i]+=b;}Sc+=x;pubDebt+=x;}}
+        const spend=GW+GP+INT,f=spend>Sc?Sc/spend:1;sc.cut+=spend*(1-f);sc.spend+=spend;GW*=f;GP*=f;INT*=f;Sc-=GW+GP+INT;
+        if(INT>0&&pubDebt>0)for(let i=0;i<N;i++){const x=INT*Bh[i]/pubDebt;W[i]+=x;capInc[i]+=x;}
+        poolNext+=GP;sc.gw+=GW;sc.gp+=GP;sc.int+=INT;defR[t]=GDPprev>0?(GW+GP+INT-tax)/GDPprev:0;}
+      // salaires privés : sur les ventes, puis sur la trésorerie des entreprises
+      const WBp=Math.max(0,WB-GW);let paid=Math.min(pool,WBp);pool-=paid;
+      if(paid<WBp){const need=WBp-paid;let totK=0;for(const fm of firms)if(!fm.dead)totK+=fm.K;
         if(totK>0)for(const fm of firms){if(fm.dead)continue;const x=Math.min(fm.R,need*fm.K/totK);fm.R-=x;paid+=x;}}
-      ratio=WB>0?paid/WB:0;cc.wagePaid+=paid;cc.wageShort+=WB-paid;}
+      ratio=WB>0?(paid+GW)/WB:0;cc.wagePaid+=paid+GW;cc.wageShort+=WB-paid-GW;}
 
     /* ---------- épargne : remboursement des dettes, dépôt, actions, liquidités ---------- */
     if(closed){// le ménage reçoit son salaire, consomme (revenu et patrimoine), puis place ce qui reste
@@ -190,12 +215,14 @@ function run(world,seed,P){
     funds.payout();
     if(closed){// les coûts de la banque et des fonds sont les salaires de leurs employés (répartis comme les salaires) ; les dépenses de l'année font les ventes de la suivante
       let sw=0;for(let i=0;i<N;i++)sw+=wage[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]/sw;W[i]+=x;capInc[i]+=x;}
-      feePot=0;pool+=poolNext;poolNext=0;cc.drift=Math.max(cc.drift,Math.abs(money()-M0)/M0);}
+      feePot=0;pool+=poolNext;poolNext=0;
+      if(stateOn){GDPprev=sales+GW;debtR[t]=GDPprev>0?pubDebt/GDPprev:0;}
+      cc.drift=Math.max(cc.drift,Math.abs(money()-M0)/M0);}
     const eqv=new Float64Array(N);let unowned=0,firmV=0;funds.stake.fill(0);
     if(firmOn)for(const fm of firms){if(fm.dead)continue;const V=Math.max(0,fm.K+fm.R-fm.debt);firmV+=V;unowned+=V-valueHoldings(fm,V,capped,eqv,funds.stake);}
     {const fv=funds.value(eqv);fs.fundV=fv.total;fs.fundUn=fv.unclaimed;unowned+=fv.unclaimed;}
     fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned;
-    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i];s+=net[i];}tot[t]=s;gi[t]=gini(net);
+    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i];s+=net[i];}tot[t]=s;gi[t]=gini(net);
   }
 
   /* ---------- résultats ---------- */
@@ -210,7 +237,8 @@ function run(world,seed,P){
   return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned,fValue:fs.firmV,
-    cCov:cov,cDrift:cc.drift,cWageShort:closed&&WB>0?cc.wageShort/(WB*T):0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
+    cCov:cov,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
+    sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(net).sort();const c9=y[Math.floor(0.9*N)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&WB>0?cc.wageShort/(WB*T):0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     fFundPaid:fs.fundPaid,fFundV:fs.fundV,fFundUn:fs.fundUn,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
     net:Float64Array.from(net),grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
 }

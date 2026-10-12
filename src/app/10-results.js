@@ -8,7 +8,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
   renderKpis(W);renderVerdict(W,P.T-1);renderAge(W);
-  renderBank(W);renderCircuit(W);renderFirms(W);renderStock(W);renderQuintiles(W);
+  renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
   const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
@@ -46,6 +46,21 @@ function renderCircuit(W){
     crow('Taux d\'épargne observé des ménages','Revenus non dépensés / revenus (salaires et revenus du capital). Il tient compte de la consommation tirée du patrimoine. Insee : 18 % du revenu disponible, dont environ la moitié placée en logement.',at(W,w=>w.cSaveRate),pct1)+
     crow('Salaires non versés','Part de la masse salariale que les entreprises n\'ont pas pu payer, faute de ventes et de trésorerie.',at(W,w=>w.cWageShort),pct1,{domain:[0,1]})+
     crow('Contrôle de la monnaie','Écart maximal entre la monnaie totale et celle du départ. Proche de zéro : rien ne fuit, rien n\'apparaît.',at(W,w=>w.cDrift),v=>v==null?'n.d.':v<1e-9?'< 0,000 000 1 %':pct1(v),{domain:[0,1]}));
+}
+
+// État minimal : dette, impôt, déficit
+function renderState(W){
+  const on=!!(P.firm&&P.closed&&P.state);show('statecard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1);const ys=W.map(w=>Array.from(w.sDebt,v=>v*100));
+  lineChart($('ch_debt'),{W:760,H:260,xs,xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,yMax:niceMax(Math.max(...ys[0],...ys[1],P.debt0*100)),yTicks:4,xTicks:P.T%5===0?5:2,
+    yFmt:v=>Math.round(v)+' %',series:[{ys:xs.map(()=>P.debt0*100),color:'var(--muted)',dash:true,name:'Départ'},...seriesLI(ys[0],ys[1])]});
+  const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
+  setHTML('staterows',
+    crow('Taux de l\'impôt sur les ventes','Calé au départ pour retrouver le déficit de 2025 ; le même dans les deux scénarios.',at(W,w=>w.sTau),pct1)+
+    crow('Déficit public moyen','En part du PIB, moyenne sur les années. France 2025 : 5,1 %.',at(W,w=>mean(Array.from(w.sDef))),pct1)+
+    crow('Intérêts versés aux porteurs d\'obligations','Total sur la vie. Avec gains interdits, les obligations ne rapportent rien.',at(W,w=>w.sInt),int)+
+    crow('Dette détenue par les 10 % les plus riches','À la fin. Le déficit est emprunté à ceux qui ont des liquidités.',at(W,w=>w.sBond10),pct)+
+    crow('Dépenses publiques non financées','Part des dépenses que l\'État n\'a pas pu payer, faute d\'impôt et de prêteurs.',at(W,w=>w.sCut),pct1,{domain:[0,1]}));
 }
 
 function renderFirms(W){

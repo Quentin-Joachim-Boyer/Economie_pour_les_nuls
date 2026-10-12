@@ -59,5 +59,11 @@ const DEBT_AMORT=0.1;                 // remboursement annuel du capital emprunt
    (Insee : financier 20,9 % dont environ la moitié liquide, immobilier 61,9 %, professionnel 10,6 %, autres 6,5 %) : ≈ 2,9 % par an */
 const MPC_WEALTH=0.105*0.14+0.105*0.022+0.619*0.013+0.171*0.022;
 
+/* ---------- État minimal (comptes des administrations publiques 2025, Insee, premiers résultats) ----------
+   dépenses : rémunérations 370,0 Md€ (12,3 % du PIB), consommations intermédiaires 165,0 Md€ et investissement 131,6 Md€
+   (9,9 % du PIB) ; intérêts 64,7 Md€ pour une dette de 3 460,5 Md€ fin 2025 (taux apparent ≈ 1,9 %) ; dette 115,6 % du PIB ;
+   déficit 5,1 % du PIB. Prestations sociales et transferts (redistribution) : pas encore modélisés. */
+const STATE_DEFAULTS={gW:0.123,gP:0.099,defT:0.051,debt0:1.156,rB:0.019};
+
 /* ---------- fonds ---------- */
 const FUND_ID_BASE=-10;               // un fonds f apparaît parmi les détenteurs sous l'identifiant −10 − f
