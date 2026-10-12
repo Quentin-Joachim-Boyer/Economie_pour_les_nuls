@@ -1,0 +1,322 @@
+<title>Laboratoire du rendement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+{{STYLE}}</style>
+
+<div class="wrap">
+<header>
+  <h1>Laboratoire du rendement</h1>
+  <p class="lede">Deux économies identiques, à une règle près : dans l'une, prêter son argent peut rapporter ; dans l'autre, tout gain pour le prêteur est interdit. Chaque brique ajoutée au modèle s'applique aux deux. Réglez les curseurs, puis lancez la simulation.</p>
+  <div class="legend">
+    <span><i class="sw l"></i>Gains libres</span>
+    <span><i class="sw i"></i>Gains interdits</span>
+  </div>
+</header>
+
+<div class="layout">
+<aside id="panel" class="help-off">
+  <div class="bar">
+    <button id="run" type="button" class="primary">Lancer la simulation</button>
+    <progress id="prog" hidden></progress>
+    <div class="actions-row"><span class="status" id="status"></span></div>
+    <div class="actions-row tools"><button id="reset" type="button" class="small">Valeurs de départ</button><label class="chk" for="help"><input type="checkbox" id="help"> Afficher les aides</label></div>
+  </div>
+
+  <details class="grp" data-k="soc">
+    <summary><span class="gt">Société</span><span class="gs" id="sum_soc"></span></summary>
+    <div class="body">
+      <div class="ctl"><div class="top"><label for="N">Nombre de ménages</label><output id="N_o"></output></div><input type="range" id="N" min="0" max="100" step="1"><small>Plus de ménages : les très grandes fortunes sont mieux représentées. Échelle logarithmique, de 100 à 50 000. Temps de calcul : environ 0,1 s par simulation à 2 000 ménages, 0,3 s à 10 000, 1,8 s à 50 000, réparti entre les cœurs du processeur. Vers 45 000 ménages, une grande entreprise apparaît sans être une « tranche ».</small></div>
+      <div class="ctl"><div class="top"><label for="T">Durée (années)</label><output id="T_o"></output></div><input type="range" id="T" min="10" max="80" step="5"></div>
+      <div class="ctl"><div class="top"><label for="save">Épargne par personne et par an</label><output id="save_o"></output></div><input type="range" id="save" min="0.02" max="0.6" step="0.01"><small>Chacun gagne 1 par an, l'équivalent du niveau de vie médian français (25 760 € en 2023), et met ceci de côté.</small></div>
+      <div class="ctl"><div class="top"><label for="runs">Simulations moyennées</label><output id="runs_o"></output></div><input type="range" id="runs" min="1" max="60" step="1"><small>Plus il y en a, moins la chance pèse sur les résultats.</small></div>
+    
+      <div class="brick">
+        <label class="switch" for="inc"><input type="checkbox" id="inc"><span><b>Revenus inégaux</b><span class="hint">Chacun a son propre revenu, fixe sur toute la vie.</span></span></label>
+        <div class="inner" id="in_inc">
+          <div class="ctl"><div class="top"><label for="sigI">Dispersion des revenus</label><output id="sigI_o"></output></div><input type="range" id="sigI" min="0" max="1.2" step="0.01"><small>Loi log-normale de médiane 1. À 0,49, le rapport entre le revenu au-dessus duquel sont les 10 % les plus aisés et celui en dessous duquel sont les 10 % les plus modestes vaut 3,5, comme en France.</small></div>
+          <label class="switch" for="sprof"><input type="checkbox" id="sprof"><span><b>Les plus aisés épargnent davantage</b><span class="hint">Taux d'épargne par quintile de revenu, d'après l'Insee.</span></span></label>
+        </div>
+      </div>
+      <div class="brick">
+        <label class="switch" for="ini"><input type="checkbox" id="ini"><span><b>Patrimoine de départ</b><span class="hint">Chaque ménage part avec un patrimoine tiré de la distribution française réelle (Insee 2021).</span></span></label>
+        <div class="inner" id="in_ini">
+          <div class="ctl"><div class="top"><label for="m0">Niveau du patrimoine</label><output id="m0_o"></output></div><input type="range" id="m0" min="0" max="3" step="0.05"><small>Multiplie toute la distribution. À 1 : patrimoine net des ménages en France début 2021 d'après l'Insee (médiane 124 800 €, moyenne 274 000 €, soit environ 4,8 et 10,6 ans de revenu médian).</small></div>
+          <div class="ctl"><div class="top"><label for="alW">Épaisseur de la queue des plus riches</label><output id="alW_o"></output></div><input type="range" id="alW" min="1.2" max="3" step="0.05"><small>Au-delà du 1 % le plus riche, loi de Pareto. Plus le chiffre est bas, plus les très hauts patrimoines pèsent. À 1,85, la moyenne retombe sur celle de l'Insee et le 1 % le plus riche détient environ 16 % du total.</small></div>
+          <div class="ctl"><div class="top"><label for="rhoIW">Lien entre revenu et patrimoine</label><output id="rhoIW_o"></output></div><input type="range" id="rhoIW" min="0" max="0.95" step="0.05"><small>Corrélation entre les deux (sur leurs logarithmes), active si les revenus sont inégaux. En France, la corrélation entre patrimoine net et revenus du travail est d'environ 0,25.</small></div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="grp" data-k="proj">
+    <summary><span class="gt">Créations d'entreprise</span><span class="gs" id="sum_proj"></span></summary>
+    <div class="body">
+      <div class="ctl"><div class="top"><label for="pidea">Chance d'avoir une idée</label><output id="pidea_o"></output></div><input type="range" id="pidea" min="0.001" max="0.1" step="0.001"><small>Par personne et par an. Une idée trouvée n'est lancée que si elle peut être financée.</small></div>
+      <div class="ctl"><div class="top"><label for="cost">Coût moyen d'une création</label><output id="cost_o"></output></div><input type="range" id="cost" min="0.1" max="20" step="0.1"></div>
+      <div class="ctl"><div class="top"><label for="pok">Chance de réussite</label><output id="pok_o"></output></div><input type="range" id="pok" min="0.1" max="1" step="0.05"></div>
+      <div class="ctl"><div class="top"><label for="payoff">Gain moyen si réussite</label><output id="payoff_o"></output></div><input type="range" id="payoff" min="0.5" max="50" step="0.5"><small>Montant total produit. En cas d'échec, la mise est perdue.</small></div>
+      <div class="brick">
+        <label class="switch" for="vary"><input type="checkbox" id="vary"><span><b>Créations inégales</b><span class="hint">Coût et gain tirés au hasard pour chaque création.</span></span></label>
+        <div class="inner" id="in_vary">
+          <div class="ctl"><div class="top"><label for="sig">Dispersion des coûts <span class="scope">les deux</span></label><output id="sig_o"></output></div><input type="range" id="sig" min="0" max="3" step="0.1"><small>0 : toutes les créations coûtent le coût moyen. À 1, une création sur six coûte plus de 2,5 fois la médiane. La moyenne reste celle réglée plus haut.</small></div>
+          <div class="ctl"><div class="top"><label for="alpha">Égalité des succès <span class="scope">les deux</span></label><output id="alpha_o"></output></div><input type="range" id="alpha" min="1.1" max="5" step="0.1"><small>Forme de la loi des gains réussis (Pareto). Proche de 1 : quelques succès énormes et beaucoup de petits ; les tailles d'entreprises réelles sont proches de 1. Vers 5 : succès de tailles voisines. Le gain moyen reste celui réglé plus haut.</small></div>
+        </div>
+      </div>
+      <div class="brick">
+        <label class="switch" for="firm"><input type="checkbox" id="firm"><span><b>Entreprises</b><span class="hint">L'entreprise créée dure, verse des profits et investit.</span></span></label>
+        <div class="inner" id="in_firm">
+          <div class="ctl"><div class="top"><label for="rho">Rentabilité médiane du capital</label><output id="rho_o"></output></div><input type="range" id="rho" min="0" max="0.4" step="0.005"><small>Profit annuel rapporté au capital de l'entreprise. Rentabilité économique médiane des entreprises françaises : 10,7 % en 2023. Avec « Créations inégales », elle varie d'une entreprise à l'autre.</small></div>
+          <div class="ctl"><div class="top"><label for="invest">Investissement annuel</label><output id="invest_o"></output></div><input type="range" id="invest" min="0" max="0.3" step="0.01"><small>Part de son capital que l'entreprise investit chaque année : d'abord sur ses réserves, puis en empruntant à la banque ou en émettant des actions.</small></div>
+          <div class="ctl"><div class="top"><label for="payout">Part des profits distribuée <span class="scope l">gains libres</span></label><output id="payout_o"></output></div><input type="range" id="payout" min="0" max="1" step="0.05"><small>Avec gains libres : part versée aux propriétaires, le reste est mis en réserve. Avec gains interdits : chaque propriétaire reçoit au plus sa mise, le reste appartient à l'entreprise.</small></div>
+          <div class="ctl"><div class="top"><label for="ageb">Robustesse des entreprises anciennes</label><output id="ageb_o"></output></div><input type="range" id="ageb" min="0" max="3" step="0.1"><small>Après 5 ans, le risque de disparaître est multiplié par (5 / âge) à cette puissance. À 0, l'âge ne compte pas. À 1,2, une entreprise de 8 ans a environ 0,57 fois le risque d'une jeune, comme dans les données américaines ; à 20 ans, environ 0,19 fois.</small></div>
+          <label class="switch" for="exist"><input type="checkbox" id="exist"><span><b>Entreprises existantes au départ</b><span class="hint">Leurs propriétaires et actionnaires sont des personnes de la population.</span></span></label>
+          <div class="inner" id="in_exist">
+            <div class="ctl"><div class="top"><label for="k0">Capital existant par personne</label><output id="k0_o"></output></div><input type="range" id="k0" min="0" max="10" step="0.25"><small>En années de revenu médian. Capital productif fixe des sociétés non financières : environ 3 000 milliards d'euros fin 2023, soit environ 3,75 ans de revenu par actif.</small></div>
+            <div class="ctl"><div class="top"><label for="nf">Entreprises existantes pour 100 ménages</label><output id="nf_o"></output></div><input type="range" id="nf" min="1" max="50" step="1"><small>Insee 2023 : 5 millions d'entreprises pour environ 30 millions de ménages, soit 17 pour 100. Leur répartition par taille suit l'Insee : 96 % de microentreprises qui ont 10 % du capital, quelques grandes entreprises qui en ont près de la moitié.</small></div>
+            <div class="ctl"><div class="top"><label for="hold">Part des ménages détenant des entreprises</label><output id="hold_o"></output></div><input type="range" id="hold" min="0.02" max="1" step="0.01"><small>Insee 2021 : 16 % des ménages détiennent un patrimoine professionnel. Ils sont choisis d'autant plus souvent que leur patrimoine de départ est élevé ; propriétaires et actionnaires sont tirés parmi eux.</small></div>
+            <div class="ctl"><div class="top"><label for="own">Part du propriétaire principal</label><output id="own_o"></output></div><input type="range" id="own" min="0" max="1" step="0.05"><small>Pour les microentreprises et les PME ; le reste est réparti entre 10 actionnaires. Les grandes entreprises et les ETI n'ont pas de propriétaire principal : leur capital est dispersé entre 40 actionnaires. Ces parts ne se revendent pas.</small></div>
+          </div>
+          <small class="hint long">Chaque année, une entreprise disparaît avec une probabilité inversement proportionnelle à sa marge : profit moins échéance de la dette (intérêts et 10 % du capital restant dû), rapporté à son capital. Sans marge, la disparition est presque certaine (90 %). Après 5 ans, le risque diminue avec l'âge. La constante est calée pour que la « chance de réussite » soit la survie moyenne à 5 ans. En disparaissant, l'entreprise perd son capital, et la banque ce qu'elle lui doit encore, au détriment des déposants. Les prêts de création deviennent des dettes de l'entreprise, plus des dettes personnelles du fondateur.</small>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="grp" data-k="fin">
+    <summary><span class="gt">Financement</span><span class="gs" id="sum_fin"></span></summary>
+    <div class="body">
+      <div class="brick">
+        <label class="switch" for="bank"><input type="checkbox" id="bank"><span><b>Banque</b><span class="hint">Prête l'argent déposé, contre une dette.</span></span></label>
+        <div class="inner" id="in_bank">
+          <div class="ctl"><div class="top"><label for="dep">Part de l'épargne déposée <span class="scope">les deux</span></label><output id="dep_o"></output></div><input type="range" id="dep" min="0" max="1" step="0.05"><small>La banque ne prête que l'argent déposé.</small></div>
+          <div class="ctl"><div class="top"><label for="fee">Coût de traitement d'un prêt <span class="scope">les deux</span></label><output id="fee_o"></output></div><input type="range" id="fee" min="0" max="1" step="0.01"><small>Le travail de la banque pour un prêt, ajouté à la dette. Il rémunère un travail extérieur au modèle.</small></div>
+          <div class="ctl"><div class="top"><label for="rl">Taux d'intérêt annuel <span class="scope l">gains libres</span></label><output id="rl_o"></output></div><input type="range" id="rl" min="0" max="0.15" step="0.005"><small>Ajouté chaque année à la dette restante, et reversé aux déposants au prorata de leurs dépôts. Avec gains interdits, le taux est nul.</small></div>
+          <small class="hint long">L'emprunteur rembourse toujours, même si l'entreprise échoue : d'abord sur son gain, sinon sur son épargne future. On ne réemprunte pas tant qu'on a une dette.</small>
+        </div>
+      </div>
+      <div class="brick">
+        <label class="switch" for="stock"><input type="checkbox" id="stock"><span><b>Bourse</b><span class="hint">L'épargne-actions passe par des fonds, qui achètent des parts d'entreprises et en partagent les profits et les pertes entre leurs porteurs.</span></span></label>
+        <div class="inner" id="in_stock">
+          <div class="ctl"><div class="top"><label for="part">Ménages qui épargnent en actions <span class="scope">les deux</span></label><output id="part_o"></output></div><input type="range" id="part" min="0" max="1" step="0.01"><small>Part de l'ensemble des ménages. Qui en fait partie change chaque année avec le patrimoine : d'après l'Insee, 1 % des ménages les moins dotés détiennent des actions, contre 38 % des 90-99e centiles et 76 % du 1 % le plus riche. Environ 20 % des ménages en détiennent en direct, via des fonds ou une assurance-vie en unités de compte.</small></div>
+          <div class="ctl"><div class="top"><label for="inv">Part de l'épargne placée en actions, pour ceux qui en ont <span class="scope">les deux</span></label><output id="inv_o"></output></div><input type="range" id="inv" min="0" max="1" step="0.05"><small>Versée dans les fonds. Chez les ménages qui détiennent des actions, elles représentent en général de 20 à 40 % du patrimoine financier (Insee 2017). Avec la banque, dépôt + actions ne dépassent pas 100 % de l'épargne.</small></div>
+          <div id="wrap_phi"><div class="ctl"><div class="top"><label for="phi">Part du besoin demandée à la bourse <span class="scope">les deux</span></label><output id="phi_o"></output></div><input type="range" id="phi" min="0" max="1" step="0.05"><small>Le reste est demandé à la banque. Si l'une manque de fonds, l'autre complète. Sans banque, tout passe par la bourse.</small></div></div>
+          <div class="ctl"><div class="top"><label for="nfd">Nombre de fonds <span class="scope">les deux</span></label><output id="nfd_o"></output></div><input type="range" id="nfd" min="1" max="50" step="1"><small>Chaque ménage verse son épargne-actions dans un fonds tiré au hasard, et en détient des parts. En France, la plupart des ménages détiennent des actions via des fonds ou l'assurance-vie plutôt qu'en direct.</small></div>
+          <div class="ctl"><div class="top"><label for="m">Diversification des fonds <span class="scope">les deux</span></label><output id="m_o"></output></div><input type="range" id="m" min="1" max="50" step="1"><small>Un fonds n'apporte à une même levée que 1/n de sa trésorerie. Les règles des OPCVM limitent à 5 % (10 % par dérogation) la part de l'actif placée chez un même émetteur, d'où n = 10 par défaut.</small></div>
+          <div class="ctl"><div class="top"><label for="feeE">Coût d'introduction <span class="scope">les deux</span></label><output id="feeE_o"></output></div><input type="range" id="feeE" min="0" max="1" step="0.01"><small>Le travail pour émettre les parts, payé par les actionnaires.</small></div>
+          <small class="hint long">Si l'entreprise échoue, les actionnaires perdent leur mise et l'entrepreneur ne leur doit rien. S'il réussit, ils reçoivent la part du gain correspondant à leur apport ; avec gains interdits, au plus leur mise.</small>
+        </div>
+      </div>
+      <div class="brick" id="in_direct">
+        <b class="bt">Prêt direct entre particuliers</b>
+        <small class="hint">Actif quand ni la banque ni la bourse ne le sont.</small>
+        <div class="ctl"><div class="top"><label for="r">Rendement promis aux prêteurs <span class="scope l">gains libres</span></label><output id="r_o"></output></div><input type="range" id="r" min="0" max="2" step="0.05"><small>Tout le monde prête automatiquement, au prorata de son épargne. En cas de succès, les prêteurs récupèrent leur mise plus ce pourcentage, dans la limite du gain ; en cas d'échec, ils perdent leur mise. Avec gains interdits, personne ne prête.</small></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="grp" data-k="mes">
+    <summary><span class="gt">Mesure de l'équité</span><span class="gs" id="sum_mes"></span></summary>
+    <div class="body">
+      <div class="ctl"><div class="top"><label for="eps">Aversion aux inégalités (Atkinson)</label><output id="eps_o"></output></div><input type="range" id="eps" min="0" max="3" step="0.25"><small>0 : seule la moyenne compte. Plus la valeur monte, plus on donne de poids aux plus pauvres. S'applique sans relancer.</small></div>
+    </div>
+  </details>
+
+  <details class="grp" data-k="rep" open>
+    <summary><span class="gt">Repères</span><span class="gs">calculés sans simulation</span></summary>
+    <div class="body"><div class="derived" id="derived"></div></div>
+  </details>
+</aside>
+
+<main>
+  <nav class="tabs" role="tablist" aria-label="Résultats">
+    <button type="button" role="tab" data-t="syn" aria-selected="true">Synthèse</button>
+    <button type="button" role="tab" data-t="ineq" aria-selected="false">Inégalités</button>
+    <button type="button" role="tab" data-t="fin" aria-selected="false">Entreprises et finance</button>
+    <button type="button" role="tab" data-t="hyp" aria-selected="false">Hypothèses</button>
+  </nav>
+
+  <div class="tabpane" data-pane="syn">
+  <section class="kpis" id="kpis"></section>
+  <p class="note" id="kpinote"></p>
+
+  <section class="card" id="verdict">
+    <h2>Ce qui change quand on interdit les gains</h2>
+    <p id="vmodel"></p>
+    <div class="vhead"><span><i style="background:var(--l)"></i>gains libres</span><span><i style="background:var(--i)"></i>gains interdits</span></div>
+    <ol class="vlist" id="vlist"></ol>
+    <p class="note">Classés de l'écart le plus grand au plus petit, en proportion. Les deux scénarios utilisent les mêmes tirages ; « fragile » signale un écart qui change de sens dans plus d'une simulation sur cinq. Le détail est dans les autres onglets.</p>
+  </section>
+
+  <section class="card" id="totcard">
+    <h2>Richesse au fil du temps</h2>
+    <p id="totlede">Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.</p>
+    <div class="chartwrap"><svg id="ch_total" viewBox="0 0 760 280" role="img" aria-label="Richesse totale par année, deux scénarios"></svg></div>
+  </section>
+  </div>
+
+  <div class="tabpane" data-pane="ineq">
+  <section class="card" id="eqcard">
+    <h2>Équité selon plusieurs critères</h2>
+    <p>Chaque critère juge la répartition autrement. Les barres d'un même critère partagent la même échelle ; le trait vertical marque zéro. Le meilleur scénario est coché : les critères ne désignent pas toujours le même.</p>
+    <div class="crows" id="eqrows"></div>
+    <p class="note">Calculé sur la richesse nette finale de toutes les personnes de toutes les simulations. Pour Atkinson, les richesses nulles ou négatives (dettes) sont ramenées à 1 % de la moyenne, car l'indice n'est pas défini en dessous de zéro.</p>
+  </section>
+
+  <section class="card" id="qcard">
+    <h2>Selon le revenu</h2>
+    <p>Richesse nette finale moyenne par cinquième de la population, classé par revenu, sur une échelle commune à tous les groupes. Sous chaque valeur : part du groupe ayant créé au moins une entreprise, et part ayant vu au moins une idée refusée faute de financement.</p>
+    <div class="crows" id="qrows"></div>
+  </section>
+
+  <section class="card" id="dwcard">
+    <h2>D'où viennent les écarts : une lecture à la Dworkin</h2>
+    <p>Richesse moyenne finale selon le parcours de chacun. Dworkin distingue la chance subie (avoir une idée, obtenir un financement) et la chance liée à un pari (le sort de l'entreprise créée). Personne ne choisit encore dans ce modèle, mais on voit déjà quels parcours creusent les écarts.</p>
+    <div class="crows" id="dwrows"></div>
+  </section>
+
+  <div class="charts2">
+    <section class="card">
+      <h2>Inégalités au fil du temps</h2>
+      <p>Indice de Gini : 0 si tout le monde a autant, 1 si une seule personne a tout.</p>
+      <div class="chartwrap"><svg id="ch_gini" viewBox="0 0 380 260" role="img" aria-label="Indice de Gini par année"></svg></div>
+    </section>
+    <section class="card">
+      <h2>Qui possède quoi, au départ et à la fin</h2>
+      <p id="lorlede">Part de la richesse nette détenue par les x % les moins riches. Sous zéro, ce sont des personnes endettées.</p>
+      <div class="chartwrap"><svg id="ch_lorenz" viewBox="0 0 380 260" role="img" aria-label="Courbe de Lorenz au départ et à la fin"></svg></div>
+    </section>
+  </div>
+  </div>
+
+  <div class="tabpane" data-pane="fin">
+  <section class="card" id="firmcard">
+    <h2>Les entreprises en fin de simulation</h2>
+    <p>Ce que sont devenues les entreprises, en moyenne par simulation, en années de revenu médian.</p>
+    <div class="crows" id="firmrows"></div>
+  </section>
+
+  <section class="card" id="bankcard">
+    <h2>La banque en fin de simulation</h2>
+    <p>Ce qu'a fait la banque dans chaque scénario, en moyenne par simulation.</p>
+    <div class="crows" id="bankrows"></div>
+  </section>
+
+  <section class="card" id="stockcard">
+    <h2>La bourse en fin de simulation</h2>
+    <p>Ce qu'ont vécu les porteurs de parts de fonds dans chaque scénario, en moyenne par simulation.</p>
+    <div class="crows" id="stockrows"></div>
+  </section>
+
+  <section class="card keep" id="sweepcard">
+    <div class="card-head">
+      <div><h2>Effet du taux d'intérêt</h2></div>
+      <div class="card-tools">
+        <label for="sweepmetric" class="hint">Indicateur</label>
+        <select id="sweepmetric">
+          <option value="bottom10">Moyenne des 10 % les plus pauvres</option>
+          <option value="gini">Gini final</option>
+          <option value="funded">Entreprises créées</option>
+          <option value="mean">Richesse moyenne</option>
+          <option value="indebted">Personnes encore endettées</option>
+        </select>
+        <button id="sweepbtn" type="button">Calculer</button>
+      </div>
+    </div>
+    <p>Le scénario « gains libres » recalculé pour 13 taux, de 0 à 15 % par an, tous les autres réglages restant ceux du panneau. Le scénario « gains interdits » correspond toujours à un taux nul : il est tracé en pointillé.</p>
+    <div class="chartwrap" id="sweepwrap"><svg id="ch_sweep" viewBox="0 0 760 280" role="img" aria-label="Indicateur selon le taux d'intérêt"></svg></div>
+    <p class="note" id="sweepnote">Cliquez sur « Calculer » pour lancer les 13 simulations (quelques secondes).</p>
+  </section>
+  </div>
+
+  <div class="tabpane" data-pane="hyp">
+  <section class="card keep" id="popcard">
+    <h2>La population au départ</h2>
+    <p>Revenus et patrimoines des ménages au départ de la simulation, d'après les réglages actuels. Échelle logarithmique : chaque graduation multiplie par 10. Se met à jour dès qu'on bouge un curseur.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Revenu annuel</h3><div class="chartwrap"><svg id="ch_inc" viewBox="0 0 380 220" role="img" aria-label="Distribution des revenus"></svg></div><p class="note" id="inc_note"></p></div>
+      <div><h3 class="sub">Patrimoine de départ</h3><div class="chartwrap"><svg id="ch_w0" viewBox="0 0 380 220" role="img" aria-label="Distribution du patrimoine de départ"></svg></div><p class="note" id="w0_note"></p></div>
+    </div>
+    <p class="note" id="sav_note"></p>
+  </section>
+
+  <section class="card" id="agecard">
+    <h2>Âge, patrimoine et épargne en actions</h2>
+    <p>Comparaison du modèle (moyenne des simulations) avec les données. Les ménages vieillissent d'un an par an, sans décès : au départ, l'âge médian de la personne de référence est de <span id="agemed"></span> ans.</p>
+    <div class="tscroll"><table class="dtab" id="agetab"></table></div>
+    <div class="tscroll"><table class="dtab" id="inctab"></table></div>
+    <p class="note" id="agenote"></p>
+  </section>
+
+  <section class="card keep" id="firm0card">
+    <h2>Les entreprises au départ</h2>
+    <p>Le paysage d'entreprises existantes tiré au départ, d'après les réglages actuels (plusieurs centaines de tirages regroupés). Échelle logarithmique. Se met à jour dès qu'on bouge un curseur.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Capital par entreprise</h3><div class="chartwrap"><svg id="ch_fk" viewBox="0 0 380 220" role="img" aria-label="Distribution du capital des entreprises existantes"></svg></div><p class="note" id="fk_note"></p></div>
+      <div><h3 class="sub">Rentabilité annuelle du capital</h3><div class="chartwrap"><svg id="ch_fr" viewBox="0 0 380 220" role="img" aria-label="Distribution de la rentabilité des entreprises existantes"></svg></div><p class="note" id="fr_note"></p></div>
+    </div>
+    <p class="note" id="f0_note"></p>
+  </section>
+
+  <section class="card keep" id="distcard">
+    <h2>Les créations possibles</h2>
+    <p id="distlede">Distribution des créations d'entreprise que tirent les idées, d'après les réglages actuels. Échelle logarithmique : chaque graduation multiplie par 10. Se met à jour dès qu'on bouge un curseur.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Coût d'une création</h3><div class="chartwrap"><svg id="ch_cost" viewBox="0 0 380 220" role="img" aria-label="Distribution du coût des créations"></svg></div><p class="note" id="cost_note"></p></div>
+      <div><h3 class="sub">Gain d'une création réussie</h3><div class="chartwrap"><svg id="ch_gain" viewBox="0 0 380 220" role="img" aria-label="Distribution du gain des créations réussies"></svg></div><p class="note" id="gain_note"></p></div>
+    </div>
+  </section>
+
+  <section class="read">
+    <h2>D'où viennent les valeurs de départ</h2>
+    <p class="hint" style="margin:0">Calage sur la France, hors micro-entrepreneurs. Une période représente une année ; la simulation couvre une vie active d'environ 40 ans. L'unité est le niveau de vie médian : 1 = 25 760 € par an en 2023 (<a href="https://www.insee.fr/fr/statistiques/8612538">Insee</a>).</p>
+    <ul>
+      <li><b>Revenus : dispersion 0,49.</b> Niveau de vie 2023 : 13 460 € pour le premier décile, 25 760 € en médiane, 46 960 € pour le neuvième décile, soit un rapport de 3,5 ; Gini 0,297 (<a href="https://www.insee.fr/fr/statistiques/8612538">Insee</a>). Revenu fixe sur toute la vie : simplification.</li>
+      <li><b>Épargne selon le revenu.</b> Taux d'épargne 2017 par quintile de niveau de vie : 2,7 %, 5,0 %, 9,7 %, 11,2 % et 28,4 % (<a href="https://insee.fr/fr/statistiques/4764600">Insee Première</a>). Profil remis à l'échelle pour que l'épargne totale corresponde au taux moyen.</li>
+      <li><b>Patrimoine de départ : distribution française réelle.</b> Déciles du patrimoine net des ménages début 2021 (D1 3 000 €, médiane 124 800 €, D9 633 200 €, moyenne 274 000 €) (<a href="https://www.insee.fr/fr/statistiques/fichier/7941421/RPM2024-F26.pdf">Insee</a>), seuils du top 5 % et du top 1 % (1,03 et 2,24 M€ en brut, ramenés en net) et patrimoine moyen du top 1 % (4,9 M€ en brut, d'où une loi de Pareto d'indice 1,85 au-delà) (<a href="https://www.insee.fr/fr/statistiques/8272285">Insee, les hauts patrimoines</a>). Entre deux points connus, interpolation géométrique. Les dettes supérieures au patrimoine (patrimoine net négatif, environ 1 % des ménages) sont ramenées à zéro.</li>
+      <li><b>Les parts d'entreprises sont comptées dans ce patrimoine.</b> Elles sont retirées du reste du patrimoine de leur détenteur pour ne pas compter deux fois. Mais le capital des entreprises du modèle (3,75 ans de revenu par ménage) dépasse le patrimoine professionnel déclaré par les ménages (11 % de leur patrimoine brut, environ 1,4 an), car une grande part des entreprises appartient en réalité à des fonds, des assureurs, l'État ou l'étranger. Une partie des parts dépasse donc le patrimoine Insee de leur détenteur ; ce dépassement est affiché dans l'onglet Entreprises.</li>
+      <li><b>Âge des ménages.</b> Âge de la personne de référence au recensement de 2023, par tranches de 5 ans : 31,3 millions de ménages (<a href="https://www.insee.fr/fr/statistiques/9005646?sommaire=9005654&geo=FE-1">Insee, MEN4</a>). Le patrimoine dépend de l'âge : patrimoine net médian début 2018 de 12 700 € avant 30 ans, 51 400 € (30-39), 106 600 € (40-49), 171 500 € (50-59), 194 300 € (60-69) et 182 100 € (70 et plus) (<a href="https://www.insee.fr/fr/statistiques/5371259?sommaire=5371304">Insee</a>). Le modèle classe les ménages selon un score qui mêle âge et revenu, puis leur attribue dans cet ordre des patrimoines tirés de la distribution française : la distribution d'ensemble ne change pas.</li>
+      <li><b>Lien revenu–patrimoine : 0,25.</b> Corrélation entre patrimoine net et revenus du travail en France, enquête européenne sur les finances des ménages (<a href="https://www.ecb.europa.eu/pub/pdf/scpwps/ecbwp1709.pdf">Arrondel, Roger et Savignac, BCE</a>). Le type de corrélation n'y est pas précisé ; elle est appliquée ici aux logarithmes.</li>
+      <li><b>Détention d'entreprises : 16 % des ménages.</b> 16,3 % des ménages détiennent un patrimoine professionnel en 2021, et 5 % en détiennent 95 % (<a href="https://www.insee.fr/fr/statistiques/fichier/7941439/RPM2024-VE2.pdf">Insee, Revenus et patrimoine des ménages 2024</a> ; <a href="https://www.insee.fr/fr/statistiques/7941419">taux de détention</a>). Les détenteurs sont tirés d'autant plus souvent que leur patrimoine de départ est élevé ; la concentration obtenue est affichée dans la carte des entreprises.</li>
+      <li><b>Épargne : 18 % du revenu.</b> Taux d'épargne des ménages, 18,5 % en 2024 et 17,9 % en 2025 (<a href="https://www.insee.fr/fr/statistiques/8988849">Insee</a>).</li>
+      <li><b>Idées : 1,2 % par an.</b> 1 111 200 créations d'entreprises en 2024, dont 716 200 micro-entreprises (<a href="https://www.insee.fr/fr/statistiques/8345726">Insee</a>), soit environ 395 000 hors micro-entreprises pour 31,4 millions d'actifs (<a href="https://www.insee.fr/fr/statistiques/8612528">Insee</a>). Sur 40 ans, environ 38 % des gens ont au moins une idée.</li>
+      <li><b>Coût d'une création : médiane 0,23 an de revenu (environ 6 000 €), moyenne 4,3 ans, dispersion 2,4.</b> Loi ajustée sur l'enquête Sine 2022 : parmi les sociétés créées, 27 % démarrent avec moins de 2 000 €, 49 % avec moins de 8 000 €, et 39 % avec 16 000 € ou plus ; les entreprises individuelles hors micro démarrent avec moins encore (<a href="https://www.insee.fr/fr/statistiques/8231755">Insee Première</a>).</li>
+      <li><b>Réussite : 60 %.</b> 61 % des entreprises créées en 2014, hors micro-entrepreneurs, étaient encore actives cinq ans après (<a href="https://www.insee.fr/fr/statistiques/5353768">Insee Première</a>).</li>
+      <li><b>Taux d'intérêt : 3,5 % par an.</b> Taux des crédits nouveaux aux PME, 3,39 % en août 2025 (<a href="https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2025-08">Banque de France</a>).</li>
+      <li><b>Gains des créations réussies.</b> Aucune donnée française directe. Loi de Pareto de paramètre 1,5, en cohérence avec des tailles d'entreprises proches d'une loi de Zipf (<a href="https://facweb.ischool.illinois.edu/sigmetrics/2001-November/000485.html">Axtell</a>) et des succès très inégaux (<a href="https://www.nber.org/papers/w20358">Kerr, Nanda et Rhodes-Kropf</a>). Gain moyen fixé à environ 2,5 fois le coût moyen : choix de travail.</li>
+      <li><b>Entreprises.</b> Rentabilité économique médiane des entreprises françaises : 10,7 % en 2023 ; taux d'investissement brut en actifs corporels : 19,8 % de la valeur ajoutée (<a href="https://www.insee.fr/fr/statistiques/8679855">Insee Analyses n° 115</a>). L'investissement annuel de 8 % du capital, la part distribuée de 50 %, le remboursement de 10 % de la dette par an et la disparition inversement proportionnelle à la marge (calée sur les 61 % de survie à 5 ans) sont des choix de travail. Au-delà de 5 ans, le risque baisse avec l'âge : aux États-Unis, 50,6 % des établissements nés en 2013 survivaient après 5 ans et 34,7 % après 10 ans (<a href="https://www.bls.gov/opub/ted/2024/34-7-percent-of-business-establishments-born-in-2013-were-still-operating-in-2023.htm">BLS</a>), soit un risque annuel d'environ 7 % entre 5 et 10 ans contre 13 % les cinq premières années.</li>
+      <li><b>Taille des entreprises existantes : catégories Insee.</b> En 2023 : 327 grandes entreprises, 7 296 ETI, 172 520 PME et 4,83 millions de microentreprises ; leurs immobilisations corporelles représentent respectivement 49 %, 27 %, 14 % et 10 % du total (immobilisations par salarié × effectifs, <a href="https://www.insee.fr/fr/statistiques/2016091">Insee, Ésane</a>). Le modèle garde au moins une entreprise par catégorie et répartit le capital de chaque catégorie selon ces parts, avec une dispersion log-normale à l'intérieur. À 500 ménages, une microentreprise ou une PME a sa taille réelle (environ 60 000 € et 2,5 M€), mais une grande entreprise ou une ETI n'est qu'une tranche de la réalité. Leur capital est dispersé entre 40 actionnaires sans propriétaire principal (choix de travail).</li>
+      <li><b>Entreprises existantes : 3,75 ans de revenu par personne.</b> Actifs fixes produits des sociétés non financières : environ 3 033 milliards d'euros fin 2023 (<a href="https://www.banque-france.fr/system/files/2024-12/BDF255_3_Le-patrimoine-economique-national-en-2023.pdf">Banque de France et Insee</a>), pour 31,4 millions d'actifs. Les ménages détiennent environ 1 743 milliards d'actions et autres participations. Ces entreprises appartiennent à des personnes de la population (voir détention d'entreprises). Nombre d'entreprises, part du propriétaire principal (50 %), 10 actionnaires par entreprise et absence de dette initiale : choix de travail.</li>
+      <li><b>Bourse : via des fonds.</b> En 2022, 6,7 % des Français de 15 ans et plus détiennent des actions en direct, 13,4 % une assurance-vie en unités de compte (<a href="https://www.amf-france.org/sites/institutionnel/files/private/2023-11/loe-49.pdf">AMF, Observatoire de l'épargne</a>) ; 16,7 % des ménages détiennent des valeurs mobilières (Insee). Le modèle fait passer toute l'épargne-actions par des fonds. Qui épargne en actions dépend chaque année du rang de patrimoine : taux de détention d'actions selon le patrimoine financier en 2017, 0,9 % (25 % les moins dotés), 2,6 %, 7,5 %, 16,6 %, 37,9 % (90-99e centiles) et 75,8 % (1 % le plus riche) (<a href="https://www.amf-france.org/sites/institutionnel/files/private/2021-02/la-demande-dactifs-risques-en-france-au-xxie-siecle-presentation-luc-arrondel_0.pdf">Arrondel, d'après l'Insee</a>), remis à l'échelle pour atteindre la part choisie (20 % par défaut : actions en direct 9,9 %, fonds actions 2,4 %, assurance-vie en unités de compte 13,7 %, qui se recoupent). L'âge joue aussi : détention de valeurs mobilières début 2021 de 8,6 % avant 30 ans, 14,4 %, 19,8 %, 17,8 %, 16,4 % puis 18,4 % après 70 ans (<a href="https://www.insee.fr/fr/statistiques/7941419">Insee</a>). Le modèle ajuste ses facteurs patrimoine et âge pour reproduire ces deux profils au départ. Le revenu module ensuite la probabilité, avec les effets « toutes choses égales par ailleurs » estimés par l'Insee en 2015 : −8, −5, −2, 0 et +4 points du premier au dernier cinquième de revenu, autour d'un taux de 9 % (<a href="https://www.insee.fr/fr/statistiques/fichier/2017607/REVPMEN16b_VE2_actifspatrimoniaux.pdf">Insee, Les revenus et le patrimoine des ménages 2016</a> ; lecture d'un tableau extrait, à confirmer). Chaque ménage a en plus un goût propre et fixe pour le risque, tiré au hasard. Le diplôme, l'héritage reçu et le fait d'avoir des parents actionnaires jouent aussi dans la littérature, mais ne sont pas modélisés. Règle de dispersion des OPCVM : 5 % de l'actif au plus chez un même émetteur, 10 % par dérogation dans la limite de 40 % (code monétaire et financier, art. R. 214-21 ; <a href="https://www.afg.asso.fr/app/uploads/2022/03/Recueil-complet-des-tableaux-de-regles-investissement_Mars-2022.pdf">AFG</a>). Nombre de fonds et rattachement au hasard : choix de travail. Avec gains interdits, un fonds ne récupère sur chaque entreprise que ce qu'il y a mis, et chaque porteur ne récupère du fonds que ce qu'il y a versé.</li>
+      <li><b>Coûts de fonctionnement de la banque et de la bourse.</b> Choix de travail, sans source.</li>
+    </ul>
+  </section>
+
+  <section class="read">
+    <h2>Ce que ce modèle ne contient pas encore</h2>
+    <ul>
+      <li>Personne ne fait de choix : toute idée est lancée dès que possible.</li>
+      <li>Le revenu de chacun est fixe sur toute la vie, et sans lien avec sa chance d'avoir des idées.</li>
+      <li>La qualité des créations n'est connue de personne à l'avance, et personne ne trie les bonnes des mauvaises.</li>
+      <li>La part déposée à la banque ne dépend pas du taux d'intérêt.</li>
+      <li>La banque prête au premier qui demande tant qu'elle a des fonds. Il n'y a ni assurance contre l'échec, ni retrait des dépôts, ni faillite personnelle.</li>
+      <li>La bourse ne fait que financer : pas de revente des parts, pas de prix, pas de spéculation. Une part d'entreprise est comptée à sa valeur comptable.</li>
+      <li>Les ménages vieillissent sans mourir : au bout de 40 ans, la moitié a plus de 90 ans. Le revenu ne dépend pas de l'âge (pas de retraite), et l'âge ne joue que sur le patrimoine de départ et l'épargne en actions.</li>
+      <li>Épargner en actions ne dépend pas de l'expérience : un ménage qui a perdu n'en devient pas plus prudent. Les fonds n'ont pas de frais de gestion ni de stratégie : ils suivent les levées au prorata de leur trésorerie.</li>
+      <li>Les parts d'entreprises ne se revendent pas : on ne peut ni acheter ni céder une part existante. Avec gains interdits, la règle s'applique dès le départ aux propriétaires des entreprises existantes.</li>
+      <li>La population représente la société entière (tous âges) au départ ; mais personne ne vieillit, ne meurt ni n'hérite pendant les 40 ans simulés.</li>
+      <li>Les entreprises n'emploient personne et ne paient pas de salaires ; avec gains interdits, leurs profits non distribués n'appartiennent à personne et sont perdus si elles disparaissent.</li>
+      <li>Dans le scénario « gains interdits », personne ne contourne la règle.</li>
+      <li>Le système n'est pas fermé : les revenus apparaissent chaque année sans venir de nulle part, et les coûts de fonctionnement de la banque et de la bourse sortent de l'économie au lieu de payer des salaires.</li>
+    </ul>
+  </section>
+  </div>
+
+</main>
+</div>
+
+<script id="engine">
+{{ENGINE}}</script>
+<script>
+{{APP}}</script>

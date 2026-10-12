@@ -1,0 +1,1503 @@
+<title>Laboratoire du rendement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ==== fichier : style.css ==== */
+/* Layout: panneau de réglages à gauche (collant sur grand écran), résultats à droite ; une colonne sur téléphone. */
+:root{
+  --warn:#a14a07; --bg:#f3f5f7; --panel:#ffffff; --fg:#1b2430; --muted:#5d6977; --line:#d9dfe6; --grid:#e9edf1;
+  --l:#2257a8; --l-soft:rgba(34,87,168,.10);
+  --i:#b36a12; --i-soft:rgba(179,106,18,.10);
+  --focus:#2257a8;
+  --f-display:"Literata", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --warn:#f0a35c; --bg:#12171d; --panel:#1a2129; --fg:#e4e9ef; --muted:#93a0ae; --line:#2c3642; --grid:#252e38;
+  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --warn:#f0a35c; --bg:#12171d; --panel:#1a2129; --fg:#e4e9ef; --muted:#93a0ae; --line:#2c3642; --grid:#252e38;
+  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;padding:0 16px}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 48px}
+header{display:grid;gap:6px;margin-bottom:22px}
+h1{font-family:var(--f-display);font-weight:650;font-size:clamp(1.6rem,3.2vw,2.2rem);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lede{color:var(--muted);max-width:74ch;margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:6px;font-size:.92rem}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:14px;height:10px;border-radius:2px;display:inline-block}
+.sw.l{background:var(--l)} .sw.i{background:var(--i)}
+.layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:minmax(0,1fr)}}
+aside{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:18px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow-y:auto}
+@media (max-width:860px){aside{position:static;max-height:none}}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:12px}
+fieldset.off .ctl{opacity:.45}
+legend{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600;margin-bottom:4px;padding:0}
+.ctl{display:grid;gap:3px}
+.ctl .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.ctl label{font-weight:500;font-size:.93rem}
+.ctl output{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.9rem}
+.ctl small,.hint{color:var(--muted);font-size:.8rem;line-height:1.35}
+.scope{font-size:.72rem;font-weight:600;padding:1px 6px;border-radius:4px;border:1px solid var(--line);margin-left:6px;white-space:nowrap;color:var(--muted)}
+.scope.l::before{content:"";display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--l);margin-right:5px;vertical-align:0}
+input[type=range]{width:100%;accent-color:var(--l);margin:2px 0}
+.switch{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.switch input{margin-top:3px;accent-color:var(--l);width:16px;height:16px}
+.switch b{display:block;font-weight:600;font-size:.93rem}
+input:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.derived{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:6px;font-size:.85rem}
+.derived div{display:flex;justify-content:space-between;gap:10px}
+.derived b{font-family:var(--f-mono);font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+button,select{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:7px;padding:7px 12px;cursor:pointer}
+button:hover,select:hover{border-color:var(--muted)}
+.actions{display:grid;gap:10px}
+.actions-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#prog{width:100%;height:6px;margin-top:6px;accent-color:var(--l)}
+.tscroll{overflow-x:auto;margin:10px 0}
+.dtab{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+.dtab th,.dtab td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.dtab th:first-child,.dtab td:first-child{text-align:left;white-space:normal}
+.dtab thead th{color:var(--muted);font-weight:600;font-size:.8rem}
+.dtab td.src{color:var(--muted)}
+button.primary{background:var(--l);border-color:var(--l);color:#fff;font-weight:600;font-size:.95rem;padding:10px 14px;width:100%}
+button.primary:hover{filter:brightness(1.08);border-color:var(--l)}
+button:disabled{opacity:.6;cursor:progress}
+.status{font-size:.8rem;color:var(--muted)}
+.status.stale{color:var(--fg);font-weight:500}
+main{display:grid;gap:18px;min-width:0}
+main.stale .kpis,main.stale .card:not(.keep){opacity:.55;transition:opacity .2s}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:8px;min-width:0}
+.kpi h3{margin:0;font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.card h2{font-family:var(--f-display);font-weight:500;font-size:1.12rem;margin:0 0 2px}
+.card > p{margin:0 0 12px;color:var(--muted);font-size:.86rem;max-width:74ch}
+.card h3.sub{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin:4px 0 6px}
+.card .note{font-size:.8rem;color:var(--muted);margin:12px 0 0;max-width:80ch}
+.card-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.card-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* Barres comparées : une ligne par scénario, échelle commune par critère, zéro marqué */
+.crows{display:grid}
+.crow{display:grid;grid-template-columns:minmax(0,15rem) minmax(0,1fr);gap:8px 20px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+.crow:first-child{border-top:0;padding-top:4px}
+@media (max-width:640px){.crow{grid-template-columns:minmax(0,1fr)}}
+.clabel{font-weight:500;font-size:.92rem;min-width:0}
+.clabel small{display:block;color:var(--muted);font-weight:400;font-size:.78rem;line-height:1.35;margin-top:2px}
+.bars{display:grid;gap:6px;min-width:0}
+.bline{display:grid;grid-template-columns:6.2rem minmax(0,1fr) 7.5rem;gap:10px;align-items:center}
+.bars.compact .bline{grid-template-columns:3.6rem minmax(0,1fr) 4.6rem;gap:8px}
+.bname{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.bname i{width:8px;height:8px;border-radius:2px;flex:none}
+.track{position:relative;height:12px;background:var(--grid);border-radius:3px}
+.bars.compact .track{height:9px}
+.fill{position:absolute;top:0;bottom:0;border-radius:3px;min-width:2px}
+.zero{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--muted)}
+.bval{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.86rem;text-align:right;white-space:nowrap}
+.bval small{display:block;font-family:var(--f-body);font-size:.72rem;color:var(--muted)}
+.bars.compact .bval{font-size:.95rem}
+.best{font-weight:600}
+.best::after{content:" ✓";font-weight:400;color:var(--muted)}
+
+svg{width:100%;height:auto;display:block;overflow:visible}
+svg text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+svg .lab{font-family:var(--f-body);font-size:12px;fill:var(--fg)}
+.charts2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:760px){.charts2{grid-template-columns:minmax(0,1fr)}}
+.chartwrap{position:relative}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:.8rem;box-shadow:0 2px 8px rgba(0,0,0,.12);white-space:nowrap;z-index:2}
+.tip b{font-family:var(--f-mono);font-weight:500}
+.tip .tr{display:flex;gap:8px;align-items:center}
+.tip i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.read{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:8px}
+.read h2{font-family:var(--f-display);font-weight:500;font-size:1.12rem;margin:0}
+.read ul{margin:0;padding-left:18px;display:grid;gap:6px;max-width:76ch}
+
+aside{padding:0!important;gap:0!important;display:block!important}
+aside .bar{position:sticky;top:0;z-index:2;background:var(--panel);padding:14px 16px 10px;border-bottom:1px solid var(--line);display:grid;gap:8px;border-radius:10px 10px 0 0}
+aside .bar .tools{justify-content:space-between}
+button.small{font-size:.8rem;padding:4px 10px}
+.chk{display:inline-flex;gap:6px;align-items:center;font-size:.8rem;color:var(--muted);cursor:pointer}
+.chk input{accent-color:var(--l)}
+details.grp{border-bottom:1px solid var(--line)}
+details.grp:last-child{border-bottom:0}
+details.grp summary{list-style:none;cursor:pointer;padding:12px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline}
+details.grp summary::-webkit-details-marker{display:none}
+details.grp summary::after{content:"";width:7px;height:7px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;align-self:center}
+details.grp[open] summary::after{transform:rotate(45deg)}
+details.grp summary:hover .gt{text-decoration:underline;text-underline-offset:3px}
+details.grp summary:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.gt{font-weight:600;font-size:.92rem}
+.gs{font-size:.78rem;color:var(--muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
+.brick{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:10px}
+.brick .switch{border:0;padding:0}
+.brick .inner{display:grid;gap:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.bt{font-size:.93rem}
+.help-off .ctl small,.help-off .hint.long{display:none}
+.scope:not(.l){display:none}
+.ctl output{white-space:nowrap}
+.ctl .top{align-items:flex-start}
+.brick{padding:10px}
+
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:3;padding-top:4px}
+.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;padding:9px 12px;font-weight:500;color:var(--muted)}
+.tabs button:hover{color:var(--fg)}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--fg)}
+.tabpane{display:grid;gap:18px;min-width:0}
+.tabpane.off{display:none}
+.vlist{margin:0;padding:0;list-style:none;display:grid}
+.vlist li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;padding:12px 0;border-top:1px solid var(--line);align-items:baseline}
+.vlist li:first-child{border-top:0}
+.vlist .vl{font-weight:500}
+.vlist .vd{font-size:.86rem;color:var(--muted);grid-column:1/-1}
+.vlist .vv{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.9rem;white-space:nowrap;text-align:right}
+.vlist .vv i{display:inline-block;width:8px;height:8px;border-radius:2px;margin:0 5px 0 12px}
+.pill.frag{color:var(--warn);border-color:currentColor;margin-left:4px}
+.pill{display:inline-block;font-size:.74rem;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--line);margin-left:8px;white-space:nowrap;vertical-align:1px;color:var(--muted)}
+#vmodel{font-size:.86rem;margin-bottom:4px}
+.kpi .track{display:none}
+.kpi .bars.compact .bline{grid-template-columns:minmax(0,1fr) auto}
+.kpi .bars.compact .bval{font-size:1.15rem}
+.vhead{display:flex;justify-content:flex-end;gap:14px;font-size:.78rem;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:6px}
+.vhead i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+@media (max-width:640px){.vlist li{grid-template-columns:minmax(0,1fr)}.vlist .vv{text-align:left}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Laboratoire du rendement</h1>
+  <p class="lede">Deux économies identiques, à une règle près : dans l'une, prêter son argent peut rapporter ; dans l'autre, tout gain pour le prêteur est interdit. Chaque brique ajoutée au modèle s'applique aux deux. Réglez les curseurs, puis lancez la simulation.</p>
+  <div class="legend">
+    <span><i class="sw l"></i>Gains libres</span>
+    <span><i class="sw i"></i>Gains interdits</span>
+  </div>
+</header>
+
+<div class="layout">
+<aside id="panel" class="help-off">
+  <div class="bar">
+    <button id="run" type="button" class="primary">Lancer la simulation</button>
+    <progress id="prog" hidden></progress>
+    <div class="actions-row"><span class="status" id="status"></span></div>
+    <div class="actions-row tools"><button id="reset" type="button" class="small">Valeurs de départ</button><label class="chk" for="help"><input type="checkbox" id="help"> Afficher les aides</label></div>
+  </div>
+
+  <details class="grp" data-k="soc">
+    <summary><span class="gt">Société</span><span class="gs" id="sum_soc"></span></summary>
+    <div class="body">
+      <div class="ctl"><div class="top"><label for="N">Nombre de ménages</label><output id="N_o"></output></div><input type="range" id="N" min="0" max="100" step="1"><small>Plus de ménages : les très grandes fortunes sont mieux représentées. Échelle logarithmique, de 100 à 50 000. Temps de calcul : environ 0,1 s par simulation à 2 000 ménages, 0,3 s à 10 000, 1,8 s à 50 000, réparti entre les cœurs du processeur. Vers 45 000 ménages, une grande entreprise apparaît sans être une « tranche ».</small></div>
+      <div class="ctl"><div class="top"><label for="T">Durée (années)</label><output id="T_o"></output></div><input type="range" id="T" min="10" max="80" step="5"></div>
+      <div class="ctl"><div class="top"><label for="save">Épargne par personne et par an</label><output id="save_o"></output></div><input type="range" id="save" min="0.02" max="0.6" step="0.01"><small>Chacun gagne 1 par an, l'équivalent du niveau de vie médian français (25 760 € en 2023), et met ceci de côté.</small></div>
+      <div class="ctl"><div class="top"><label for="runs">Simulations moyennées</label><output id="runs_o"></output></div><input type="range" id="runs" min="1" max="60" step="1"><small>Plus il y en a, moins la chance pèse sur les résultats.</small></div>
+    
+      <div class="brick">
+        <label class="switch" for="inc"><input type="checkbox" id="inc"><span><b>Revenus inégaux</b><span class="hint">Chacun a son propre revenu, fixe sur toute la vie.</span></span></label>
+        <div class="inner" id="in_inc">
+          <div class="ctl"><div class="top"><label for="sigI">Dispersion des revenus</label><output id="sigI_o"></output></div><input type="range" id="sigI" min="0" max="1.2" step="0.01"><small>Loi log-normale de médiane 1. À 0,49, le rapport entre le revenu au-dessus duquel sont les 10 % les plus aisés et celui en dessous duquel sont les 10 % les plus modestes vaut 3,5, comme en France.</small></div>
+          <label class="switch" for="sprof"><input type="checkbox" id="sprof"><span><b>Les plus aisés épargnent davantage</b><span class="hint">Taux d'épargne par quintile de revenu, d'après l'Insee.</span></span></label>
+        </div>
+      </div>
+      <div class="brick">
+        <label class="switch" for="ini"><input type="checkbox" id="ini"><span><b>Patrimoine de départ</b><span class="hint">Chaque ménage part avec un patrimoine tiré de la distribution française réelle (Insee 2021).</span></span></label>
+        <div class="inner" id="in_ini">
+          <div class="ctl"><div class="top"><label for="m0">Niveau du patrimoine</label><output id="m0_o"></output></div><input type="range" id="m0" min="0" max="3" step="0.05"><small>Multiplie toute la distribution. À 1 : patrimoine net des ménages en France début 2021 d'après l'Insee (médiane 124 800 €, moyenne 274 000 €, soit environ 4,8 et 10,6 ans de revenu médian).</small></div>
+          <div class="ctl"><div class="top"><label for="alW">Épaisseur de la queue des plus riches</label><output id="alW_o"></output></div><input type="range" id="alW" min="1.2" max="3" step="0.05"><small>Au-delà du 1 % le plus riche, loi de Pareto. Plus le chiffre est bas, plus les très hauts patrimoines pèsent. À 1,85, la moyenne retombe sur celle de l'Insee et le 1 % le plus riche détient environ 16 % du total.</small></div>
+          <div class="ctl"><div class="top"><label for="rhoIW">Lien entre revenu et patrimoine</label><output id="rhoIW_o"></output></div><input type="range" id="rhoIW" min="0" max="0.95" step="0.05"><small>Corrélation entre les deux (sur leurs logarithmes), active si les revenus sont inégaux. En France, la corrélation entre patrimoine net et revenus du travail est d'environ 0,25.</small></div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="grp" data-k="proj">
+    <summary><span class="gt">Créations d'entreprise</span><span class="gs" id="sum_proj"></span></summary>
+    <div class="body">
+      <div class="ctl"><div class="top"><label for="pidea">Chance d'avoir une idée</label><output id="pidea_o"></output></div><input type="range" id="pidea" min="0.001" max="0.1" step="0.001"><small>Par personne et par an. Une idée trouvée n'est lancée que si elle peut être financée.</small></div>
+      <div class="ctl"><div class="top"><label for="cost">Coût moyen d'une création</label><output id="cost_o"></output></div><input type="range" id="cost" min="0.1" max="20" step="0.1"></div>
+      <div class="ctl"><div class="top"><label for="pok">Chance de réussite</label><output id="pok_o"></output></div><input type="range" id="pok" min="0.1" max="1" step="0.05"></div>
+      <div class="ctl"><div class="top"><label for="payoff">Gain moyen si réussite</label><output id="payoff_o"></output></div><input type="range" id="payoff" min="0.5" max="50" step="0.5"><small>Montant total produit. En cas d'échec, la mise est perdue.</small></div>
+      <div class="brick">
+        <label class="switch" for="vary"><input type="checkbox" id="vary"><span><b>Créations inégales</b><span class="hint">Coût et gain tirés au hasard pour chaque création.</span></span></label>
+        <div class="inner" id="in_vary">
+          <div class="ctl"><div class="top"><label for="sig">Dispersion des coûts <span class="scope">les deux</span></label><output id="sig_o"></output></div><input type="range" id="sig" min="0" max="3" step="0.1"><small>0 : toutes les créations coûtent le coût moyen. À 1, une création sur six coûte plus de 2,5 fois la médiane. La moyenne reste celle réglée plus haut.</small></div>
+          <div class="ctl"><div class="top"><label for="alpha">Égalité des succès <span class="scope">les deux</span></label><output id="alpha_o"></output></div><input type="range" id="alpha" min="1.1" max="5" step="0.1"><small>Forme de la loi des gains réussis (Pareto). Proche de 1 : quelques succès énormes et beaucoup de petits ; les tailles d'entreprises réelles sont proches de 1. Vers 5 : succès de tailles voisines. Le gain moyen reste celui réglé plus haut.</small></div>
+        </div>
+      </div>
+      <div class="brick">
+        <label class="switch" for="firm"><input type="checkbox" id="firm"><span><b>Entreprises</b><span class="hint">L'entreprise créée dure, verse des profits et investit.</span></span></label>
+        <div class="inner" id="in_firm">
+          <div class="ctl"><div class="top"><label for="rho">Rentabilité médiane du capital</label><output id="rho_o"></output></div><input type="range" id="rho" min="0" max="0.4" step="0.005"><small>Profit annuel rapporté au capital de l'entreprise. Rentabilité économique médiane des entreprises françaises : 10,7 % en 2023. Avec « Créations inégales », elle varie d'une entreprise à l'autre.</small></div>
+          <div class="ctl"><div class="top"><label for="invest">Investissement annuel</label><output id="invest_o"></output></div><input type="range" id="invest" min="0" max="0.3" step="0.01"><small>Part de son capital que l'entreprise investit chaque année : d'abord sur ses réserves, puis en empruntant à la banque ou en émettant des actions.</small></div>
+          <div class="ctl"><div class="top"><label for="payout">Part des profits distribuée <span class="scope l">gains libres</span></label><output id="payout_o"></output></div><input type="range" id="payout" min="0" max="1" step="0.05"><small>Avec gains libres : part versée aux propriétaires, le reste est mis en réserve. Avec gains interdits : chaque propriétaire reçoit au plus sa mise, le reste appartient à l'entreprise.</small></div>
+          <div class="ctl"><div class="top"><label for="ageb">Robustesse des entreprises anciennes</label><output id="ageb_o"></output></div><input type="range" id="ageb" min="0" max="3" step="0.1"><small>Après 5 ans, le risque de disparaître est multiplié par (5 / âge) à cette puissance. À 0, l'âge ne compte pas. À 1,2, une entreprise de 8 ans a environ 0,57 fois le risque d'une jeune, comme dans les données américaines ; à 20 ans, environ 0,19 fois.</small></div>
+          <label class="switch" for="exist"><input type="checkbox" id="exist"><span><b>Entreprises existantes au départ</b><span class="hint">Leurs propriétaires et actionnaires sont des personnes de la population.</span></span></label>
+          <div class="inner" id="in_exist">
+            <div class="ctl"><div class="top"><label for="k0">Capital existant par personne</label><output id="k0_o"></output></div><input type="range" id="k0" min="0" max="10" step="0.25"><small>En années de revenu médian. Capital productif fixe des sociétés non financières : environ 3 000 milliards d'euros fin 2023, soit environ 3,75 ans de revenu par actif.</small></div>
+            <div class="ctl"><div class="top"><label for="nf">Entreprises existantes pour 100 ménages</label><output id="nf_o"></output></div><input type="range" id="nf" min="1" max="50" step="1"><small>Insee 2023 : 5 millions d'entreprises pour environ 30 millions de ménages, soit 17 pour 100. Leur répartition par taille suit l'Insee : 96 % de microentreprises qui ont 10 % du capital, quelques grandes entreprises qui en ont près de la moitié.</small></div>
+            <div class="ctl"><div class="top"><label for="hold">Part des ménages détenant des entreprises</label><output id="hold_o"></output></div><input type="range" id="hold" min="0.02" max="1" step="0.01"><small>Insee 2021 : 16 % des ménages détiennent un patrimoine professionnel. Ils sont choisis d'autant plus souvent que leur patrimoine de départ est élevé ; propriétaires et actionnaires sont tirés parmi eux.</small></div>
+            <div class="ctl"><div class="top"><label for="own">Part du propriétaire principal</label><output id="own_o"></output></div><input type="range" id="own" min="0" max="1" step="0.05"><small>Pour les microentreprises et les PME ; le reste est réparti entre 10 actionnaires. Les grandes entreprises et les ETI n'ont pas de propriétaire principal : leur capital est dispersé entre 40 actionnaires. Ces parts ne se revendent pas.</small></div>
+          </div>
+          <small class="hint long">Chaque année, une entreprise disparaît avec une probabilité inversement proportionnelle à sa marge : profit moins échéance de la dette (intérêts et 10 % du capital restant dû), rapporté à son capital. Sans marge, la disparition est presque certaine (90 %). Après 5 ans, le risque diminue avec l'âge. La constante est calée pour que la « chance de réussite » soit la survie moyenne à 5 ans. En disparaissant, l'entreprise perd son capital, et la banque ce qu'elle lui doit encore, au détriment des déposants. Les prêts de création deviennent des dettes de l'entreprise, plus des dettes personnelles du fondateur.</small>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="grp" data-k="fin">
+    <summary><span class="gt">Financement</span><span class="gs" id="sum_fin"></span></summary>
+    <div class="body">
+      <div class="brick">
+        <label class="switch" for="bank"><input type="checkbox" id="bank"><span><b>Banque</b><span class="hint">Prête l'argent déposé, contre une dette.</span></span></label>
+        <div class="inner" id="in_bank">
+          <div class="ctl"><div class="top"><label for="dep">Part de l'épargne déposée <span class="scope">les deux</span></label><output id="dep_o"></output></div><input type="range" id="dep" min="0" max="1" step="0.05"><small>La banque ne prête que l'argent déposé.</small></div>
+          <div class="ctl"><div class="top"><label for="fee">Coût de traitement d'un prêt <span class="scope">les deux</span></label><output id="fee_o"></output></div><input type="range" id="fee" min="0" max="1" step="0.01"><small>Le travail de la banque pour un prêt, ajouté à la dette. Il rémunère un travail extérieur au modèle.</small></div>
+          <div class="ctl"><div class="top"><label for="rl">Taux d'intérêt annuel <span class="scope l">gains libres</span></label><output id="rl_o"></output></div><input type="range" id="rl" min="0" max="0.15" step="0.005"><small>Ajouté chaque année à la dette restante, et reversé aux déposants au prorata de leurs dépôts. Avec gains interdits, le taux est nul.</small></div>
+          <small class="hint long">L'emprunteur rembourse toujours, même si l'entreprise échoue : d'abord sur son gain, sinon sur son épargne future. On ne réemprunte pas tant qu'on a une dette.</small>
+        </div>
+      </div>
+      <div class="brick">
+        <label class="switch" for="stock"><input type="checkbox" id="stock"><span><b>Bourse</b><span class="hint">L'épargne-actions passe par des fonds, qui achètent des parts d'entreprises et en partagent les profits et les pertes entre leurs porteurs.</span></span></label>
+        <div class="inner" id="in_stock">
+          <div class="ctl"><div class="top"><label for="part">Ménages qui épargnent en actions <span class="scope">les deux</span></label><output id="part_o"></output></div><input type="range" id="part" min="0" max="1" step="0.01"><small>Part de l'ensemble des ménages. Qui en fait partie change chaque année avec le patrimoine : d'après l'Insee, 1 % des ménages les moins dotés détiennent des actions, contre 38 % des 90-99e centiles et 76 % du 1 % le plus riche. Environ 20 % des ménages en détiennent en direct, via des fonds ou une assurance-vie en unités de compte.</small></div>
+          <div class="ctl"><div class="top"><label for="inv">Part de l'épargne placée en actions, pour ceux qui en ont <span class="scope">les deux</span></label><output id="inv_o"></output></div><input type="range" id="inv" min="0" max="1" step="0.05"><small>Versée dans les fonds. Chez les ménages qui détiennent des actions, elles représentent en général de 20 à 40 % du patrimoine financier (Insee 2017). Avec la banque, dépôt + actions ne dépassent pas 100 % de l'épargne.</small></div>
+          <div id="wrap_phi"><div class="ctl"><div class="top"><label for="phi">Part du besoin demandée à la bourse <span class="scope">les deux</span></label><output id="phi_o"></output></div><input type="range" id="phi" min="0" max="1" step="0.05"><small>Le reste est demandé à la banque. Si l'une manque de fonds, l'autre complète. Sans banque, tout passe par la bourse.</small></div></div>
+          <div class="ctl"><div class="top"><label for="nfd">Nombre de fonds <span class="scope">les deux</span></label><output id="nfd_o"></output></div><input type="range" id="nfd" min="1" max="50" step="1"><small>Chaque ménage verse son épargne-actions dans un fonds tiré au hasard, et en détient des parts. En France, la plupart des ménages détiennent des actions via des fonds ou l'assurance-vie plutôt qu'en direct.</small></div>
+          <div class="ctl"><div class="top"><label for="m">Diversification des fonds <span class="scope">les deux</span></label><output id="m_o"></output></div><input type="range" id="m" min="1" max="50" step="1"><small>Un fonds n'apporte à une même levée que 1/n de sa trésorerie. Les règles des OPCVM limitent à 5 % (10 % par dérogation) la part de l'actif placée chez un même émetteur, d'où n = 10 par défaut.</small></div>
+          <div class="ctl"><div class="top"><label for="feeE">Coût d'introduction <span class="scope">les deux</span></label><output id="feeE_o"></output></div><input type="range" id="feeE" min="0" max="1" step="0.01"><small>Le travail pour émettre les parts, payé par les actionnaires.</small></div>
+          <small class="hint long">Si l'entreprise échoue, les actionnaires perdent leur mise et l'entrepreneur ne leur doit rien. S'il réussit, ils reçoivent la part du gain correspondant à leur apport ; avec gains interdits, au plus leur mise.</small>
+        </div>
+      </div>
+      <div class="brick" id="in_direct">
+        <b class="bt">Prêt direct entre particuliers</b>
+        <small class="hint">Actif quand ni la banque ni la bourse ne le sont.</small>
+        <div class="ctl"><div class="top"><label for="r">Rendement promis aux prêteurs <span class="scope l">gains libres</span></label><output id="r_o"></output></div><input type="range" id="r" min="0" max="2" step="0.05"><small>Tout le monde prête automatiquement, au prorata de son épargne. En cas de succès, les prêteurs récupèrent leur mise plus ce pourcentage, dans la limite du gain ; en cas d'échec, ils perdent leur mise. Avec gains interdits, personne ne prête.</small></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="grp" data-k="mes">
+    <summary><span class="gt">Mesure de l'équité</span><span class="gs" id="sum_mes"></span></summary>
+    <div class="body">
+      <div class="ctl"><div class="top"><label for="eps">Aversion aux inégalités (Atkinson)</label><output id="eps_o"></output></div><input type="range" id="eps" min="0" max="3" step="0.25"><small>0 : seule la moyenne compte. Plus la valeur monte, plus on donne de poids aux plus pauvres. S'applique sans relancer.</small></div>
+    </div>
+  </details>
+
+  <details class="grp" data-k="rep" open>
+    <summary><span class="gt">Repères</span><span class="gs">calculés sans simulation</span></summary>
+    <div class="body"><div class="derived" id="derived"></div></div>
+  </details>
+</aside>
+
+<main>
+  <nav class="tabs" role="tablist" aria-label="Résultats">
+    <button type="button" role="tab" data-t="syn" aria-selected="true">Synthèse</button>
+    <button type="button" role="tab" data-t="ineq" aria-selected="false">Inégalités</button>
+    <button type="button" role="tab" data-t="fin" aria-selected="false">Entreprises et finance</button>
+    <button type="button" role="tab" data-t="hyp" aria-selected="false">Hypothèses</button>
+  </nav>
+
+  <div class="tabpane" data-pane="syn">
+  <section class="kpis" id="kpis"></section>
+  <p class="note" id="kpinote"></p>
+
+  <section class="card" id="verdict">
+    <h2>Ce qui change quand on interdit les gains</h2>
+    <p id="vmodel"></p>
+    <div class="vhead"><span><i style="background:var(--l)"></i>gains libres</span><span><i style="background:var(--i)"></i>gains interdits</span></div>
+    <ol class="vlist" id="vlist"></ol>
+    <p class="note">Classés de l'écart le plus grand au plus petit, en proportion. Les deux scénarios utilisent les mêmes tirages ; « fragile » signale un écart qui change de sens dans plus d'une simulation sur cinq. Le détail est dans les autres onglets.</p>
+  </section>
+
+  <section class="card" id="totcard">
+    <h2>Richesse au fil du temps</h2>
+    <p id="totlede">Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.</p>
+    <div class="chartwrap"><svg id="ch_total" viewBox="0 0 760 280" role="img" aria-label="Richesse totale par année, deux scénarios"></svg></div>
+  </section>
+  </div>
+
+  <div class="tabpane" data-pane="ineq">
+  <section class="card" id="eqcard">
+    <h2>Équité selon plusieurs critères</h2>
+    <p>Chaque critère juge la répartition autrement. Les barres d'un même critère partagent la même échelle ; le trait vertical marque zéro. Le meilleur scénario est coché : les critères ne désignent pas toujours le même.</p>
+    <div class="crows" id="eqrows"></div>
+    <p class="note">Calculé sur la richesse nette finale de toutes les personnes de toutes les simulations. Pour Atkinson, les richesses nulles ou négatives (dettes) sont ramenées à 1 % de la moyenne, car l'indice n'est pas défini en dessous de zéro.</p>
+  </section>
+
+  <section class="card" id="qcard">
+    <h2>Selon le revenu</h2>
+    <p>Richesse nette finale moyenne par cinquième de la population, classé par revenu, sur une échelle commune à tous les groupes. Sous chaque valeur : part du groupe ayant créé au moins une entreprise, et part ayant vu au moins une idée refusée faute de financement.</p>
+    <div class="crows" id="qrows"></div>
+  </section>
+
+  <section class="card" id="dwcard">
+    <h2>D'où viennent les écarts : une lecture à la Dworkin</h2>
+    <p>Richesse moyenne finale selon le parcours de chacun. Dworkin distingue la chance subie (avoir une idée, obtenir un financement) et la chance liée à un pari (le sort de l'entreprise créée). Personne ne choisit encore dans ce modèle, mais on voit déjà quels parcours creusent les écarts.</p>
+    <div class="crows" id="dwrows"></div>
+  </section>
+
+  <div class="charts2">
+    <section class="card">
+      <h2>Inégalités au fil du temps</h2>
+      <p>Indice de Gini : 0 si tout le monde a autant, 1 si une seule personne a tout.</p>
+      <div class="chartwrap"><svg id="ch_gini" viewBox="0 0 380 260" role="img" aria-label="Indice de Gini par année"></svg></div>
+    </section>
+    <section class="card">
+      <h2>Qui possède quoi, au départ et à la fin</h2>
+      <p id="lorlede">Part de la richesse nette détenue par les x % les moins riches. Sous zéro, ce sont des personnes endettées.</p>
+      <div class="chartwrap"><svg id="ch_lorenz" viewBox="0 0 380 260" role="img" aria-label="Courbe de Lorenz au départ et à la fin"></svg></div>
+    </section>
+  </div>
+  </div>
+
+  <div class="tabpane" data-pane="fin">
+  <section class="card" id="firmcard">
+    <h2>Les entreprises en fin de simulation</h2>
+    <p>Ce que sont devenues les entreprises, en moyenne par simulation, en années de revenu médian.</p>
+    <div class="crows" id="firmrows"></div>
+  </section>
+
+  <section class="card" id="bankcard">
+    <h2>La banque en fin de simulation</h2>
+    <p>Ce qu'a fait la banque dans chaque scénario, en moyenne par simulation.</p>
+    <div class="crows" id="bankrows"></div>
+  </section>
+
+  <section class="card" id="stockcard">
+    <h2>La bourse en fin de simulation</h2>
+    <p>Ce qu'ont vécu les porteurs de parts de fonds dans chaque scénario, en moyenne par simulation.</p>
+    <div class="crows" id="stockrows"></div>
+  </section>
+
+  <section class="card keep" id="sweepcard">
+    <div class="card-head">
+      <div><h2>Effet du taux d'intérêt</h2></div>
+      <div class="card-tools">
+        <label for="sweepmetric" class="hint">Indicateur</label>
+        <select id="sweepmetric">
+          <option value="bottom10">Moyenne des 10 % les plus pauvres</option>
+          <option value="gini">Gini final</option>
+          <option value="funded">Entreprises créées</option>
+          <option value="mean">Richesse moyenne</option>
+          <option value="indebted">Personnes encore endettées</option>
+        </select>
+        <button id="sweepbtn" type="button">Calculer</button>
+      </div>
+    </div>
+    <p>Le scénario « gains libres » recalculé pour 13 taux, de 0 à 15 % par an, tous les autres réglages restant ceux du panneau. Le scénario « gains interdits » correspond toujours à un taux nul : il est tracé en pointillé.</p>
+    <div class="chartwrap" id="sweepwrap"><svg id="ch_sweep" viewBox="0 0 760 280" role="img" aria-label="Indicateur selon le taux d'intérêt"></svg></div>
+    <p class="note" id="sweepnote">Cliquez sur « Calculer » pour lancer les 13 simulations (quelques secondes).</p>
+  </section>
+  </div>
+
+  <div class="tabpane" data-pane="hyp">
+  <section class="card keep" id="popcard">
+    <h2>La population au départ</h2>
+    <p>Revenus et patrimoines des ménages au départ de la simulation, d'après les réglages actuels. Échelle logarithmique : chaque graduation multiplie par 10. Se met à jour dès qu'on bouge un curseur.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Revenu annuel</h3><div class="chartwrap"><svg id="ch_inc" viewBox="0 0 380 220" role="img" aria-label="Distribution des revenus"></svg></div><p class="note" id="inc_note"></p></div>
+      <div><h3 class="sub">Patrimoine de départ</h3><div class="chartwrap"><svg id="ch_w0" viewBox="0 0 380 220" role="img" aria-label="Distribution du patrimoine de départ"></svg></div><p class="note" id="w0_note"></p></div>
+    </div>
+    <p class="note" id="sav_note"></p>
+  </section>
+
+  <section class="card" id="agecard">
+    <h2>Âge, patrimoine et épargne en actions</h2>
+    <p>Comparaison du modèle (moyenne des simulations) avec les données. Les ménages vieillissent d'un an par an, sans décès : au départ, l'âge médian de la personne de référence est de <span id="agemed"></span> ans.</p>
+    <div class="tscroll"><table class="dtab" id="agetab"></table></div>
+    <div class="tscroll"><table class="dtab" id="inctab"></table></div>
+    <p class="note" id="agenote"></p>
+  </section>
+
+  <section class="card keep" id="firm0card">
+    <h2>Les entreprises au départ</h2>
+    <p>Le paysage d'entreprises existantes tiré au départ, d'après les réglages actuels (plusieurs centaines de tirages regroupés). Échelle logarithmique. Se met à jour dès qu'on bouge un curseur.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Capital par entreprise</h3><div class="chartwrap"><svg id="ch_fk" viewBox="0 0 380 220" role="img" aria-label="Distribution du capital des entreprises existantes"></svg></div><p class="note" id="fk_note"></p></div>
+      <div><h3 class="sub">Rentabilité annuelle du capital</h3><div class="chartwrap"><svg id="ch_fr" viewBox="0 0 380 220" role="img" aria-label="Distribution de la rentabilité des entreprises existantes"></svg></div><p class="note" id="fr_note"></p></div>
+    </div>
+    <p class="note" id="f0_note"></p>
+  </section>
+
+  <section class="card keep" id="distcard">
+    <h2>Les créations possibles</h2>
+    <p id="distlede">Distribution des créations d'entreprise que tirent les idées, d'après les réglages actuels. Échelle logarithmique : chaque graduation multiplie par 10. Se met à jour dès qu'on bouge un curseur.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Coût d'une création</h3><div class="chartwrap"><svg id="ch_cost" viewBox="0 0 380 220" role="img" aria-label="Distribution du coût des créations"></svg></div><p class="note" id="cost_note"></p></div>
+      <div><h3 class="sub">Gain d'une création réussie</h3><div class="chartwrap"><svg id="ch_gain" viewBox="0 0 380 220" role="img" aria-label="Distribution du gain des créations réussies"></svg></div><p class="note" id="gain_note"></p></div>
+    </div>
+  </section>
+
+  <section class="read">
+    <h2>D'où viennent les valeurs de départ</h2>
+    <p class="hint" style="margin:0">Calage sur la France, hors micro-entrepreneurs. Une période représente une année ; la simulation couvre une vie active d'environ 40 ans. L'unité est le niveau de vie médian : 1 = 25 760 € par an en 2023 (<a href="https://www.insee.fr/fr/statistiques/8612538">Insee</a>).</p>
+    <ul>
+      <li><b>Revenus : dispersion 0,49.</b> Niveau de vie 2023 : 13 460 € pour le premier décile, 25 760 € en médiane, 46 960 € pour le neuvième décile, soit un rapport de 3,5 ; Gini 0,297 (<a href="https://www.insee.fr/fr/statistiques/8612538">Insee</a>). Revenu fixe sur toute la vie : simplification.</li>
+      <li><b>Épargne selon le revenu.</b> Taux d'épargne 2017 par quintile de niveau de vie : 2,7 %, 5,0 %, 9,7 %, 11,2 % et 28,4 % (<a href="https://insee.fr/fr/statistiques/4764600">Insee Première</a>). Profil remis à l'échelle pour que l'épargne totale corresponde au taux moyen.</li>
+      <li><b>Patrimoine de départ : distribution française réelle.</b> Déciles du patrimoine net des ménages début 2021 (D1 3 000 €, médiane 124 800 €, D9 633 200 €, moyenne 274 000 €) (<a href="https://www.insee.fr/fr/statistiques/fichier/7941421/RPM2024-F26.pdf">Insee</a>), seuils du top 5 % et du top 1 % (1,03 et 2,24 M€ en brut, ramenés en net) et patrimoine moyen du top 1 % (4,9 M€ en brut, d'où une loi de Pareto d'indice 1,85 au-delà) (<a href="https://www.insee.fr/fr/statistiques/8272285">Insee, les hauts patrimoines</a>). Entre deux points connus, interpolation géométrique. Les dettes supérieures au patrimoine (patrimoine net négatif, environ 1 % des ménages) sont ramenées à zéro.</li>
+      <li><b>Les parts d'entreprises sont comptées dans ce patrimoine.</b> Elles sont retirées du reste du patrimoine de leur détenteur pour ne pas compter deux fois. Mais le capital des entreprises du modèle (3,75 ans de revenu par ménage) dépasse le patrimoine professionnel déclaré par les ménages (11 % de leur patrimoine brut, environ 1,4 an), car une grande part des entreprises appartient en réalité à des fonds, des assureurs, l'État ou l'étranger. Une partie des parts dépasse donc le patrimoine Insee de leur détenteur ; ce dépassement est affiché dans l'onglet Entreprises.</li>
+      <li><b>Âge des ménages.</b> Âge de la personne de référence au recensement de 2023, par tranches de 5 ans : 31,3 millions de ménages (<a href="https://www.insee.fr/fr/statistiques/9005646?sommaire=9005654&geo=FE-1">Insee, MEN4</a>). Le patrimoine dépend de l'âge : patrimoine net médian début 2018 de 12 700 € avant 30 ans, 51 400 € (30-39), 106 600 € (40-49), 171 500 € (50-59), 194 300 € (60-69) et 182 100 € (70 et plus) (<a href="https://www.insee.fr/fr/statistiques/5371259?sommaire=5371304">Insee</a>). Le modèle classe les ménages selon un score qui mêle âge et revenu, puis leur attribue dans cet ordre des patrimoines tirés de la distribution française : la distribution d'ensemble ne change pas.</li>
+      <li><b>Lien revenu–patrimoine : 0,25.</b> Corrélation entre patrimoine net et revenus du travail en France, enquête européenne sur les finances des ménages (<a href="https://www.ecb.europa.eu/pub/pdf/scpwps/ecbwp1709.pdf">Arrondel, Roger et Savignac, BCE</a>). Le type de corrélation n'y est pas précisé ; elle est appliquée ici aux logarithmes.</li>
+      <li><b>Détention d'entreprises : 16 % des ménages.</b> 16,3 % des ménages détiennent un patrimoine professionnel en 2021, et 5 % en détiennent 95 % (<a href="https://www.insee.fr/fr/statistiques/fichier/7941439/RPM2024-VE2.pdf">Insee, Revenus et patrimoine des ménages 2024</a> ; <a href="https://www.insee.fr/fr/statistiques/7941419">taux de détention</a>). Les détenteurs sont tirés d'autant plus souvent que leur patrimoine de départ est élevé ; la concentration obtenue est affichée dans la carte des entreprises.</li>
+      <li><b>Épargne : 18 % du revenu.</b> Taux d'épargne des ménages, 18,5 % en 2024 et 17,9 % en 2025 (<a href="https://www.insee.fr/fr/statistiques/8988849">Insee</a>).</li>
+      <li><b>Idées : 1,2 % par an.</b> 1 111 200 créations d'entreprises en 2024, dont 716 200 micro-entreprises (<a href="https://www.insee.fr/fr/statistiques/8345726">Insee</a>), soit environ 395 000 hors micro-entreprises pour 31,4 millions d'actifs (<a href="https://www.insee.fr/fr/statistiques/8612528">Insee</a>). Sur 40 ans, environ 38 % des gens ont au moins une idée.</li>
+      <li><b>Coût d'une création : médiane 0,23 an de revenu (environ 6 000 €), moyenne 4,3 ans, dispersion 2,4.</b> Loi ajustée sur l'enquête Sine 2022 : parmi les sociétés créées, 27 % démarrent avec moins de 2 000 €, 49 % avec moins de 8 000 €, et 39 % avec 16 000 € ou plus ; les entreprises individuelles hors micro démarrent avec moins encore (<a href="https://www.insee.fr/fr/statistiques/8231755">Insee Première</a>).</li>
+      <li><b>Réussite : 60 %.</b> 61 % des entreprises créées en 2014, hors micro-entrepreneurs, étaient encore actives cinq ans après (<a href="https://www.insee.fr/fr/statistiques/5353768">Insee Première</a>).</li>
+      <li><b>Taux d'intérêt : 3,5 % par an.</b> Taux des crédits nouveaux aux PME, 3,39 % en août 2025 (<a href="https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2025-08">Banque de France</a>).</li>
+      <li><b>Gains des créations réussies.</b> Aucune donnée française directe. Loi de Pareto de paramètre 1,5, en cohérence avec des tailles d'entreprises proches d'une loi de Zipf (<a href="https://facweb.ischool.illinois.edu/sigmetrics/2001-November/000485.html">Axtell</a>) et des succès très inégaux (<a href="https://www.nber.org/papers/w20358">Kerr, Nanda et Rhodes-Kropf</a>). Gain moyen fixé à environ 2,5 fois le coût moyen : choix de travail.</li>
+      <li><b>Entreprises.</b> Rentabilité économique médiane des entreprises françaises : 10,7 % en 2023 ; taux d'investissement brut en actifs corporels : 19,8 % de la valeur ajoutée (<a href="https://www.insee.fr/fr/statistiques/8679855">Insee Analyses n° 115</a>). L'investissement annuel de 8 % du capital, la part distribuée de 50 %, le remboursement de 10 % de la dette par an et la disparition inversement proportionnelle à la marge (calée sur les 61 % de survie à 5 ans) sont des choix de travail. Au-delà de 5 ans, le risque baisse avec l'âge : aux États-Unis, 50,6 % des établissements nés en 2013 survivaient après 5 ans et 34,7 % après 10 ans (<a href="https://www.bls.gov/opub/ted/2024/34-7-percent-of-business-establishments-born-in-2013-were-still-operating-in-2023.htm">BLS</a>), soit un risque annuel d'environ 7 % entre 5 et 10 ans contre 13 % les cinq premières années.</li>
+      <li><b>Taille des entreprises existantes : catégories Insee.</b> En 2023 : 327 grandes entreprises, 7 296 ETI, 172 520 PME et 4,83 millions de microentreprises ; leurs immobilisations corporelles représentent respectivement 49 %, 27 %, 14 % et 10 % du total (immobilisations par salarié × effectifs, <a href="https://www.insee.fr/fr/statistiques/2016091">Insee, Ésane</a>). Le modèle garde au moins une entreprise par catégorie et répartit le capital de chaque catégorie selon ces parts, avec une dispersion log-normale à l'intérieur. À 500 ménages, une microentreprise ou une PME a sa taille réelle (environ 60 000 € et 2,5 M€), mais une grande entreprise ou une ETI n'est qu'une tranche de la réalité. Leur capital est dispersé entre 40 actionnaires sans propriétaire principal (choix de travail).</li>
+      <li><b>Entreprises existantes : 3,75 ans de revenu par personne.</b> Actifs fixes produits des sociétés non financières : environ 3 033 milliards d'euros fin 2023 (<a href="https://www.banque-france.fr/system/files/2024-12/BDF255_3_Le-patrimoine-economique-national-en-2023.pdf">Banque de France et Insee</a>), pour 31,4 millions d'actifs. Les ménages détiennent environ 1 743 milliards d'actions et autres participations. Ces entreprises appartiennent à des personnes de la population (voir détention d'entreprises). Nombre d'entreprises, part du propriétaire principal (50 %), 10 actionnaires par entreprise et absence de dette initiale : choix de travail.</li>
+      <li><b>Bourse : via des fonds.</b> En 2022, 6,7 % des Français de 15 ans et plus détiennent des actions en direct, 13,4 % une assurance-vie en unités de compte (<a href="https://www.amf-france.org/sites/institutionnel/files/private/2023-11/loe-49.pdf">AMF, Observatoire de l'épargne</a>) ; 16,7 % des ménages détiennent des valeurs mobilières (Insee). Le modèle fait passer toute l'épargne-actions par des fonds. Qui épargne en actions dépend chaque année du rang de patrimoine : taux de détention d'actions selon le patrimoine financier en 2017, 0,9 % (25 % les moins dotés), 2,6 %, 7,5 %, 16,6 %, 37,9 % (90-99e centiles) et 75,8 % (1 % le plus riche) (<a href="https://www.amf-france.org/sites/institutionnel/files/private/2021-02/la-demande-dactifs-risques-en-france-au-xxie-siecle-presentation-luc-arrondel_0.pdf">Arrondel, d'après l'Insee</a>), remis à l'échelle pour atteindre la part choisie (20 % par défaut : actions en direct 9,9 %, fonds actions 2,4 %, assurance-vie en unités de compte 13,7 %, qui se recoupent). L'âge joue aussi : détention de valeurs mobilières début 2021 de 8,6 % avant 30 ans, 14,4 %, 19,8 %, 17,8 %, 16,4 % puis 18,4 % après 70 ans (<a href="https://www.insee.fr/fr/statistiques/7941419">Insee</a>). Le modèle ajuste ses facteurs patrimoine et âge pour reproduire ces deux profils au départ. Le revenu module ensuite la probabilité, avec les effets « toutes choses égales par ailleurs » estimés par l'Insee en 2015 : −8, −5, −2, 0 et +4 points du premier au dernier cinquième de revenu, autour d'un taux de 9 % (<a href="https://www.insee.fr/fr/statistiques/fichier/2017607/REVPMEN16b_VE2_actifspatrimoniaux.pdf">Insee, Les revenus et le patrimoine des ménages 2016</a> ; lecture d'un tableau extrait, à confirmer). Chaque ménage a en plus un goût propre et fixe pour le risque, tiré au hasard. Le diplôme, l'héritage reçu et le fait d'avoir des parents actionnaires jouent aussi dans la littérature, mais ne sont pas modélisés. Règle de dispersion des OPCVM : 5 % de l'actif au plus chez un même émetteur, 10 % par dérogation dans la limite de 40 % (code monétaire et financier, art. R. 214-21 ; <a href="https://www.afg.asso.fr/app/uploads/2022/03/Recueil-complet-des-tableaux-de-regles-investissement_Mars-2022.pdf">AFG</a>). Nombre de fonds et rattachement au hasard : choix de travail. Avec gains interdits, un fonds ne récupère sur chaque entreprise que ce qu'il y a mis, et chaque porteur ne récupère du fonds que ce qu'il y a versé.</li>
+      <li><b>Coûts de fonctionnement de la banque et de la bourse.</b> Choix de travail, sans source.</li>
+    </ul>
+  </section>
+
+  <section class="read">
+    <h2>Ce que ce modèle ne contient pas encore</h2>
+    <ul>
+      <li>Personne ne fait de choix : toute idée est lancée dès que possible.</li>
+      <li>Le revenu de chacun est fixe sur toute la vie, et sans lien avec sa chance d'avoir des idées.</li>
+      <li>La qualité des créations n'est connue de personne à l'avance, et personne ne trie les bonnes des mauvaises.</li>
+      <li>La part déposée à la banque ne dépend pas du taux d'intérêt.</li>
+      <li>La banque prête au premier qui demande tant qu'elle a des fonds. Il n'y a ni assurance contre l'échec, ni retrait des dépôts, ni faillite personnelle.</li>
+      <li>La bourse ne fait que financer : pas de revente des parts, pas de prix, pas de spéculation. Une part d'entreprise est comptée à sa valeur comptable.</li>
+      <li>Les ménages vieillissent sans mourir : au bout de 40 ans, la moitié a plus de 90 ans. Le revenu ne dépend pas de l'âge (pas de retraite), et l'âge ne joue que sur le patrimoine de départ et l'épargne en actions.</li>
+      <li>Épargner en actions ne dépend pas de l'expérience : un ménage qui a perdu n'en devient pas plus prudent. Les fonds n'ont pas de frais de gestion ni de stratégie : ils suivent les levées au prorata de leur trésorerie.</li>
+      <li>Les parts d'entreprises ne se revendent pas : on ne peut ni acheter ni céder une part existante. Avec gains interdits, la règle s'applique dès le départ aux propriétaires des entreprises existantes.</li>
+      <li>La population représente la société entière (tous âges) au départ ; mais personne ne vieillit, ne meurt ni n'hérite pendant les 40 ans simulés.</li>
+      <li>Les entreprises n'emploient personne et ne paient pas de salaires ; avec gains interdits, leurs profits non distribués n'appartiennent à personne et sont perdus si elles disparaissent.</li>
+      <li>Dans le scénario « gains interdits », personne ne contourne la règle.</li>
+      <li>Le système n'est pas fermé : les revenus apparaissent chaque année sans venir de nulle part, et les coûts de fonctionnement de la banque et de la bourse sortent de l'économie au lieu de payer des salaires.</li>
+    </ul>
+  </section>
+  </div>
+
+</main>
+</div>
+
+<script id="engine">
+/* ==== fichier : engine/00-data.js ==== */
+/* =====================================================================
+   Données de calage (France). Toutes les sources sont détaillées dans
+   l'onglet « Hypothèses » de la page.
+   Unité monétaire du modèle : une année de niveau de vie médian.
+   ===================================================================== */
+const UNIT_EUR=25760;                 // niveau de vie médian 2023 (Insee)
+const toUnit=e=>e/UNIT_EUR;
+
+/* ---------- patrimoine net des ménages, Insee début 2021 ----------
+   déciles (€), seuils du top 5 % et du top 1 % (seuils bruts × 0,884, rapport net/brut
+   au 9e décile), puis loi de Pareto au-delà du 99e centile (indice réglable, 1,85 par défaut) */
+const WEALTH_Q=[[0,0],[.1,3000],[.2,10400],[.3,26500],[.4,67100],[.5,124800],[.6,192100],[.7,274700],[.8,394300],[.9,633200],[.95,915000],[.99,1980000]].map(([p,v])=>[p,toUnit(v)]);
+
+/* ---------- épargne selon le revenu : taux par quintile de niveau de vie, 2017 (Insee) ---------- */
+const SAVE_BY_QUINTILE=[2.71,4.99,9.65,11.23,28.37];
+
+/* ---------- âge de la personne de référence, recensement 2023 (Insee, MEN4) ----------
+   tranches [début, fin, nombre de ménages] */
+const AGE_PYRAMID=[[18,20,344684],[20,25,1280788],[25,30,1822468],[30,35,2202957],[35,40,2434690],[40,45,2590210],[45,50,2686224],[50,55,2982999],[55,60,3156957],[60,65,2539983],[65,70,2221891],[70,75,2286353],[75,80,1868108],[80,95,2856429]];
+/* patrimoine net médian par âge début 2018 (12 700, 51 400, 106 600, 171 500, 194 300, 182 100 €),
+   placé dans la distribution de 2021 : centiles de ces médianes */
+const AGE_WEALTH_PCT=[23,38,48,59,62,60];
+
+/* ---------- épargne en actions (qui en détient) ----------
+   selon le patrimoine (Insee 2017, d'après Arrondel) : [borne haute du groupe en centile, taux de détention] */
+const PART_BY_WEALTH=[[.25,.009],[.5,.026],[.7,.075],[.9,.166],[.99,.379],[1,.758]];
+// seuils de ces groupes, fixés en euros (distribution de 2021 aux 25e, 50e, 70e, 90e et 99e centiles)
+const PART_WEALTH_CUTS=[16600,124800,274700,633200,1980000].map(toUnit);
+// selon l'âge : détention de valeurs mobilières début 2021 (Insee)
+const PART_BY_AGE=[.086,.144,.198,.178,.164,.184];
+// effet du revenu toutes choses égales par ailleurs (Insee, 2015) : −8, −5, −2, 0, +4 points autour de 9 %
+const PART_INCOME_FACTOR=[1,4,7,9,13].map(v=>v/9);
+
+/* ---------- entreprises ----------
+   catégories, Insee (Ésane) 2023 : nombre et part des immobilisations corporelles */
+const FIRM_CATS=[
+  {n:'grandes entreprises',n1:'grande entreprise',c:327,k:0.4884,big:1},
+  {n:'ETI',n1:'ETI',c:7296,k:0.2738,big:1},
+  {n:'PME',n1:'PME',c:172520,k:0.1402,big:0},
+  {n:'microentreprises',n1:'microentreprise',c:4831709,k:0.0975,big:0}];
+const FIRM_CATS_TOTAL=FIRM_CATS.reduce((a,c)=>a+c.c,0);
+const FIRM_SIZE_SIGMA=0.8;            // dispersion log-normale de la taille dans une catégorie
+const SHAREHOLDERS_SMALL=10;          // actionnaires d'une PME ou microentreprise existante (en plus du propriétaire)
+const SHAREHOLDERS_BIG=40;            // actionnaires d'une grande entreprise ou ETI existante (pas de propriétaire principal)
+const EXIST_AGE_MIN=5, EXIST_AGE_SPAN=36; // âge des entreprises existantes : 5 à 40 ans
+// détenteurs d'entreprises tirés avec un poids patrimoine^2,5 : les 5 % qui en détiennent le plus en ont alors environ 94 % (Insee : 95 %)
+const HOLD_GAMMA=2.5;
+const RHO_CAP=1.5;                    // rentabilité maximale d'une entreprise
+const HAZARD_MAX=0.9;                 // probabilité annuelle maximale de disparition
+const DEBT_AMORT=0.1;                 // remboursement annuel du capital emprunté
+
+/* ---------- fonds ---------- */
+const FUND_ID_BASE=-10;               // un fonds f apparaît parmi les détenteurs sous l'identifiant −10 − f
+/* ==== fichier : engine/01-math.js ==== */
+/* =====================================================================
+   Outils mathématiques
+   ===================================================================== */
+// générateur pseudo-aléatoire (mulberry32) : même graine, mêmes tirages
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+// tirage normal centré réduit (Box-Muller) à partir d'un générateur uniforme
+const normalFrom=g=>()=>{const u1=Math.max(g(),1e-12),u2=g();return Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);};
+// fonction de répartition de la loi normale (approximation d'Abramowitz et Stegun) et son inverse (par dichotomie)
+function Phi(z){const t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return z>0?1-p:p;}
+function PhiInv(x){let lo=-6,hi=6;for(let k=0;k<60;k++){const m=(lo+hi)/2;if(Phi(m)<x)lo=m;else hi=m;}return lo;}
+function gini(x0){const x=Array.from(x0).sort((a,b)=>a-b);const n=x.length;let s=0,c=0;for(let i=0;i<n;i++){s+=x[i];c+=(2*i-n+1)*x[i];}return s>0?c/(n*s):0}
+// courbe de Lorenz en pts+1 points
+function lorenz(x0,pts){const x=Array.from(x0).sort((a,b)=>a-b);const n=x.length;const tot=x.reduce((a,b)=>a+b,0);const out=[];let cum=0,k=0;for(let p=0;p<=pts;p++){const upto=Math.round(p/pts*n);while(k<upto){cum+=x[k];k++;}out.push(tot>0?cum/tot:p/pts);}return out}
+
+/* ---------- tirages propres au modèle ---------- */
+// rentabilité d'une entreprise : loi de Pareto de médiane P.rho (si « créations inégales »), plafonnée
+function drawRho(g,P){if(!P.vary)return P.rho;const u=Math.max(1-g(),1e-12);return Math.min(RHO_CAP,P.rho/Math.pow(2,1/P.alpha)*Math.pow(u,-1/P.alpha));}
+// une création : coût log-normal de moyenne P.cost, gain de Pareto proportionnel au coût (si « créations inégales »)
+function drawProject(g,P){if(!P.vary)return {cost:P.cost,gain:P.payoff};
+  const sig=P.sig,alpha=P.alpha,xm=(P.payoff/P.cost)*(alpha-1)/alpha;
+  const u1=Math.max(g(),1e-12),u2=g();const z=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);const cost=P.cost*Math.exp(sig*z-sig*sig/2);
+  const u=Math.max(1-g(),1e-12);return {cost,gain:cost*xm*Math.pow(u,-1/alpha)};}
+/* ==== fichier : engine/02-population.js ==== */
+/* =====================================================================
+   Population : revenus, taux d'épargne, âges et patrimoine de départ
+   ===================================================================== */
+// quantile du patrimoine net (distribution Insee, queue de Pareto d'indice a)
+function wealthQuantile(u,a){const Q=WEALTH_Q;if(u>=.99)return Q[11][1]*Math.pow((1-Math.min(u,1-1e-7))/.01,-1/a);let k=1;while(Q[k][0]<u)k++;const [p0,v0]=Q[k-1],[p1,v1]=Q[k];const t=(u-p0)/(p1-p0);return v0<=0?v1*t:v0*Math.pow(v1/v0,t);}
+const AGE_TOTAL=AGE_PYRAMID.reduce((a,c)=>a+c[2],0);
+function drawAge(u){let x=u*AGE_TOTAL;for(const [a,b,n] of AGE_PYRAMID){if(x<n)return a+(b-a)*x/n;x-=n;}return 94;}
+// tranches d'âge des enquêtes Patrimoine : moins de 30, 30-39, 40-49, 50-59, 60-69, 70 ou plus
+const ageGroup=a=>a<30?0:a<40?1:a<50?2:a<60?3:a<70?4:5;
+// décalage du score de patrimoine selon l'âge (quantile normal du centile visé, × 1,05 pour la dispersion ajoutée)
+const AGE_WEALTH_SHIFT=AGE_WEALTH_PCT.map(p=>1.05*PhiInv(p/100));
+
+/* Tire la population avec le générateur `prng` (identique dans les deux scénarios). L'ordre des tirages compte :
+   revenus, âges, puis patrimoine. Renvoie wage (revenu), sr (taux d'épargne), qi (quintile de revenu), age0, W0 (patrimoine). */
+function makePopulation(P,N,prng){
+  const nrm=normalFrom(prng);
+  const wage=new Float64Array(N).fill(1),sr=new Float64Array(N).fill(P.save),W0=new Float64Array(N),qi=new Int8Array(N);
+  // revenus log-normaux
+  const zI=new Float64Array(N);for(let i=0;i<N;i++)zI[i]=nrm();
+  if(P.inc)for(let i=0;i<N;i++)wage[i]=Math.exp(P.sigI*zI[i]);
+  {const idx=Array.from({length:N},(_,i)=>i).sort((a,b)=>wage[a]-wage[b]);idx.forEach((i,r)=>{qi[i]=Math.min(4,Math.floor(r*5/N));});}
+  // les plus aisés épargnent davantage : profil Insee, remis à l'échelle pour garder le taux moyen
+  if(P.inc&&P.sprof){const prof=SAVE_BY_QUINTILE;let sw=0,swp=0;for(let i=0;i<N;i++){sw+=wage[i];swp+=wage[i]*prof[qi[i]];}const k=P.save*sw/swp;for(let i=0;i<N;i++)sr[i]=Math.min(0.9,prof[qi[i]]*k);}
+  // âge au départ (recensement) ; il augmente d'un an par an, sans décès
+  const age0=new Float64Array(N);for(let i=0;i<N;i++)age0[i]=drawAge(prng());
+  // patrimoine : un score mêle revenu (corrélation rhoIW) et âge ; on tire N valeurs dans la distribution Insee
+  // et on les attribue dans l'ordre des scores, ce qui garde exactement la distribution d'ensemble
+  if(P.ini){const c=P.inc?P.rhoIW:0;const sc=new Float64Array(N);for(let i=0;i<N;i++)sc[i]=AGE_WEALTH_SHIFT[ageGroup(age0[i])]+c*zI[i]+Math.sqrt(1-c*c)*nrm();
+    const us=new Float64Array(N);for(let i=0;i<N;i++)us[i]=prng();us.sort();const ord=Array.from({length:N},(_,i)=>i).sort((a,b)=>sc[a]-sc[b]);
+    for(let r=0;r<N;r++)W0[ord[r]]=P.m0*wealthQuantile(us[r],P.alW);}
+  return {wage,sr,qi,age0,W0};
+}
+/* ==== fichier : engine/03-holdings.js ==== */
+/* =====================================================================
+   Détenteurs d'une entreprise (tableaux typés)
+   fm.hi : identifiant du détenteur (ménage ≥ 0, ou fonds : FUND_ID_BASE − f)
+   fm.hc : sa mise, qui sert de pondération pour les versements
+   fm.hr : avec gains interdits, ce qui lui reste à récupérer (sa mise moins ce qu'il a déjà reçu)
+   fm.selfC : part sans propriétaire (réserves réinvesties avec gains interdits)
+   Une table de hachage (fm.hk) retrouve la ligne d'un détenteur déjà présent.
+   ===================================================================== */
+const fundId=f=>FUND_ID_BASE-f, isFundId=j=>j<=FUND_ID_BASE, fundOfId=j=>FUND_ID_BASE-j;
+function newHoldings(fm,cap){let c=4;while(c<cap)c*=2;fm.n=0;fm.hi=new Int32Array(c);fm.hc=new Float64Array(c);fm.hr=new Float64Array(c);fm.hk=new Int32Array(c*2);fm.hs=31-Math.log2(c);return fm;}
+function holderSlot(fm,j){const m=fm.hk.length-1;let h=Math.imul(j+3,0x9E3779B1)>>>fm.hs;while(fm.hk[h]!==0&&fm.hi[fm.hk[h]-1]!==j)h=(h+1)&m;return h;}
+function growHoldings(fm){const c=fm.hi.length*2;const hi=new Int32Array(c),hc=new Float64Array(c),hr=new Float64Array(c);hi.set(fm.hi);hc.set(fm.hc);hr.set(fm.hr);fm.hi=hi;fm.hc=hc;fm.hr=hr;fm.hk=new Int32Array(c*2);fm.hs=31-Math.log2(c);for(let k=0;k<fm.n;k++)fm.hk[holderSlot(fm,fm.hi[k])]=k+1;}
+// ajoute une part (mise w, plafond cap), regroupée avec celle que le détenteur a déjà dans la même entreprise
+function addHolder(fm,j,w,cap){let h=holderSlot(fm,j);const k=fm.hk[h]-1;
+  if(k<0){if(fm.n>=fm.hi.length){growHoldings(fm);h=holderSlot(fm,j);}const n=fm.n++;fm.hi[n]=j;fm.hc[n]=w;fm.hr[n]=cap;fm.hk[h]=n+1;}else{fm.hc[k]+=w;fm.hr[k]+=cap;}}
+function freeHoldings(fm){fm.hi=fm.hc=fm.hr=fm.hk=null;fm.n=0;}
+// total des pondérations (mises + part sans propriétaire)
+function totalStake(fm){let t=fm.selfC;const hc=fm.hc;for(let k=0;k<fm.n;k++)t+=hc[k];return t;}
+/* Verse `amount` aux détenteurs, au prorata de leur mise ; avec gains interdits (capped), chacun au plus ce qui lui reste à récupérer.
+   Les ménages reçoivent sur W, les fonds sur income. Renvoie ce qui reste dans l'entreprise. */
+function distribute(fm,amount,capped,W,income,fs){if(amount<=1e-9)return 0;const totC=totalStake(fm);if(totC<=1e-9)return amount;
+  let kept=amount*fm.selfC/totC,paid=0;const a=amount/totC,hi=fm.hi,hc=fm.hc,hr=fm.hr;
+  for(let k=0;k<fm.n;k++){let x=a*hc[k];if(capped){const c=hr[k]>0?hr[k]:0;if(x>c){kept+=x-c;x=c;}hr[k]-=x;}const j=hi[k];if(j<=FUND_ID_BASE)income[FUND_ID_BASE-j]+=x;else W[j]+=x;paid+=x;}
+  fs.divPaid+=paid;return kept;}
+/* Valeur des parts : V au prorata des mises ; avec gains interdits, chacune au plus ce qui reste à récupérer.
+   Ajoute aux ménages (eqv) et aux fonds (fundStake) ; renvoie la part de V attribuée. */
+function valueHoldings(fm,V,capped,eqv,fundStake){const totC=totalStake(fm);let given=0;const a=totC>1e-9?V/totC:0,hi=fm.hi,hc=fm.hc,hr=fm.hr;
+  for(let k=0;k<fm.n;k++){let x=a*hc[k];if(capped){const c=hr[k]>0?hr[k]:0;if(x>c)x=c;}const j=hi[k];if(j<=FUND_ID_BASE)fundStake[FUND_ID_BASE-j]+=x;else eqv[j]+=x;given+=x;}
+  return given;}
+/* ==== fichier : engine/04-funds.js ==== */
+/* =====================================================================
+   Fonds : l'épargne-actions de chaque ménage est versée chaque année dans un fonds
+   (un par ménage, tiré au hasard). Les fonds financent les levées d'actions, puis reversent
+   chaque année à leurs porteurs ce qu'ils ont reçu des entreprises.
+   Avec gains interdits : un fonds ne récupère sur chaque entreprise que sa mise (plafond porté
+   par les détenteurs), et chaque porteur ne récupère du fonds que ce qu'il y a versé (capF).
+   ===================================================================== */
+function makeFunds(C){
+  const {N,P,prng,W,eqSave,fs}=C;const capped=C.world==='I',eps=1e-9;
+  const NF=Math.max(1,Math.round(P.nfd||10)),M=Math.max(1,Math.round(P.m));
+  const fundOf=new Int32Array(N);for(let i=0;i<N;i++)fundOf[i]=Math.min(NF-1,Math.floor(prng()*NF));
+  // FC trésorerie, FU nombre de parts, FS valeur des participations (dernière évaluation), FI reçu dans l'année
+  const FC=new Float64Array(NF),FU=new Float64Array(NF),FS=new Float64Array(NF),FI=new Float64Array(NF);
+  const uF=new Float64Array(N),capF=new Float64Array(N);// parts détenues par chaque ménage, et sa mise restante
+  let totFC=0;const syncFC=()=>{totFC=0;for(let f=0;f<NF;f++)totFC+=FC[f];};
+  // prix d'une part : valeur du fonds / nombre de parts (au plus 1 avec gains interdits)
+  const price=f=>{if(FU[f]<=eps)return 1;const p=(FC[f]+FS[f])/FU[f];return capped?Math.min(1,p):p;};
+  return {NF,M,fundOf,income:FI,stake:FS,
+    // versement de l'épargne-actions de l'année dans les fonds
+    subscribe(){for(let i=0;i<N;i++){const q=eqSave[i];if(q<=eps)continue;const f=fundOf[i];let p=price(f);
+        if(p<=1e-9){for(let j=0;j<N;j++)if(fundOf[j]===f)uF[j]=0;FU[f]=0;p=1;}// fonds ruiné : les anciennes parts ne valent plus rien
+        const u=q/p;uF[i]+=u;FU[f]+=u;FC[f]+=q;capF[i]+=q;eqSave[i]=0;}syncFC();},
+    // ce qu'un ménage peut retirer : sa part de la valeur, dans la limite de la trésorerie du fonds (et de sa mise restante avec gains interdits)
+    available(i){const f=fundOf[i];if(FU[f]<=eps||uF[i]<=eps)return 0;let v=uF[i]*price(f);if(capped)v=Math.min(v,capF[i]);return Math.max(0,Math.min(v,FC[f]));},
+    redeem(i,a){if(a<=eps)return;const f=fundOf[i];const p=price(f);const u=Math.min(uF[i],a/Math.max(p,1e-12));uF[i]-=u;FU[f]-=u;FC[f]-=a;totFC-=a;capF[i]=Math.max(0,capF[i]-a);},
+    // capacité d'une levée : chaque fonds apporte au plus 1/M de sa trésorerie (règle de dispersion des OPCVM)
+    capacity(){return Math.max(0,totFC/M);},
+    // levée d'actions : tous les fonds au prorata ; renvoie les apports par fonds (identifiants de détenteur)
+    raise(amount){const cap=this.capacity();const a=cap>eps?Math.min(1,amount/cap):0;const hi=[],hc=[];let got=0;
+      for(let f=0;f<NF;f++){const c=a*FC[f]/M;if(c<=eps)continue;FC[f]-=c;totFC-=c;got+=c;hi.push(fundId(f));hc.push(c);}
+      return {hi,hc,got};},
+    // reversement aux porteurs de ce que les fonds ont reçu dans l'année
+    payout(){let any=false;for(let f=0;f<NF;f++)if(FI[f]>eps)any=true;if(!any)return;
+      const left=Float64Array.from(FI);for(let i=0;i<N;i++){const f=fundOf[i];if(FI[f]<=eps||uF[i]<=eps)continue;let x=FI[f]*uF[i]/FU[f];if(capped){x=Math.min(x,capF[i]);capF[i]-=x;}W[i]+=x;left[f]-=x;fs.fundPaid+=x;}
+      for(let f=0;f<NF;f++){FC[f]+=Math.max(0,left[f]);FI[f]=0;}syncFC();},
+    // valeur des parts de fonds de chaque ménage (après évaluation des participations dans FS) ; renvoie {total, unclaimed}
+    value(eqv){const pr=new Float64Array(NF);let fv=0;for(let f=0;f<NF;f++){pr[f]=FU[f]>eps?(FC[f]+FS[f])/FU[f]:0;fv+=FC[f]+FS[f];}let claimed=0;
+      for(let i=0;i<N;i++){if(uF[i]<=eps)continue;let v=uF[i]*pr[fundOf[i]];if(capped)v=Math.min(v,capF[i]);eqv[i]+=v;claimed+=v;}
+      return {total:fv,unclaimed:Math.max(0,fv-claimed)};}};
+}
+/* ==== fichier : engine/05-firms.js ==== */
+/* =====================================================================
+   Entreprises : paysage de départ et risque de disparition
+   ===================================================================== */
+/* Paysage initial : nombre d'entreprises par catégorie Insee (au moins une de chaque), capital de la
+   catégorie réparti entre elles avec une dispersion log-normale. Renvoie [{K, cat}]. */
+function landscape(n0,Ktot,er){const cnt=FIRM_CATS.map((c,j)=>j<3?Math.max(1,Math.round(n0*c.c/FIRM_CATS_TOTAL)):0);cnt[3]=Math.max(1,n0-cnt[0]-cnt[1]-cnt[2]);const out=[];
+  FIRM_CATS.forEach((c,j)=>{const w=[];let t=0;for(let k=0;k<cnt[j];k++){const u1=Math.max(er(),1e-12),u2=er();const v=Math.exp(FIRM_SIZE_SIGMA*Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2));w.push(v);t+=v;}w.forEach(v=>out.push({K:v/t*c.k*Ktot,cat:j}));});return out;}
+
+/* Risque annuel de disparition = c / marge (marge = profit après échéance de la dette, rapporté au capital), plafonné.
+   c est calé pour que, sans dette, la part d'entreprises survivantes 5 ans après leur création vaille en moyenne P.pok.
+   Au-delà de 5 ans, le risque baisse avec l'âge : facteur (5 / âge) puissance P.ageb. */
+const HAZ_CACHE=new Map();
+function hazardModel(P){
+  const key=[P.pok,P.rho,!!P.vary,P.alpha].join('|');let c=HAZ_CACHE.get(key);
+  if(c===undefined){const cr=rng(5);const rs=[];for(let k=0;k<4000;k++)rs.push(drawRho(cr,P));
+    const surv=c=>{let s=0;for(const r of rs){const h=r<=1e-9?HAZARD_MAX:Math.min(HAZARD_MAX,c/r);s+=Math.pow(1-h,5);}return s/rs.length;};
+    let lo=1e-7,hi=1;for(let it=0;it<50;it++){const mid=Math.sqrt(lo*hi);if(surv(mid)>P.pok)lo=mid;else hi=mid;}c=Math.sqrt(lo*hi);HAZ_CACHE.set(key,c);}
+  const ageF=a=>a<=5?1:Math.pow(5/a,P.ageb);
+  return (margin,age)=>margin<=1e-9?HAZARD_MAX:Math.min(HAZARD_MAX,c/margin*ageF(age));
+}
+
+/* Entreprises existantes au départ, appartenant à des ménages du modèle.
+   Seule une part P.hold des ménages en détient (Insee : 16 %), tirée d'autant plus souvent que le patrimoine est élevé.
+   PME et microentreprises : un propriétaire principal (part P.own) et 10 actionnaires ; grandes entreprises et ETI : 40 actionnaires.
+   Les parts font partie du patrimoine Insee : elles sont retirées du reste du patrimoine de leur détenteur.
+   Modifie C.firms, C.W, C.W0, C.init0 ; renvoie quelques indicateurs. */
+function seedExistingFirms(C){
+  const {N,P,W,W0,init0,firms}=C;const er=rng(C.seed*104729+3);const n0=Math.max(1,Math.round(N*P.nf/100));
+  const wt=i=>P.ini?Math.pow(Math.max(W0[i],1e-9),HOLD_GAMMA):1;const nH=Math.max(1,Math.round(N*P.hold));
+  // tirage pondéré sans remise des détenteurs (clés d'Efraimidis-Spirakis)
+  const keys=Array.from({length:N},(_,i)=>[Math.log(Math.max(er(),1e-12))/wt(i),i]).sort((a,b)=>b[0]-a[0]);const H=keys.slice(0,nH).map(x=>x[1]);
+  const cdf=new Float64Array(nH);{let c=0;for(let k=0;k<nH;k++){c+=wt(H[k]);cdf[k]=c;}}
+  const pick=()=>{const x=er()*cdf[nH-1];let lo=0,hi=nH-1;while(lo<hi){const m=(lo+hi)>>1;if(cdf[m]<x)lo=m+1;else hi=m;}return H[lo];};
+  for(const ls of landscape(n0,P.k0*N,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho=drawRho(er,P);
+    const owner=isBig?-1:pick();const own=isBig?0:P.own;
+    const fm=newHoldings({K,R:0,debt:0,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
+    if(owner>=0){addHolder(fm,owner,K*own,K*own);init0[owner]+=K*own;}
+    const ns=isBig?SHAREHOLDERS_BIG:SHAREHOLDERS_SMALL,part=K*(1-own)/ns;if(part>0)for(let a=0;a<ns;a++){const j=pick();addHolder(fm,j,part,part);init0[j]+=part;}
+    firms.push(fm);}
+  // parts retirées du reste du patrimoine (sans descendre sous zéro) ; ce qui dépasse s'ajoute au patrimoine
+  let ex=0,tb=0;for(let i=0;i<N;i++){const b=init0[i]-W0[i];if(b<=0)continue;tb+=b;if(P.ini){const keep=Math.max(0,W0[i]-b);ex+=Math.max(0,b-W0[i]);W0[i]=keep;W[i]=keep;init0[i]=keep+b;}else ex+=b;}
+  // part des parts détenue par les 5 % qui en ont le plus
+  const b=Array.from(init0,(v,i)=>v-W0[i]).sort((a,b)=>b-a);const tot=b.reduce((a,c)=>a+c,0);const k5=Math.max(1,Math.round(N*0.05));let t5=0;for(let k=0;k<k5;k++)t5+=b[k];
+  return {exist0:n0,bizEx:tb>0?ex/tb:0,biz5:tot>0?t5/tot:0};
+}
+/* ==== fichier : engine/06-participation.js ==== */
+/* =====================================================================
+   Qui épargne en actions
+   Probabilité = facteur patrimoine × facteur âge × facteur revenu (plafonnée à 1).
+   - patrimoine : groupes définis par des seuils fixes en euros (si les ménages s'enrichissent,
+     ils sont plus nombreux à épargner en actions : coût d'entrée fixe, Vissing-Jørgensen 2002) ;
+   - âge : il augmente chaque année ; revenu : quintile fixe.
+   Au départ, les facteurs patrimoine et âge sont ajustés (calage sur marges) pour reproduire les taux
+   de détention de l'Insee par patrimoine et par âge, remis à l'échelle de la part visée P.part.
+   Un goût propre et fixe pour le risque (uP) départage les ménages : à situation égale, ce sont toujours les mêmes.
+   ===================================================================== */
+const wealthGroup=w=>{let g=0;while(g<PART_WEALTH_CUTS.length&&w>=PART_WEALTH_CUTS[g])g++;return g;};
+function makeParticipation(C){
+  const {N,P,prng,age0,qi,init0}=C;const target=C.stock?Math.max(0,Math.min(1,P.part)):0;
+  const uP=new Float64Array(N);for(let i=0;i<N;i++)uP[i]=prng();
+  const part=new Uint8Array(N);
+  const mW=PART_BY_WEALTH.map(x=>x[1]),mA=PART_BY_AGE.slice(),mQ=P.inc?PART_INCOME_FACTOR:[1,1,1,1,1];
+  const prob=(i,w,t)=>Math.min(1,mW[wealthGroup(w)]*mA[ageGroup(age0[i]+t)]*mQ[qi[i]]);
+  if(target>0){const gw0=new Int8Array(N),ga0=new Int8Array(N);const nw=new Float64Array(6),na=new Float64Array(6);
+    for(let i=0;i<N;i++){gw0[i]=wealthGroup(init0[i]);ga0[i]=ageGroup(age0[i]);nw[gw0[i]]++;na[ga0[i]]++;}
+    let sw=0,sa=0;for(let g=0;g<6;g++){sw+=nw[g]*PART_BY_WEALTH[g][1];sa+=na[g]*PART_BY_AGE[g];}
+    const tW=PART_BY_WEALTH.map(x=>x[1]*target*N/sw),tA=PART_BY_AGE.map(v=>v*target*N/sa);
+    // même calcul que prob(i, init0[i], 0), avec les groupes mis en cache
+    const p0=i=>Math.min(1,mW[gw0[i]]*mA[ga0[i]]*mQ[qi[i]]);
+    for(let it=0;it<60;it++){
+      const pw=new Float64Array(6),pa=new Float64Array(6);for(let i=0;i<N;i++)pw[gw0[i]]+=p0(i);
+      for(let g=0;g<6;g++)if(nw[g]>0&&pw[g]>0)mW[g]*=Math.min(50,tW[g]*nw[g]/pw[g]);
+      for(let i=0;i<N;i++)pa[ga0[i]]+=p0(i);
+      for(let g=0;g<6;g++)if(na[g]>0&&pa[g]>0)mA[g]*=Math.min(50,tA[g]*na[g]/pa[g]);}}
+  return {part,
+    // met à jour qui épargne en actions, selon le patrimoine de chacun l'année t
+    update(wealth,t){if(target<=0){part.fill(0);return;}for(let i=0;i<N;i++)part[i]=uP[i]<prob(i,wealth[i],t)?1:0;},
+    // part d'ensemble, et chez les 10 % les plus riches
+    stat(wealth){let a=0,top=0,nt=0;const c9=Float64Array.from(wealth).sort()[Math.floor(0.9*N)];for(let i=0;i<N;i++){a+=part[i];if(wealth[i]>=c9){nt++;top+=part[i];}}return {all:a/N,top:nt?top/nt:0};}};
+}
+/* ==== fichier : engine/10-run.js ==== */
+/* =====================================================================
+   Une simulation : world 'L' (gains libres) ou 'I' (gains interdits), une graine, des paramètres.
+   Deux générateurs : prng pour la population (identique dans les deux scénarios), rnd pour les événements.
+   Chaque année : qui épargne en actions → intérêts → épargne → fonds → entreprises → idées → versements des fonds → bilan.
+   ===================================================================== */
+function run(world,seed,P){
+  const N=P.N,T=P.T,eps=1e-9;
+  const bank=!!P.bank,stock=!!P.stock,firmOn=!!P.firm,capped=world==='I';
+  const rate=world==='L'?P.rl:0;                       // taux d'intérêt (nul avec gains interdits)
+  const depE=bank?P.dep:0,invE=stock?Math.min(P.inv,1-depE):0; // parts de l'épargne déposée et placée en actions
+  const phi=stock?(bank?P.phi:1):0;                    // part d'un besoin de financement demandée à la bourse
+  const C={world,seed,P,N,T,stock,prng:rng(seed*7919+13),rnd:rng(seed),firms:[],
+    fs:{created:0,died:0,bankrupt:0,bankLoss:0,divPaid:0,lostR:0,invested:0,extE:0,extB:0,fundPaid:0,fundV:0,fundUn:0,unowned:0,firmV:0}};
+  const {rnd,firms,fs}=C;
+  // W liquidités, D dépôts, eqSave épargne-actions de l'année (versée aux fonds), L dette personnelle, net patrimoine net
+  const W=C.W=new Float64Array(N),D=new Float64Array(N),eqSave=C.eqSave=new Float64Array(N),L=new Float64Array(N),net=new Float64Array(N);
+  const lent=new Float64Array(N);                      // prêt direct : apport de chacun au projet en cours
+  const ideas=new Int32Array(N),succ=new Int32Array(N),fail=new Int32Array(N),refI=new Int32Array(N);
+
+  /* ---------- départ ---------- */
+  const pop=makePopulation(P,N,C.prng);const {wage,sr,qi,age0}=pop;
+  Object.assign(C,{W0:pop.W0,qi,age0});
+  const funds=makeFunds(C);
+  for(let i=0;i<N;i++)W[i]=pop.W0[i];
+  const init0=C.init0=Float64Array.from(pop.W0);
+  const hazard=hazardModel(P);
+  let exist={exist0:0,biz5:0,bizEx:0};if(firmOn&&P.exist)exist=seedExistingFirms(C);
+  const partic=makeParticipation(C);const part=partic.part;
+  partic.update(init0,0);const part0=partic.stat(init0);
+  const dg=startDiagnostics(C,part);
+
+  let F=0;                                              // caisse de la banque
+  const st={funded:0,refused:0,loans:0,refusedDebt:0,refusedFund:0,interest:0,issues:0,eqRaised:0,eqPaid:0,holders:0};
+  const tot=new Float64Array(T),gi=new Float64Array(T),uT=new Float64Array(T);
+
+  for(let t=0;t<T;t++){
+    if(t>0)partic.update(net,t);
+
+    /* ---------- intérêts des dettes personnelles, reversés aux déposants ---------- */
+    if(bank&&rate>0){let acc=0,sumD=0;for(let i=0;i<N;i++){if(L[i]>eps){const x=L[i]*rate;L[i]+=x;acc+=x;}sumD+=D[i];}
+      if(acc>0&&sumD>0){for(let j=0;j<N;j++)D[j]+=acc*D[j]/sumD;st.interest+=acc;}}
+
+    /* ---------- épargne : remboursement des dettes, dépôt, actions, liquidités ---------- */
+    for(let i=0;i<N;i++){let s=wage[i]*sr[i];
+      if(L[i]>eps){const p=Math.min(s,L[i]);L[i]-=p;F+=p;s-=p;}
+      const d=s*depE,q=part[i]?s*invE:0;D[i]+=d;F+=d;eqSave[i]+=q;W[i]+=s-d-q;}
+    funds.subscribe();
+
+    /* ---------- entreprises : profit, échéances, disparition, versements, investissement ---------- */
+    if(firmOn&&firms.length){let sumD=0;for(let j=0;j<N;j++)sumD+=D[j];let dInt=0,dLoss=0;
+      for(const fm of firms){if(fm.dead)continue;fm.age++;
+        let pi=fm.rho*fm.K,due=0;
+        if(fm.debt>eps){// intérêts (gains libres seulement), reversés aux déposants ; échéance : intérêts + 10 % de la dette
+          const intr=fm.debt*rate;if(intr>0){fm.debt+=intr;dInt+=intr;st.interest+=intr;}
+          due=Math.min(intr+fm.debt*DEBT_AMORT,fm.debt);}
+        // plus la marge est faible, plus la disparition est probable ; le capital est perdu, la banque perd ce qui lui reste dû
+        const margin=(pi-due)/Math.max(fm.K,eps);
+        if(rnd()<hazard(margin,fm.age)){if(margin<=0)fs.bankrupt++;
+          fm.dead=true;fs.died++;if(fm.f>=0){if(fm.age<5)fail[fm.f]++;else succ[fm.f]++;}
+          if(fm.debt>eps){fs.bankLoss+=fm.debt;dLoss+=fm.debt;fm.debt=0;}
+          fs.lostR+=distribute(fm,fm.R,capped,W,funds.income,fs);fm.R=0;freeHoldings(fm);continue;}
+        if(due>0){// l'échéance est payée sur le profit, puis sur les réserves ; ce qui manque reste dû
+          let pay=Math.min(pi,due);pi-=pay;if(pay<due){const take=Math.min(fm.R,due-pay);fm.R-=take;pay+=take;}
+          fm.debt-=pay;F+=pay;}
+        // gains libres : une part P.payout du profit est versée ; gains interdits : tout est versé, dans la limite des mises
+        if(world==='L'){const d=pi*P.payout;fm.R+=pi-d+distribute(fm,d,capped,W,funds.income,fs);}
+        else fm.R+=distribute(fm,pi,capped,W,funds.income,fs);
+        // investissement : d'abord sur les réserves, puis bourse et banque pour le reste
+        const I=P.invest*fm.K;const fromR=Math.min(fm.R,I);fm.R-=fromR;if(capped)fm.selfC+=fromR;
+        let rem=I-fromR,got=0;
+        if(rem>eps&&(bank||stock)){const capE=stock?funds.capacity():0,capB=bank?Math.max(0,F):0;
+          let nE=rem*phi,nB=rem-nE;
+          if(nE>capE){nB+=nE-capE;nE=capE;}if(nB>capB){nE=Math.min(capE,nE+nB-capB);nB=capB;}
+          if(nE>eps){// gains libres : les mises sont réévaluées à la valeur de l'entreprise avant l'entrée des nouveaux actionnaires
+            if(world==='L'){const totC=totalStake(fm);const V=Math.max(eps,fm.K+fm.R-fm.debt);const f=V/Math.max(totC,eps);const hc=fm.hc;for(let k=0;k<fm.n;k++)hc[k]*=f;fm.selfC*=f;}
+            const res=funds.raise(nE);for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);got+=res.got;fs.extE+=res.got;}
+          if(nB>eps){F-=nB;fm.debt+=nB;got+=nB;fs.extB+=nB;}}
+        fm.K+=fromR+got;fs.invested+=fromR+got;}
+      if(sumD>0&&(dInt>0||dLoss>0)){const f=(dInt-dLoss)/sumD;for(let j=0;j<N;j++)D[j]+=D[j]*f;}}
+
+    /* ---------- idées de création ---------- */
+    for(let i=0;i<N;i++){
+      if(rnd()>=P.pidea)continue;
+      ideas[i]++;
+      // le projet est tiré dès l'idée : réussite, coût et gain, inconnus de tous à l'avance
+      const ok=rnd()<P.pok;const pj=drawProject(rnd,P);const ci=pj.cost,gain0=pj.gain;
+      // apport personnel : liquidités, parts de fonds, puis dépôt (dans la limite de ce que la banque a en caisse)
+      const depAvail=bank?Math.min(D[i],Math.max(F,0)):0;
+      const fAv=stock?funds.available(i):0;const avail=W[i]+fAv+depAvail;
+      const own=Math.min(avail,ci);const need=ci-own;
+      const fromCash=Math.min(W[i],own),fromFund=Math.min(fAv,own-fromCash),fromDep=own-fromCash-fromFund;
+      let lentDirect=false,needB=0,needE=0;
+      if(need>eps){
+        if(!bank&&!stock){// prêt direct des autres ménages, au prorata de leurs liquidités (interdit avec gains interdits)
+          if(capped){st.refused++;refI[i]++;continue;}
+          let pool=0;for(let j=0;j<N;j++)if(j!==i)pool+=W[j];
+          if(pool<need){st.refused++;refI[i]++;continue;}
+          for(let j=0;j<N;j++){lent[j]=(j!==i)?need*W[j]/pool:0;W[j]-=lent[j];}
+          lentDirect=true;
+        }else{// capacités : la bourse (trésorerie des fonds) et la banque (caisse, si pas déjà endetté)
+          let capE=0;if(stock)capE=Math.max(0,funds.capacity()-fromFund/funds.M-P.feeE);
+          const debtBlock=bank&&L[i]>eps;
+          const capB=(bank&&!debtBlock)?Math.max(0,F-fromDep-P.fee):0;
+          needE=need*phi;needB=need-needE;
+          if(needE>capE){needB+=needE-capE;needE=capE;}
+          if(needB>capB){needE+=needB-capB;needB=capB;}
+          if(needE>capE+eps||needB>capB+eps){st.refused++;refI[i]++;if(debtBlock)st.refusedDebt++;else st.refusedFund++;continue;}
+          if(needE<eps)needE=0;if(needB<eps)needB=0;}}
+      W[i]-=fromCash;funds.redeem(i,fromFund);if(fromDep>eps){D[i]-=fromDep;F-=fromDep;}
+      if(needB>0){F-=needB+P.fee;if(!firmOn)L[i]+=needB+P.fee;st.loans++;}
+      let raised=0,res=null;
+      if(needE>0){// levée auprès des fonds, coût d'introduction compris
+        const totalE=needE+P.feeE;res=funds.raise(totalE);
+        raised=totalE;st.issues++;st.eqRaised+=totalE;st.holders+=res.hi.length;}
+      st.funded++;
+      if(firmOn){// le projet devient une entreprise : capital, dette propre, propriétaires (fondateur et fonds)
+        const fm=newHoldings({},8);addHolder(fm,i,Math.max(own,1e-6),Math.max(own,1e-6));
+        if(raised>0)for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);
+        const rho=drawRho(rnd,P);
+        firms.push(Object.assign(fm,{K:ci,R:0,debt:needB>0?needB+P.fee:0,rho,age:0,f:i,selfC:0,dead:false,old:false}));fs.created++;
+        continue;}
+      // sans la brique « entreprises » : le projet réussit ou échoue tout de suite
+      if(ok)succ[i]++;else fail[i]++;
+      if(ok){let gain=gain0;
+        if(lentDirect){const due=need*(1+P.r);const paid=Math.min(gain0,due);const f=paid/need;for(let j=0;j<N;j++)if(lent[j])W[j]+=lent[j]*f;gain-=paid;}
+        if(L[i]>eps){const p=Math.min(gain,L[i]);L[i]-=p;F+=p;gain-=p;}
+        if(raised>0){// les actionnaires possèdent la part du projet qu'ils ont payée ; avec gains interdits, ils récupèrent au plus leur mise
+          const sh=raised/(own+raised);let claim=sh*gain;if(capped)claim=Math.min(claim,raised);
+          const f=claim/raised;for(let k=0;k<res.hi.length;k++)funds.income[fundOfId(res.hi[k])]+=res.hc[k]*f;gain-=claim;st.eqPaid+=claim;}
+        W[i]+=gain;}
+      if(lentDirect)lent.fill(0);
+    }
+
+    /* ---------- versements des fonds, puis bilan de l'année ---------- */
+    funds.payout();
+    const eqv=new Float64Array(N);let unowned=0,firmV=0;funds.stake.fill(0);
+    if(firmOn)for(const fm of firms){if(fm.dead)continue;const V=Math.max(0,fm.K+fm.R-fm.debt);firmV+=V;unowned+=V-valueHoldings(fm,V,capped,eqv,funds.stake);}
+    {const fv=funds.value(eqv);fs.fundV=fv.total;fs.fundUn=fv.unclaimed;unowned+=fv.unclaimed;}
+    fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned;
+    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i];s+=net[i];}tot[t]=s;gi[t]=gini(net);
+  }
+
+  /* ---------- résultats ---------- */
+  for(const fm of firms)if(!fm.dead&&fm.f>=0)succ[fm.f]++;
+  partic.update(net,T);const part1=partic.stat(net);endDiagnostics(C,dg,part);
+  let alive=0,oldAlive=0;for(const fm of firms)if(!fm.dead){alive++;if(fm.old)oldAlive++;}
+  let debt=0,indebted=0;for(let i=0;i<N;i++){debt+=L[i];if(L[i]>eps)indebted++;}
+  // parcours : 0 aucune idée, 1 idée(s) jamais financée(s), 2 réussites ≥ échecs, 3 plus d'échecs que de réussites
+  const grp=new Int8Array(N),owes=new Int8Array(N);
+  for(let i=0;i<N;i++){const p=succ[i]+fail[i];grp[i]=ideas[i]===0?0:p===0?1:succ[i]>=fail[i]?2:3;owes[i]=L[i]>eps?1:0;}
+  const hasStart=P.ini||(firmOn&&P.exist);
+  return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
+    fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
+    fDiv:fs.divPaid,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned,fValue:fs.firmV,
+    fFundPaid:fs.fundPaid,fFundV:fs.fundV,fFundUn:fs.fundUn,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
+    net:Float64Array.from(net),grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
+}
+
+/* ---------- diagnostics par âge et par revenu (comparés à l'Insee dans l'onglet Hypothèses) ---------- */
+function groupMean(N,n,gf,vf){const s=new Float64Array(n),c=new Float64Array(n);for(let i=0;i<N;i++){const g=gf(i);s[g]+=vf(i);c[g]++;}return Array.from(s,(v,g)=>c[g]?v/c[g]:NaN);}
+function groupMedian(N,n,gf,vf){const L=Array.from({length:n},()=>[]);for(let i=0;i<N;i++)L[gf(i)].push(vf(i));return L.map(a=>{if(!a.length)return NaN;a.sort((x,y)=>x-y);return a[Math.floor(a.length/2)];});}
+function startDiagnostics(C,part){const {N,age0,init0,qi}=C;
+  return {wAge:groupMedian(N,6,i=>ageGroup(age0[i]),i=>init0[i]),pA0:groupMean(N,6,i=>ageGroup(age0[i]),i=>part[i]),pQ0:groupMean(N,5,i=>qi[i],i=>part[i]),
+    ageMed0:Float64Array.from(age0).sort()[Math.floor(N/2)]};}
+function endDiagnostics(C,dg,part){dg.pQ1=groupMean(C.N,5,i=>C.qi[i],i=>part[i]);}
+/* ==== fichier : engine/20-stats.js ==== */
+/* =====================================================================
+   Mesures d'équité et agrégation de plusieurs simulations
+   ===================================================================== */
+// indicateurs de répartition du patrimoine final (net trié dans .net)
+function equity(net,grp,owes){
+  const n=net.length;const x=Float64Array.from(net).sort();
+  let tot=0;for(const v of x)tot+=v;const mean=tot/n;
+  const sumRange=(a,b)=>{let s=0;for(let i=a;i<b;i++)s+=x[i];return s;};
+  const k10=Math.max(1,Math.round(n*0.1)),k40=Math.round(n*0.4);
+  const bottom10=sumRange(0,k10)/k10;
+  const shTop10=sumRange(n-k10,n)/tot, shBot40=sumRange(0,k40)/tot;
+  const palma=(tot>0&&shBot40>0)?shTop10/shBot40:null;
+  const k1=Math.max(1,Math.round(n*0.01));const top1=tot>0?sumRange(n-k1,n)/tot:null;
+  let indebted=0;for(let i=0;i<n;i++)indebted+=owes[i];
+  // Dworkin : part des écarts expliquée par le parcours (chance subie ou résultat du pari)
+  const g=[0,1,2,3].map(()=>({n:0,s:0}));for(let i=0;i<n;i++){g[grp[i]].n++;g[grp[i]].s+=net[i];}
+  let vt=0,vb=0;for(let i=0;i<n;i++)vt+=(net[i]-mean)**2;
+  for(const gg of g){if(gg.n)vb+=gg.n*(gg.s/gg.n-mean)**2;}
+  return {mean,bottom10,palma,top1,indebted:indebted/n,groups:g.map(gg=>({share:gg.n/n,mean:gg.n?gg.s/gg.n:null})),between:vt>0?vb/vt:0,net:x};
+}
+// par quintile de revenu : patrimoine moyen, part ayant créé, part ayant essuyé un refus
+function byQuint(net,grp,qi,ref){
+  const q=[0,1,2,3,4].map(()=>({n:0,w:0,l:0,r:0}));
+  for(let i=0;i<net.length;i++){const o=q[qi[i]];o.n++;o.w+=net[i];if(grp[i]>=2)o.l++;if(ref[i])o.r++;}
+  return q.map(o=>({mean:o.n?o.w/o.n:null,launch:o.n?o.l/o.n:null,refused:o.n?o.r/o.n:null}));
+}
+// indice d'Atkinson d'aversion eps (patrimoines négatifs ramenés à 1 % de la moyenne)
+function atkinson(x,eps){
+  const n=x.length;let m=0;for(const v of x)m+=v;m/=n;if(m<=0)return {idx:null,ede:null};
+  const fl=0.01*m;let mu=0;const y=new Float64Array(n);for(let i=0;i<n;i++){y[i]=Math.max(x[i],fl);mu+=y[i];}mu/=n;
+  let ede;
+  if(eps===0)ede=mu;
+  else if(Math.abs(eps-1)<1e-9){let s=0;for(const v of y)s+=Math.log(v);ede=Math.exp(s/n);}
+  else{let s=0;for(const v of y)s+=Math.pow(v,1-eps);ede=Math.pow(s/n,1/(1-eps));}
+  return {idx:1-ede/mu,ede};
+}
+
+// résultats scalaires moyennés sur les simulations
+const SUM_KEYS=['funded','refused','loans','debt','indebted','fund','refusedDebt','refusedFund','interest','issues','eqRaised','eqPaid','holders',
+  'fCreated','fAlive','fBiz5','fBizEx','fOld0','fOldAlive','fDied','fBankrupt','fBankLoss','fDiv','fInvested','fExtE','fExtB','fUnowned','fValue',
+  'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T'];
+// indicateurs calculés simulation par simulation, pour mesurer la dispersion d'un tirage à l'autre
+const PER_RUN={
+  mean:(x,e)=>e.mean, bottom10:(x,e)=>e.bottom10, top1:(x,e)=>e.top1==null?NaN:e.top1, gini:(x,e,T)=>x.gi[T-1],
+  funded:x=>x.funded, refused:x=>x.refused, indebted:(x,e)=>e.indebted, totE:(x,e,T)=>x.tot[T-1]+x.uT[T-1],
+  fUnowned:x=>x.fUnowned, fDied:x=>x.fDied, interest:x=>x.interest, qratio:(x,e,T,q)=>q[0].mean>0?q[4].mean/q[0].mean:NaN};
+// moyenne élément par élément des diagnostics (tableaux), en ignorant les cases vides
+function meanDiagnostics(xs){const dg={},R=xs.length;for(const k in xs[0].dg){const v=xs[0].dg[k];
+  if(Array.isArray(v)){const sm=v.map(()=>0),cn=v.map(()=>0);for(const x of xs)x.dg[k].forEach((y,g)=>{if(isFinite(y)){sm[g]+=y;cn[g]++;}});dg[k]=sm.map((y,g)=>cn[g]?y/cn[g]:NaN);}
+  else dg[k]=xs.reduce((a,x)=>a+x.dg[k],0)/R;}return dg;}
+// fourchette du 10e au 90e centile
+function spreadOf(a){const y=Array.from(a).filter(v=>isFinite(v)).sort((a,b)=>a-b);return y.length?{p10:y[Math.floor((y.length-1)*0.1)],p90:y[Math.ceil((y.length-1)*0.9)]}:null;}
+
+/* Agrège des simulations déjà calculées (une par tirage, dans l'ordre des graines) */
+function aggFrom(world,P,xs){
+  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),lor0=new Float64Array(41);let g0=0;
+  const o={};for(const k of SUM_KEYS)o[k]=0;
+  const nets=[],grps=[],owes=[],qis=[],refs=[];
+  const per={};for(const k in PER_RUN)per[k]=new Float64Array(R);
+  for(let s=0;s<R;s++){const x=xs[s];
+    for(let t=0;t<T;t++){tot[t]+=x.tot[t]/R;gi[t]+=x.gi[t]/R;uT[t]+=x.uT[t]/R;}
+    for(let k=0;k<=40;k++)lor[k]+=x.lor[k]/R;
+    if(x.lor0){for(let k=0;k<=40;k++)lor0[k]+=x.lor0[k]/R;g0+=x.gini0/R;}
+    for(const k of SUM_KEYS)o[k]+=x[k]/R;
+    for(let i=0;i<x.net.length;i++){nets.push(x.net[i]);qis.push(x.qi[i]);refs.push(x.refI[i]>0?1:0);grps.push(x.grp[i]);owes.push(x.owes[i]);}
+    const e=equity(x.net,x.grp,x.owes),q=byQuint(x.net,x.grp,x.qi,x.refI);for(const k in PER_RUN)per[k][s]=PER_RUN[k](x,e,T,q);}
+  const spread={};for(const k in per)spread[k]=spreadOf(per[k]);
+  const hasStart=P.ini||(P.firm&&P.exist);
+  return {tot,gi,uT,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
+    eqReturn:o.eqRaised>0?o.eqPaid/o.eqRaised-1:null,holdersPer:o.issues>0?o.holders/o.issues:null,
+    eq:equity(nets,grps,owes),byq:byQuint(nets,grps,qis,refs),per,spread,R,dg:meanDiagnostics(xs)};
+}
+// calcul direct (sans workers), utile pour les tests
+function agg(world,P){const xs=[];for(let s=0;s<P.runs;s++)xs.push(run(world,1000+s,P));return aggFrom(world,P,xs);}
+</script>
+<script>
+/* ==== fichier : app/00-format.js ==== */
+/* =====================================================================
+   Formats d'affichage (français)
+   ===================================================================== */
+const KEYS=['l','i'], LABELS=['Gains libres','Gains interdits'], SHORT=['Libres','Interdits'];
+const fr=(v,o)=>v.toLocaleString('fr-FR',o);
+const int=v=>{if(v==null)return 'jamais';const r=Math.round(v);return fr(r===0?0:r);};
+const f1=v=>v==null?'n.d.':fr(v,{minimumFractionDigits:1,maximumFractionDigits:1});
+const f2=v=>v==null?'n.d.':fr(v,{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=v=>v==null?'n.d.':Math.round(v*100)+' %';                       // 37 %
+const pct1=v=>v==null?'n.d.':fr(v*100,{maximumFractionDigits:1})+' %';     // 37,4 %
+const ratePct=v=>fr(v*100,{maximumFractionDigits:2})+' %';                  // 3,5 %
+// un montant en années de niveau de vie médian, converti en euros : 480 k€, 2,3 M€, 6 100 €
+const eur=v=>{const e=v*UNIT_EUR;const a=Math.abs(e);return a>=1e9?fr(e/1e9,{maximumFractionDigits:1})+' Md€':a>=1e6?fr(e/1e6,{maximumFractionDigits:1})+' M€':a>=1e4?fr(Math.round(e/1000))+' k€':fr(Math.round(e/100)*100)+' €';};
+// une durée en années de revenu : 0,23 an, 4,3 ans, 19 ans
+const yrs=v=>{const a=Math.abs(v);return fr(v,{maximumFractionDigits:a>=10?0:a>=1?1:2})+(a>=2?' ans':' an');};
+// nombres compacts pour les axes : 1,2 k, 35 k
+const fmtN=v=>{if(Math.abs(v)>=10000)return Math.round(v/1000)+' k';if(Math.abs(v)>=1000)return (v/1000).toFixed(1).replace('.',',')+' k';return Number.isInteger(v)?String(v):v.toFixed(2).replace('.',',')};
+/* ==== fichier : app/01-params.js ==== */
+/* =====================================================================
+   Paramètres : valeurs par défaut, formats des curseurs, mémoire du navigateur
+   Pour ajouter un paramètre : une entrée dans DEF, un format dans FMT, un curseur (id = clé, sortie = clé_o) dans page.html,
+   puis augmenter PARAMS_KEY si l'ancienne valeur mémorisée ne doit pas être reprise.
+   ===================================================================== */
+const DEF={N:2000,T:40,save:0.18,inc:1,sigI:0.49,sprof:1,ini:1,m0:1,alW:1.85,pidea:0.012,cost:4.3,pok:0.6,payoff:11,vary:1,firm:1,rho:0.107,payout:0.5,invest:0.08,exist:1,k0:3.75,nf:17,own:0.5,hold:0.16,rhoIW:0.25,ageb:1.2,sig:2.4,alpha:1.5,bank:1,stock:1,r:0.8,dep:0.5,fee:0.05,rl:0.035,inv:0.25,phi:0.5,m:10,nfd:10,part:0.2,feeE:0.05,runs:30};
+const SWITCHES=['inc','sprof','ini','vary','firm','exist','bank','stock'];   // cases à cocher (0 ou 1)
+const ids=Object.keys(DEF);
+const none=()=>'',dec=n=>v=>fr(v,{maximumFractionDigits:n});
+const FMT={N:v=>fr(v),T:v=>v,save:v=>v.toFixed(2),runs:v=>v,
+  sigI:v=>v.toFixed(2),m0:v=>'× '+fr(v,{maximumFractionDigits:2}),alW:dec(2),rhoIW:dec(2),
+  pidea:v=>fr(v*100,{maximumFractionDigits:1})+' %',cost:v=>fr(v)+' an'+(v>1?'s':'')+' de revenu',pok:pct,payoff:v=>fr(v),sig:v=>v.toFixed(1),alpha:v=>fr(v,{minimumFractionDigits:1,maximumFractionDigits:1}),
+  rho:v=>fr(v*100,{maximumFractionDigits:1})+' %',payout:pct,invest:pct,ageb:dec(1),k0:v=>fr(v)+' an'+(v>=2?'s':''),nf:v=>v,own:pct,hold:pct,
+  r:pct,dep:pct,fee:v=>v.toFixed(2),rl:ratePct,inv:pct,phi:pct,m:v=>v,nfd:v=>v,part:pct,feeE:v=>v.toFixed(2)};
+for(const k of SWITCHES)FMT[k]=none;
+// curseurs à échelle non linéaire : nombre de ménages de 100 à 50 000, arrondi à deux chiffres significatifs
+const SCALE={N:{from:s=>{const v=100*Math.pow(500,s/100);const p=Math.pow(10,Math.floor(Math.log10(v))-1);return Math.round(v/p)*p;},to:v=>Math.round(100*Math.log(v/100)/Math.log(500))}};
+
+// mémoire du navigateur (peut être indisponible : toutes les lectures et écritures sont protégées)
+const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
+const PARAMS_KEY='labo-params-v21';
+let P={...DEF};
+try{const s=JSON.parse(store.get(PARAMS_KEY)||'null');if(s)for(const k of ids)if(typeof s[k]==='number')P[k]=s[k];}catch(e){}
+const saveParams=()=>store.set(PARAMS_KEY,JSON.stringify(P));
+/* ==== fichier : app/02-dom.js ==== */
+/* =====================================================================
+   Aides DOM
+   ===================================================================== */
+const $=id=>document.getElementById(id);
+const setText=(id,t)=>{$(id).textContent=t;};
+const setHTML=(id,h)=>{$(id).innerHTML=h;};
+const show=(id,on)=>{$(id).hidden=!on;};
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;parent.appendChild(e);return e}
+// graphique remplacé par un message
+function blankChart(id,msg){const svg=$(id);svg.innerHTML='';el('text',{x:190,y:110,'text-anchor':'middle',class:'lab'},svg,msg);}
+// statistiques d'un échantillon : valeurs triées, médiane, moyenne, déciles, part des 10 % du haut
+function distStats(x){const y=Float64Array.from(x).sort();const n=y.length;const q=p=>y[Math.min(n-1,Math.floor(p*n))];let s=0;for(const v of y)s+=v;let top=0;for(let i=Math.floor(n*0.9);i<n;i++)top+=y[i];
+  return {y,med:q(0.5),mean:s/n,d1:q(0.1),d9:q(0.9),p90:q(0.9),p99:q(0.99),top10:s>0?top/s:0};}
+/* ==== fichier : app/03-charts.js ==== */
+/* =====================================================================
+   Composants graphiques : barres comparées, lignes, histogrammes
+   ===================================================================== */
+/* Barres comparant les deux scénarios. vals : [libres, interdits] ; better : 'high' | 'low' (coche le meilleur) ;
+   subs : texte sous chaque valeur ; domain : bornes communes à plusieurs lignes ; compact : noms courts. */
+function bars(vals,fmt,{better=null,subs=null,compact=false,domain=null}={}){
+  const ok=vals.map(v=>v!=null&&isFinite(v));
+  const good=vals.filter((v,i)=>ok[i]);
+  let lo=Math.min(0,...good),hi=Math.max(0,...good);if(domain){lo=Math.min(lo,domain[0]);hi=Math.max(hi,domain[1]);}if(hi-lo<1e-12)hi=lo+1;
+  const pos=v=>(v-lo)/(hi-lo)*100, z=pos(0);
+  let best=-1;
+  if(better){vals.forEach((v,i)=>{if(!ok[i])return;if(best<0||(better==='high'?v>vals[best]+1e-9:v<vals[best]-1e-9))best=i;});
+    if(best>=0&&vals.filter((v,i)=>ok[i]&&Math.abs(v-vals[best])<1e-9).length>1)best=-1;}
+  const names=compact?SHORT:LABELS;
+  return `<div class="bars${compact?' compact':''}">`+vals.map((v,i)=>{
+    const p=ok[i]?pos(v):z;const left=Math.min(p,z),w=Math.abs(p-z);
+    return `<div class="bline" title="${LABELS[i]} : ${fmt(v)}"><span class="bname"><i style="background:var(--${KEYS[i]})"></i>${names[i]}</span>`+
+      `<div class="track">${ok[i]?`<div class="fill" style="left:${left}%;width:${w}%;background:var(--${KEYS[i]})"></div>`:''}${lo<0?`<div class="zero" style="left:${z}%"></div>`:''}</div>`+
+      `<span class="bval"><span${i===best?' class="best"':''}>${fmt(v)}</span>${subs?`<small>${subs[i]}</small>`:''}</span></div>`;
+  }).join('')+`</div>`;
+}
+// une ligne de comparaison : libellé, aide, barres
+function crow(label,hint,vals,fmt,opts){return `<div class="crow"><div class="clabel">${label}${hint?`<small>${hint}</small>`:''}</div>${bars(vals,fmt,opts)}</div>`}
+// une carte d'indicateur clé
+function kpi(title,vals,f,better,subs){return `<div class="kpi"><h3>${title}</h3>${bars(vals,f,{compact:true,better,subs})}</div>`}
+// fourchette où tombent 80 % des simulations, pour un indicateur calculé simulation par simulation (voir PER_RUN)
+const range80=(W,k,f)=>W.map(w=>{const s=w.spread&&w.spread[k];if(!s||w.R<3)return '';return `${f(s.p10)} à ${f(s.p90)}`;});
+// série par scénario pour lineChart (interdits d'abord, pour que libres soit dessiné par-dessus)
+const seriesLI=(a,b,soft)=>[{ys:Array.from(b),color:'var(--i)',soft:soft?'var(--i-soft)':null,name:'Interdits'},{ys:Array.from(a),color:'var(--l)',soft:soft?'var(--l-soft)':null,name:'Libres'}];
+
+function niceMax(v){if(v<=0)return 1;const p=Math.pow(10,Math.floor(Math.log10(v)));const m=v/p;const n=m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10;return n*p}
+/* Graphique en lignes avec étiquettes en bout de courbe et info-bulle au survol.
+   series : [{ys, color, name, dash?, soft?}] ; marks : lignes verticales repères ; diag : diagonale (Lorenz). */
+function lineChart(svg,{W,H,xs,series,yMin=0,yMax,yTicks,xTicks=5,xLabel,yFmt,xFmt=fmtN,tipX=null,tipY=null,xMax,xMin=0,area,diag,markers,marks}){
+  svg.innerHTML='';const m={l:56,r:96,t:14,b:34};const iw=W-m.l-m.r,ih=H-m.t-m.b;
+  const X=x=>m.l+(x-xMin)/(xMax-xMin)*iw,Y=y=>m.t+ih-(y-yMin)/(yMax-yMin)*ih;
+  const line=(a,parent=svg)=>el('line',{stroke:'var(--muted)','stroke-width':1,...a},parent);
+  for(let i=0;i<=yTicks;i++){const v=yMin+(yMax-yMin)*i/yTicks;line({x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v),stroke:'var(--grid)'});el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end'},svg,yFmt(v));}
+  for(let i=0;i<=xTicks;i++){const v=xMin+(xMax-xMin)*i/xTicks;el('text',{x:X(v),y:m.t+ih+18,'text-anchor':i===0?'start':i===xTicks?'end':'middle'},svg,xFmt(v));}
+  el('text',{x:m.l+iw,y:H-2,'text-anchor':'end'},svg,xLabel);
+  if(diag)line({x1:X(0),y1:Y(0),x2:X(xMax),y2:Y(100),'stroke-dasharray':'3 4'});
+  const base=yMin<0&&yMax>0?0:yMin;line({x1:m.l,x2:m.l+iw,y1:Y(base),y2:Y(base)});
+  if(marks)for(const mk of marks){line({x1:X(mk.x),x2:X(mk.x),y1:m.t,y2:m.t+ih,'stroke-dasharray':'2 3'});el('text',{x:X(mk.x)+5,y:m.t+10},svg,mk.label);}
+  const ends=[];
+  for(const s of series){
+    let d='';s.ys.forEach((y,i)=>{d+=(i?'L':'M')+X(xs[i]).toFixed(1)+' '+Y(y).toFixed(1)});
+    if(area&&!s.dash){const b=Y(Math.max(yMin,Math.min(0,yMax)));el('path',{d:d+`L${X(xs[xs.length-1]).toFixed(1)} ${b}L${X(xs[0]).toFixed(1)} ${b}Z`,fill:s.soft,stroke:'none'},svg);}
+    el('path',{d,fill:'none',stroke:s.color,'stroke-width':2,'stroke-linejoin':'round','stroke-dasharray':s.dash?'6 5':'none'},svg);
+    const dot=(i)=>el('circle',{cx:X(xs[i]),cy:Y(s.ys[i]),r:4,fill:s.color,stroke:'var(--panel)','stroke-width':2},svg);
+    if(markers&&!s.dash)s.ys.forEach((y,i)=>dot(i));
+    const li=s.ys.length-1;if(!markers||s.dash)dot(li);
+    ends.push({y:Y(s.ys[li]),name:s.name});
+  }
+  // étiquettes directes en bout de courbe, écartées si elles se chevauchent
+  ends.sort((a,b)=>a.y-b.y);for(let k=1;k<ends.length;k++)if(ends[k].y-ends[k-1].y<15)ends[k].y=ends[k-1].y+15;
+  for(const e of ends)el('text',{x:m.l+iw+8,y:e.y+4,class:'lab'},svg,e.name);
+  // couche de survol
+  const wrap=svg.parentNode;let tip=wrap.querySelector('.tip');if(!tip){tip=document.createElement('div');tip.className='tip';tip.hidden=true;wrap.appendChild(tip);}
+  const guide=line({x1:0,x2:0,y1:m.t,y2:m.t+ih,visibility:'hidden'});
+  const dots=series.map(s=>el('circle',{r:5,fill:s.color,stroke:'var(--panel)','stroke-width':2,visibility:'hidden'},svg));
+  const hit=el('rect',{x:m.l,y:m.t,width:iw,height:ih,fill:'transparent'},svg);
+  const pick=ev=>{const r=svg.getBoundingClientRect();const sx=(ev.clientX-r.left)/r.width*W;let bi=0,bd=1e9;xs.forEach((x,i)=>{const d=Math.abs(X(x)-sx);if(d<bd){bd=d;bi=i;}});return {i:bi,r};};
+  hit.addEventListener('pointermove',ev=>{const {i,r}=pick(ev);const gx=X(xs[i]);guide.setAttribute('x1',gx);guide.setAttribute('x2',gx);guide.setAttribute('visibility','visible');
+    series.forEach((s,k)=>{dots[k].setAttribute('cx',gx);dots[k].setAttribute('cy',Y(s.ys[i]));dots[k].setAttribute('visibility','visible');});
+    tip.innerHTML=`<div>${(tipX||xFmt)(xs[i])}</div>`+series.map(s=>`<div class="tr"><i style="background:${s.color}"></i>${s.name}<b>${(tipY||yFmt)(s.ys[i])}</b></div>`).join('');
+    tip.hidden=false;const px=gx/W*r.width;const wr=wrap.getBoundingClientRect();tip.style.left=Math.min(px+12,wr.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
+  hit.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('visibility','hidden');dots.forEach(d=>d.setAttribute('visibility','hidden'));});
+}
+/* Histogramme en échelle logarithmique (36 classes), avec médiane et moyenne. S : distStats(...) ; what : ce que l'on compte. */
+function hist(svg,S,fmt,xlab='années de revenu',what='des créations'){
+  svg.innerHTML='';const W=380,H=220,m={l:44,r:12,t:16,b:34};const iw=W-m.l-m.r,ih=H-m.t-m.b;const y=S.y;
+  let lo=y[Math.floor(y.length*0.001)],hi=y[Math.floor(y.length*0.999)];
+  if(hi/lo<1.5){const c=Math.sqrt(lo*hi);lo=c/3;hi=c*3;}
+  const L0=Math.floor(Math.log10(lo)*2)/2,L1=Math.ceil(Math.log10(hi)*2)/2;const nb=36;const bw=(L1-L0)/nb;
+  const counts=new Array(nb).fill(0);let over=0,under=0;
+  for(const v of y){const b=Math.floor((Math.log10(v)-L0)/bw);if(b<0)under++;else if(b>=nb)over++;else counts[b]++;}
+  counts[0]+=under;counts[nb-1]+=over;
+  const mx=Math.max(...counts)/y.length;const yMax=mx>0?Math.ceil(mx*100/4)*4/100||mx:1;
+  const X=l=>m.l+(l-L0)/(L1-L0)*iw,Y=f=>m.t+ih-f/yMax*ih;
+  for(let i=0;i<=4;i++){const f=yMax*i/4;el('line',{x1:m.l,x2:m.l+iw,y1:Y(f),y2:Y(f),stroke:'var(--grid)','stroke-width':1},svg);el('text',{x:m.l-6,y:Y(f)+4,'text-anchor':'end'},svg,fr(f*100,{maximumFractionDigits:1})+' %');}
+  for(let e=Math.ceil(L0);e<=Math.floor(L1);e++){const v=Math.pow(10,e);el('line',{x1:X(e),x2:X(e),y1:m.t+ih,y2:m.t+ih+4,stroke:'var(--muted)','stroke-width':1},svg);el('text',{x:X(e),y:m.t+ih+17,'text-anchor':'middle'},svg,fr(v,{maximumSignificantDigits:1,useGrouping:true}));}
+  el('text',{x:m.l+iw,y:H-2,'text-anchor':'end'},svg,xlab);
+  counts.forEach((c,i)=>{const f=c/y.length;if(f<=0)return;const x0=X(L0+i*bw)+0.5,x1=X(L0+(i+1)*bw)-0.5;const r=el('rect',{x:x0,y:Y(f),width:Math.max(1,x1-x0),height:m.t+ih-Y(f),fill:'var(--muted)',opacity:.55,rx:1},svg);
+    el('title',{},r,`${fmt(Math.pow(10,L0+i*bw))} à ${fmt(Math.pow(10,L0+(i+1)*bw))} : ${fr(f*100,{maximumFractionDigits:1})} % ${what}`);});
+  el('line',{x1:m.l,x2:m.l+iw,y1:m.t+ih,y2:m.t+ih,stroke:'var(--muted)','stroke-width':1},svg);
+  const mark=(v,label,dash,dy)=>{const l=Math.log10(v);if(l<L0||l>L1)return;el('line',{x1:X(l),x2:X(l),y1:m.t,y2:m.t+ih,stroke:'var(--fg)','stroke-width':1.2,'stroke-dasharray':dash},svg);el('text',{x:X(l)+4,y:m.t+8+dy,class:'lab'},svg,label);};
+  mark(S.med,'médiane','3 3',0);mark(S.mean,'moyenne','none',14);
+}
+/* ==== fichier : app/04-pool.js ==== */
+/* =====================================================================
+   Calcul en arrière-plan
+   Le moteur (script #engine) tourne dans plusieurs workers, un par cœur (au plus 8) ; chaque simulation est une tâche.
+   Si le navigateur refuse les workers, le calcul se fait dans la page, simulation par simulation, sans la figer.
+   ===================================================================== */
+const POOL=(function(){const pool={ws:[],ok:false};
+  try{const src=$('engine').textContent+`
+onmessage=function(e){const d=e.data;try{const x=run(d.world,d.seed,d.P);const tr=new Set();for(const k in x){const v=x[k];if(v&&v.buffer instanceof ArrayBuffer)tr.add(v.buffer);}postMessage({id:d.id,x},[...tr]);}catch(err){postMessage({id:d.id,err:String(err)});}};`;
+    const url=URL.createObjectURL(new Blob([src],{type:'text/javascript'}));const n=Math.max(1,Math.min(8,navigator.hardwareConcurrency||4));
+    for(let k=0;k<n;k++)pool.ws.push(new Worker(url));pool.ok=true;}catch(e){pool.ws=[];pool.ok=false;}
+  return pool;})();
+let JOBSEQ=0;
+// exécute des tâches {world, seed, P} ; onProg(fait, total) ; renvoie les résultats dans l'ordre des tâches.
+// Un nouvel appel abandonne le précédent.
+function runJobs(jobs,onProg){
+  return new Promise((resolve,reject)=>{const res=new Array(jobs.length);let next=0,done=0;const gen=++JOBSEQ;
+    const finish=()=>{if(onProg)onProg(done,jobs.length);if(done===jobs.length)resolve(res);};
+    const runHere=j=>run(j.world,j.seed,j.P);
+    const local=()=>{if(gen!==JOBSEQ||next>=jobs.length)return;const k=next++;try{res[k]=runHere(jobs[k]);}catch(e){reject(e);return;}done++;finish();setTimeout(local,0);};
+    if(!POOL.ok||!POOL.ws.length){setTimeout(local,0);return;}
+    const feed=w=>{if(gen!==JOBSEQ||next>=jobs.length)return;const k=next++;const j=jobs[k];
+      w.onmessage=e=>{if(gen!==JOBSEQ)return;if(e.data.err){POOL.ok=false;res[k]=runHere(j);}else res[k]=e.data.x;done++;finish();if(POOL.ok)feed(w);else local();};
+      w.onerror=ev=>{ev.preventDefault&&ev.preventDefault();POOL.ok=false;if(gen!==JOBSEQ)return;res[k]=runHere(j);done++;finish();local();};
+      w.postMessage({id:k,world:j.world,seed:j.seed,P:j.P});};
+    POOL.ws.forEach(feed);});
+}
+// les deux scénarios, toutes les simulations (mêmes graines dans les deux) ; renvoie [libres, interdits] agrégés
+async function simulate(Q,onProg){const P1={...Q};const jobs=[];for(const w of ['L','I'])for(let s=0;s<P1.runs;s++)jobs.push({world:w,seed:1000+s,P:P1});
+  const xs=await runJobs(jobs,onProg);return [aggFrom('L',P1,xs.slice(0,P1.runs)),aggFrom('I',P1,xs.slice(P1.runs))];}
+/* ==== fichier : app/10-results.js ==== */
+/* =====================================================================
+   Résultats : cartes de chiffres et graphiques (W = [libres, interdits], sortie de aggFrom)
+   ===================================================================== */
+let LAST=null, EPS=1;
+{const e=parseFloat(store.get('labo-eps'));if(!isNaN(e))EPS=e;}
+const at=(W,f)=>W.map(f);   // une valeur par scénario
+
+function render(Lw,Iw,ms){
+  const W=[Lw,Iw];
+  renderKpis(W);renderVerdict(W,P.T-1);renderAge(W);
+  renderBank(W);renderFirms(W);renderStock(W);renderQuintiles(W);
+  LAST={worlds:W,T:P.T};renderEquity();
+  renderCharts(W);
+  const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
+  document.querySelector('main').classList.remove('stale');
+}
+
+function renderKpis(W){
+  setHTML('kpis',
+    kpi('Richesse moyenne par personne',at(W,w=>w.eq.mean),f1,'high',range80(W,'mean',f1))+
+    kpi('Moyenne des 10 % les plus pauvres',at(W,w=>w.eq.bottom10),f1,'high',range80(W,'bottom10',f1))+
+    kpi('Part du 1 % le plus riche',at(W,w=>w.eq.top1),pct1,'low',range80(W,'top1',pct))+
+    kpi('Entreprises créées',at(W,w=>w.funded),int,'high',range80(W,'funded',int)));
+  setText('kpinote',P.runs>=3?`Moyenne de ${P.runs} simulations. Sous chaque valeur, la fourchette où tombent 80 % des simulations : plus elle est large, plus le hasard pèse sur ce résultat.`:'Avec moins de 3 simulations, la dispersion entre tirages n\'est pas affichée.');
+}
+
+function renderBank(W){
+  show('bankcard',P.bank);show('sweepcard',P.bank);if(!P.bank)return;
+  setHTML('bankrows',
+    crow('Prêts accordés','',at(W,w=>w.loans),int)+
+    crow('Refus faute de fonds','',at(W,w=>w.refusedFund),int)+
+    crow('Refus car déjà endetté','',at(W,w=>w.refusedDebt),int)+
+    crow('Intérêts versés aux déposants','Transférés des emprunteurs vers les déposants.',at(W,w=>w.interest),int)+
+    crow('Dette restante','',at(W,w=>w.debt),int)+
+    crow('Fonds inutilisés en caisse','',at(W,w=>w.fund),int));
+}
+
+function renderFirms(W){
+  show('firmcard',P.firm);if(!P.firm)return;
+  let h=crow('Entreprises créées · encore en vie','',at(W,w=>w.fAlive),int,{subs:at(W,w=>int(w.fCreated)+' créées')})+
+    crow('Disparitions','Plus une entreprise a une marge faible, plus elle risque de disparaître. Sous la valeur : celles qui ne couvraient même plus l\'échéance de leur dette.',at(W,w=>w.fDied),int,{subs:at(W,w=>int(w.fBankrupt)+' sans marge')});
+  if(P.exist){h+=crow('Entreprises existantes au départ · encore en vie','',at(W,w=>w.fOldAlive),int,{subs:at(W,w=>int(w.fOld0)+' au départ')})+
+      crow('Parts d\'entreprises détenues par les 5 % qui en ont le plus, au départ','Insee : 5 % des ménages détiennent 95 % du patrimoine professionnel.',at(W,w=>w.fBiz5),pct);
+    if(P.ini)h+=crow('Parts d\'entreprises dépassant le patrimoine de leur détenteur','Ces parts sont prises dans le patrimoine Insee de leur détenteur. Ce qui dépasse s\'y ajoute et gonfle les grands patrimoines.',at(W,w=>w.fBizEx),pct);}
+  h+=crow('Valeur des entreprises en vie','Capital + réserves − dettes.',at(W,w=>w.fValue),int)+
+    crow('Dont sans propriétaire','Ce qui n\'appartient à personne : profits gardés par l\'entreprise au-delà des mises.',at(W,w=>w.fUnowned),int,{subs:at(W,w=>w.fValue>0?pct(w.fUnowned/w.fValue)+' de la valeur':'')})+
+    crow('Versé aux ménages propriétaires','Dividendes et remboursements de mises, sur toute la vie.',at(W,w=>w.fDiv),int)+
+    crow('Investissement des entreprises','Total sur la vie, dont part financée par l\'épargne des ménages.',at(W,w=>w.fInvested),int,{subs:at(W,w=>w.fInvested>0?pct((w.fExtE+w.fExtB)/w.fInvested)+' de l\'extérieur':'')})+
+    crow('Pertes de la banque sur faillites','Supportées par les déposants.',at(W,w=>w.fBankLoss),int);
+  setHTML('firmrows',h);
+}
+
+function renderStock(W){
+  show('stockcard',P.stock);if(!P.stock)return;
+  let h=crow('Créations financées en partie par actions','',at(W,w=>w.issues),int)+
+    crow('Montant levé','Y compris le coût d\'introduction.',at(W,w=>w.eqRaised),int);
+  // sans entreprises, les créations réussissent ou échouent tout de suite : on peut mesurer le rendement des actionnaires
+  if(!P.firm)h+=crow('Versé aux actionnaires','Ce qu\'ils ont récupéré sur les créations qui ont réussi.',at(W,w=>w.eqPaid),int)+
+    crow('Rendement moyen des actionnaires','Versé / levé − 1. Négatif : ils ont perdu en moyenne.',at(W,w=>w.eqReturn),v=>v==null?'n.d.':(v>=0?'+':'')+Math.round(v*100)+' %',{better:'high'});
+  h+=crow('Ménages qui épargnent en actions, à la fin','Au départ, la même part dans les deux scénarios ; elle évolue avec les patrimoines. Elle dépend du niveau de patrimoine, avec des seuils fixes en euros. Sous la valeur : la part au départ, et chez les 10 % les plus riches à la fin.',at(W,w=>w.fPart1),pct,{subs:at(W,w=>`départ ${pct(w.fPart0)}<br>10 % plus riches ${pct(w.fPart1T)}`)})+
+    crow('Fonds participant à chaque levée','En moyenne.',at(W,w=>w.holdersPer),f1)+
+    crow('Versé par les fonds à leurs porteurs','Ce que les fonds ont reçu des entreprises et reversé aux ménages, sur toute la vie. Avec gains interdits, chacun au plus sa mise restante.',at(W,w=>w.fFundPaid),int)+
+    crow('Valeur des fonds à la fin','Trésorerie non placée + participations.',at(W,w=>w.fFundV),int,{subs:at(W,w=>w.fFundUn>0.5?int(w.fFundUn)+' sans porteur':'')});
+  setHTML('stockrows',h);
+}
+
+const QUINT_NAMES=['20 % les plus modestes','Deuxième cinquième','Cinquième du milieu','Quatrième cinquième','20 % les plus aisés'];
+function renderQuintiles(W){
+  show('qcard',P.inc);if(!P.inc)return;
+  const all=[];W.forEach(w=>w.byq.forEach(q=>all.push(q.mean)));const domain=[Math.min(0,...all),Math.max(0,...all)];
+  setHTML('qrows',QUINT_NAMES.map((nm,q)=>crow(nm,'',at(W,w=>w.byq[q].mean),f1,{domain,subs:at(W,w=>`création ${pct(w.byq[q].launch)}<br>refus ${pct(w.byq[q].refused)}`)})).join(''));
+}
+
+// onglet Inégalités : mesures de justice (l'aversion d'Atkinson se règle sans relancer le calcul)
+function renderEquity(){
+  if(!LAST)return;const W=LAST.worlds;const E=W.map(w=>w.eq);const L=LAST.T-1;
+  const ak=E.map(e=>atkinson(e.net,EPS));
+  setHTML('eqrows',
+    crow('Richesse moyenne','Utilitarisme : seule la moyenne compte.',E.map(e=>e.mean),f1,{better:'high',subs:range80(W,'mean',f1)})+
+    crow('Moyenne des 10 % les plus pauvres','Rawls : le sort des plus mal lotis.',E.map(e=>e.bottom10),f1,{better:'high',subs:range80(W,'bottom10',f1)})+
+    crow(`Atkinson, aversion ${f2(EPS)}`,'Part de la richesse qu\'on sacrifierait pour une égalité parfaite. Plus bas, c\'est plus égal.',ak.map(a=>a.idx),f2,{better:'low',subs:ak.map(a=>'≈ '+f1(a.ede)+' chacun')})+
+    crow('Gini','Écart global, surtout sensible au milieu. Plus bas, c\'est plus égal.',W.map(w=>w.gi[L]),f2,{better:'low',subs:range80(W,'gini',f2)})+
+    crow('Part détenue par le 1 % le plus riche','Concentration au sommet. Plus bas, c\'est plus égal.',E.map(e=>e.top1),pct,{better:'low',subs:range80(W,'top1',pct)})+
+    crow('Ratio de Palma','10 % les plus riches / 40 % les plus pauvres. Plus bas, c\'est plus égal.',E.map(e=>e.palma),f2,{better:'low'})+
+    crow('Personnes encore endettées','Égalité relationnelle : dépendance envers un créancier.',E.map(e=>e.indebted),pct,{better:'low'}));
+  const names=['N\'a jamais eu d\'idée','Idée(s), jamais financée(s)','Créations : réussites ≥ échecs','Créations : plus d\'échecs que de réussites'];
+  const kinds=['Chance subie','Chance subie','Résultat du pari','Résultat du pari'];
+  setHTML('dwrows',names.map((nm,g)=>crow(nm,kinds[g],E.map(e=>e.groups[g].mean),v=>v==null?'personne':f1(v),{subs:E.map(e=>pct(e.groups[g].share)+' des gens')})).join('')+
+    crow('Part des écarts expliquée par le parcours','Le reste vient des différences à l\'intérieur des groupes (nombre de créations, montants).',E.map(e=>e.between),pct,{}));
+}
+
+function renderCharts([Lw,Iw]){
+  const L=P.T-1,xs=Array.from({length:P.T},(_,i)=>i+1);const year={xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v};
+  // richesse au fil du temps : avec entreprises, celle de l'économie entière (y compris la valeur sans propriétaire)
+  const total=w=>Array.from(w.tot,(v,t)=>v+w.uT[t]);
+  const series=P.firm?[{ys:total(Iw),color:'var(--i)',soft:'var(--i-soft)',name:'Interdits, total'},{ys:total(Lw),color:'var(--l)',soft:'var(--l-soft)',name:'Libres, total'},
+      {ys:Array.from(Iw.tot),color:'var(--i)',dash:true,name:'Interdits, ménages'},{ys:Array.from(Lw.tot),color:'var(--l)',dash:true,name:'Libres, ménages'}]
+    :seriesLI(Lw.tot,Iw.tot,true);
+  lineChart($('ch_total'),{...year,W:760,H:280,xs,yMax:niceMax(Math.max(...series.map(s=>Math.max(...s.ys)))),yTicks:4,xTicks:P.T%5===0?5:2,yFmt:fmtN,tipY:int,area:false,series});
+  setText('totlede',P.firm?'En trait plein : la richesse de toute l\'économie, c\'est-à-dire celle de la population, plus la valeur des entreprises qui n\'appartient à personne. En pointillé : la seule richesse de la population (liquidités, dépôts et parts d\'entreprises, moins les dettes). Moyenne sur les simulations.':'Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.');
+  // Gini au fil du temps
+  lineChart($('ch_gini'),{...year,W:380,H:260,xs,yMax:Math.max(0.1,Math.ceil(Math.max(...Lw.gi,...Iw.gi)*10)/10),yTicks:4,xTicks:P.T%4===0?4:2,yFmt:f2,series:seriesLI(Lw.gi,Iw.gi)});
+  // Lorenz, au départ et à la fin
+  const lx=Array.from({length:41},(_,k)=>k*2.5);const lmin=Math.min(0,...Lw.lor,...Iw.lor)*100;
+  const lser=seriesLI(Array.from(Lw.lor,v=>v*100),Array.from(Iw.lor,v=>v*100));
+  if(Lw.lor0)lser.unshift({ys:Array.from(Lw.lor0,v=>v*100),color:'var(--muted)',dash:true,name:'Départ'});
+  lineChart($('ch_lorenz'),{W:380,H:260,xs:lx,xMax:100,yMin:lmin<0?-Math.ceil(-lmin/25)*25:0,yMax:100,yTicks:4,xTicks:4,xLabel:'% de la population',yFmt:v=>Math.round(v)+' %',xFmt:v=>Math.round(v)+' %',tipX:v=>fr(v)+' % les moins riches',diag:true,series:lser});
+  setText('lorlede',Lw.lor0?`Part de la richesse nette détenue par les x % les moins riches. En pointillé : le patrimoine de départ, identique dans les deux scénarios (Gini ${f2(Lw.gini0)}) ; à la fin, Gini ${f2(Lw.gi[L])} avec gains libres et ${f2(Iw.gi[L])} avec gains interdits. Sous zéro, ce sont des personnes endettées.`:'Part de la richesse nette détenue par les x % les moins riches, à la fin de la simulation. Sans patrimoine de départ, il n\'y a pas de courbe de départ. Sous zéro, ce sont des personnes endettées.');
+}
+/* ==== fichier : app/11-verdict.js ==== */
+/* =====================================================================
+   Synthèse : ce qui change quand on interdit les gains
+   Chaque indicateur : libellé, lecture (get), format, sens favorable, clé PER_RUN pour la robustesse.
+   ===================================================================== */
+function verdictItems(L){
+  const V=[
+    {l:'Richesse moyenne par personne',get:w=>w.eq.mean,f:f1,dir:'high',k:'mean'},
+    {l:'Moyenne des 10 % les plus pauvres',get:w=>w.eq.bottom10,f:f1,dir:'high',k:'bottom10'},
+    {l:'Part détenue par le 1 % le plus riche',get:w=>w.eq.top1,f:pct1,dir:'low',k:'top1'},
+    {l:'Gini du patrimoine',get:w=>w.gi[L],f:f2,dir:'low',k:'gini'},
+    {l:'Entreprises créées',get:w=>w.funded,f:int,dir:'high',k:'funded'},
+    {l:'Idées abandonnées faute de financement',get:w=>w.refused,f:int,dir:'low',k:'refused'},
+    {l:'Personnes encore endettées',get:w=>w.eq.indebted,f:pct,dir:'low',k:'indebted'}];
+  if(P.inc)V.push({l:'Richesse des 20 % les plus aisés rapportée à celle des 20 % les plus modestes',get:w=>w.byq[0].mean>0?w.byq[4].mean/w.byq[0].mean:null,f:v=>v==null?'n.d.':fr(v,{maximumFractionDigits:1})+' fois',dir:'low',k:'qratio'});
+  if(P.firm)V.push({l:'Richesse totale de l\'économie (population et entreprises)',get:w=>w.tot[L]+w.uT[L],f:int,dir:'high',k:'totE'},
+    {l:'Valeur des entreprises sans propriétaire',get:w=>w.fUnowned,f:int,dir:null,k:'fUnowned'},
+    {l:'Entreprises disparues',get:w=>w.fDied,f:int,dir:'low',k:'fDied'});
+  if(P.bank||P.firm)V.push({l:'Intérêts reçus par les déposants',get:w=>w.interest,f:int,dir:null,k:'interest'});
+  return V;
+}
+// les deux scénarios utilisent les mêmes tirages : on compte les simulations où l'écart va dans le même sens que la moyenne
+function agreement(W,k,sign){if(!k||!W[0].per||W[0].R<3)return null;const a=W[0].per[k],b=W[1].per[k];let c=0,n=0;
+  for(let s=0;s<a.length;s++){if(!isFinite(a[s])||!isFinite(b[s]))continue;n++;if(Math.sign(b[s]-a[s])===sign)c++;}return n?{c,n,f:c/n}:null;}
+// description de l'écart, du point de vue des gains interdits
+function describeGap(a,b){const fx=v=>fr(v,{maximumFractionDigits:1});
+  if(Math.abs(a)<1e-9)return 'nul avec gains libres';
+  if(Math.abs(b)<1e-9)return 'nul avec gains interdits';
+  if(a*b<0)return (b>0?'positif':'négatif')+' avec gains interdits, '+(a>0?'positif':'négatif')+' avec gains libres';
+  const r=b/a;
+  if(r>=1.5)return fx(r)+' fois plus élevé avec gains interdits';
+  if(r<=1/1.5)return fx(1/r)+' fois plus faible avec gains interdits';
+  const v=Math.round((r-1)*100);return (v>0?'+':'−')+Math.abs(v)+' % avec gains interdits';}
+
+function renderVerdict(W,L){
+  const act=[];if(P.inc)act.push(P.sprof?'revenus inégaux (les plus aisés épargnent davantage)':'revenus inégaux');if(P.ini)act.push('patrimoine de départ');if(P.vary)act.push('créations inégales');if(P.firm)act.push(P.exist?'entreprises (avec un paysage existant)':'entreprises');
+  if(P.bank)act.push('banque');if(P.stock)act.push('bourse');if(!P.bank&&!P.stock)act.push('prêt direct');
+  setText('vmodel',`Modèle actuel : ${act.join(', ')}. ${P.N} ménages, ${P.T} ans, moyenne de ${P.runs} simulations.`);
+  const items=verdictItems(L).map(o=>{const vl=o.get(W[0]),vi=o.get(W[1]);const ok=vl!=null&&vi!=null&&isFinite(vl)&&isFinite(vi);
+    const same=ok&&o.f(vl)===o.f(vi);const d=ok&&!same?Math.abs(vi-vl)/Math.max(Math.abs(vl),Math.abs(vi),1e-9):0;
+    return {...o,vl,vi,ok,d,agree:ok?agreement(W,o.k,Math.sign(vi-vl)):null};}).filter(o=>o.ok);
+  const big=items.filter(o=>o.d>=0.05).sort((x,y)=>y.d-x.d),small=items.filter(o=>o.d<0.05);
+  const pill=o=>{if(!o.dir)return '';const iBetter=o.dir==='high'?o.vi>o.vl:o.vi<o.vl;return `<span class="pill">plus favorable : gains ${iBetter?'interdits':'libres'}</span>`;};
+  const robust=a=>a?` · même sens dans ${a.c} simulation${a.c>1?'s':''} sur ${a.n}${a.f<0.8?' <span class="pill frag">fragile</span>':''}`:'';
+  let h=big.map(o=>`<li><span class="vl">${o.l}${pill(o)}</span><span class="vv" title="gains libres, puis gains interdits"><i style="background:var(--l)"></i>${o.f(o.vl)}<i style="background:var(--i)"></i>${o.f(o.vi)}</span><span class="vd">${describeGap(o.vl,o.vi)}${robust(o.agree)}</span></li>`).join('');
+  if(!big.length)h='<li><span class="vl">Aucun écart notable entre les deux scénarios.</span></li>';
+  if(small.length)h+=`<li><span class="vd">Presque identiques (moins de 5 % d'écart) : ${small.map(o=>o.l.charAt(0).toLowerCase()+o.l.slice(1)).join(' ; ')}.</span></li>`;
+  setHTML('vlist',h);
+}
+/* ==== fichier : app/12-age.js ==== */
+/* =====================================================================
+   Hypothèses : âge, patrimoine et épargne en actions, comparés à l'Insee
+   ===================================================================== */
+const AGE_NAMES=['Moins de 30 ans','30-39 ans','40-49 ans','50-59 ans','60-69 ans','70 ans ou plus'];
+const INSEE_WEALTH_BY_AGE=[12.7,51.4,106.6,171.5,194.3,182.1];   // k€, patrimoine net médian début 2018 (ramené à 2021 ×1,067)
+const INSEE_STOCK_BY_AGE=[8.6,14.4,19.8,17.8,16.4,18.4];          // %, détention de valeurs mobilières début 2021
+function renderAge(W){
+  const d=W[0].dg;show('agecard',!!d);if(!d)return;
+  setText('agemed',Math.round(d.ageMed0));
+  const k=v=>isFinite(v)?fr(Math.round(v*UNIT_EUR/1000))+' k€':'n.d.',p=v=>isFinite(v)?Math.round(v*100)+' %':'–';
+  const st=!!P.stock;
+  let h=`<thead><tr><th>Âge au départ</th><th>Patrimoine médian, modèle</th><th>Insee</th>${st?'<th>Épargnent en actions, modèle</th><th>Insee (valeurs mobilières)</th>':''}</tr></thead><tbody>`;
+  AGE_NAMES.forEach((nm,g)=>{h+=`<tr><td>${nm}</td><td>${P.ini?k(d.wAge[g]):'–'}</td><td class="src">${fr(Math.round(INSEE_WEALTH_BY_AGE[g]*1.067))} k€</td>${st?`<td>${p(d.pA0[g])}</td><td class="src">${fr(INSEE_STOCK_BY_AGE[g])} %</td>`:''}</tr>`;});
+  setHTML('agetab',h+'</tbody>');
+  const it=$('inctab');it.parentNode.hidden=!st;
+  if(st){const qn=['20 % les plus modestes','2e cinquième','3e cinquième','4e cinquième','20 % les plus aisés'];
+    it.innerHTML=`<thead><tr><th>Revenu</th><th>Épargnent en actions au départ</th><th>À la fin, gains libres</th><th>À la fin, gains interdits</th></tr></thead><tbody>`+
+      qn.map((nm,q)=>`<tr><td>${nm}</td><td>${p(d.pQ0[q])}</td><td>${p(W[0].dg.pQ1[q])}</td><td>${p(W[1].dg.pQ1[q])}</td></tr>`).join('')+'</tbody>';}
+  setText('agenote',`Patrimoine Insee : médiane du patrimoine net par âge début 2018, ramenée au niveau de 2021. ${st?`Le modèle vise une part d'ensemble de ${pct(P.part)} : les taux de l'Insee par âge et par patrimoine sont remis à cette échelle, puis le revenu module la probabilité (effet « toutes choses égales par ailleurs » de l'Insee). Ensuite, chaque année, le patrimoine et l'âge de chacun changent, et sa probabilité avec.`:''}`);
+}
+/* ==== fichier : app/13-sweep.js ==== */
+/* =====================================================================
+   Effet du taux d'intérêt (gains libres, de 0 à 15 %), comparé au scénario sans gains
+   ===================================================================== */
+let SWEEP=null;
+const SWEEP_METRICS={
+  bottom10:{f:a=>a.eq.bottom10,fmt:f1},
+  gini:{f:a=>a.gi[a.gi.length-1],fmt:f2},
+  funded:{f:a=>a.funded,fmt:int},
+  mean:{f:a=>a.eq.mean,fmt:f1},
+  indebted:{f:a=>a.eq.indebted*100,fmt:v=>Math.round(v)+' %'}};
+function renderSweep(){
+  if(!SWEEP)return;const key=$('sweepmetric').value;const M=SWEEP_METRICS[key];
+  const ys=SWEEP.res.map(M.f);const base=ys[0];
+  let lo=Math.min(...ys,base),hi=Math.max(...ys,base);const pad=(hi-lo)*0.15||Math.abs(hi)*0.1||1;lo-=pad;hi+=pad;
+  if(lo>0&&key!=='mean'&&key!=='funded')lo=0;
+  const r2=v=>fr(v,{maximumFractionDigits:2});
+  lineChart($('ch_sweep'),{W:760,H:280,xs:SWEEP.rates.map(r=>r*100),xMin:0,xMax:15,yMin:lo,yMax:hi,yTicks:4,xTicks:6,xLabel:'taux d\'intérêt annuel (%)',
+    yFmt:M.fmt,xFmt:v=>r2(v)+' %',tipX:v=>'Taux '+r2(v)+' % par an',markers:true,marks:[{x:SWEEP.current*100,label:'taux du panneau'}],
+    series:[{ys:SWEEP.rates.map(()=>base),color:'var(--i)',dash:true,name:'Interdits'},{ys,color:'var(--l)',name:'Libres'}]});
+}
+function runSweep(){
+  const btn=$('sweepbtn');btn.disabled=true;btn.textContent='Calcul…';
+  const rates=Array.from({length:13},(_,k)=>k*0.0125);const Q={...P,bank:1};
+  const jobs=[];for(const r of rates)for(let s=0;s<Q.runs;s++)jobs.push({world:'L',seed:1000+s,P:{...Q,rl:r}});
+  runJobs(jobs,(d,n)=>setText('sweepnote',`Calcul ${d} / ${n} simulations…`)).then(xs=>{
+    const res=rates.map((r,k)=>aggFrom('L',{...Q,rl:r},xs.slice(k*Q.runs,(k+1)*Q.runs)));
+    SWEEP={rates,res,current:P.rl};renderSweep();btn.disabled=false;btn.textContent='Recalculer';
+    setText('sweepnote','Survolez le graphique pour lire les valeurs. Relancez le calcul après avoir changé d\'autres réglages.');});
+}
+/* ==== fichier : app/14-previews.js ==== */
+/* =====================================================================
+   Aperçus instantanés (onglet Hypothèses), recalculés à chaque réglage, sans lancer la simulation :
+   créations possibles, population au départ, entreprises au départ. Ils reprennent les tirages du moteur.
+   ===================================================================== */
+function drawPreviews(){drawProjects();drawPopulation();drawFirms0();}
+
+function drawProjects(){
+  const n=20000,g=rng(7),costs=new Float64Array(n),gains=new Float64Array(n);
+  for(let k=0;k<n;k++){const pj=drawProject(g,P);costs[k]=pj.cost;gains[k]=pj.gain;}
+  const C=distStats(costs),G=distStats(gains);
+  hist($('ch_cost'),C,yrs);hist($('ch_gain'),G,yrs);
+  if(!P.vary){
+    setText('cost_note',`Créations identiques : chacune coûte ${yrs(P.cost)} de revenu.`);
+    setText('gain_note',`Chaque succès rapporte ${yrs(P.payoff)} de revenu.`);
+  }else{
+    setText('cost_note',`Médiane ${yrs(C.med)} (≈ ${eur(C.med)}), moyenne ${yrs(C.mean)} (≈ ${eur(C.mean)}). Une création sur dix coûte plus de ${yrs(C.p90)} (≈ ${eur(C.p90)}), soit plus de ${Math.round(C.p90/P.save)} ans d'épargne.`);
+    setText('gain_note',`Médiane ${yrs(G.med)} (≈ ${eur(G.med)}), moyenne ${yrs(G.mean)}. Les 10 % de succès les plus gros font ${Math.round(G.top10*100)} % de tous les gains ; un sur cent dépasse ${yrs(G.p99)} (≈ ${eur(G.p99)}).`);
+  }
+}
+
+function drawPopulation(){
+  // aperçu sur 20 000 ménages (le lien avec l'âge n'y est pas représenté)
+  const n=20000,nrm=normalFrom(rng(11));const inc=new Float64Array(n),w0=new Float64Array(n);const c=P.inc?P.rhoIW:0;
+  for(let k=0;k<n;k++){const z1=nrm();inc[k]=P.inc?Math.exp(P.sigI*z1):1;w0[k]=P.ini?P.m0*wealthQuantile(Phi(c*z1+Math.sqrt(1-c*c)*nrm()),P.alW):0;}
+  if(P.inc){const I=distStats(inc);hist($('ch_inc'),I,v=>fr(v,{maximumFractionDigits:2})+' fois le médian','multiple du revenu médian','des ménages');
+    setText('inc_note',`Médiane 1 (≈ ${eur(I.med)}), moyenne ${fr(I.mean,{maximumFractionDigits:2})}. Les 10 % les plus modestes gagnent moins de ${eur(I.d1)}, les 10 % les plus aisés plus de ${eur(I.d9)} : rapport ${fr(I.d9/I.d1,{maximumFractionDigits:1})}.`);}
+  else{blankChart('ch_inc','Revenus égaux : 1 pour tous');setText('inc_note',`Chacun gagne le niveau de vie médian, ${fr(UNIT_EUR)} € par an.`);}
+  if(P.ini&&P.m0>0){const S=distStats(w0);hist($('ch_w0'),S,yrs,'années de revenu','des ménages');
+    setText('w0_note',`Médiane ${yrs(S.med)} (≈ ${eur(S.med)}), moyenne ${yrs(S.mean)} (≈ ${eur(S.mean)}). Les 10 % les mieux dotés détiennent ${Math.round(S.top10*100)} % du patrimoine de départ.`);}
+  else{blankChart('ch_w0','Patrimoine de départ nul pour tous');setText('w0_note','Tout le monde commence sans patrimoine.');}
+  let sv;
+  if(P.inc&&P.sprof){const prof=SAVE_BY_QUINTILE;const y=Float64Array.from(inc).sort();let sw=0,swp=0;const qOf=i=>Math.min(4,Math.floor(i*5/n));for(let i=0;i<n;i++){sw+=y[i];swp+=y[i]*prof[qOf(i)];}const k=P.save*sw/swp;
+    const rates=prof.map(v=>Math.min(0.9,v*k));const sav=[0,1,2,3,4].map(q=>{let a=0,c=0;for(let i=Math.floor(q*n/5);i<Math.floor((q+1)*n/5);i++){a+=y[i]*rates[q];c++;}return a/c;});
+    sv=`Épargne annuelle par cinquième de revenu, du plus modeste au plus aisé : ${rates.map(r=>fr(Math.round(r*1000)/10)+' %').join(', ')} du revenu, soit en moyenne ${sav.map(eur).join(', ')} par an.`;}
+  else sv=`Chacun épargne ${pct(P.save)} de son revenu.`;
+  if(P.inc&&P.ini)sv+=` Corrélation des rangs entre revenu et patrimoine de départ : ${fr(rankCorrelation(inc,w0),{maximumFractionDigits:2})}.`;
+  if(P.firm&&P.exist)sv+=P.ini?` Les parts des entreprises existantes (${fr(P.k0)} ans de revenu par ménage en moyenne), détenues par ${pct(P.hold)} des ménages surtout parmi les plus riches, sont comptées dans ce patrimoine et non en plus.`:` S'ajoutent au patrimoine de départ les parts des entreprises existantes (${fr(P.k0)} ans de revenu par ménage en moyenne), détenues par ${pct(P.hold)} des ménages.`;
+  setText('sav_note',sv);
+}
+// corrélation de Spearman
+function rankCorrelation(x,y){const n=x.length;const rk=v=>{const o=Array.from(v.keys()).sort((a,b)=>v[a]-v[b]);const r=new Float64Array(n);o.forEach((i,k)=>r[i]=k);return r;};
+  const a=rk(x),b=rk(y);let ma=0,mb=0;for(let i=0;i<n;i++){ma+=a[i];mb+=b[i];}ma/=n;mb/=n;let sab=0,saa=0,sbb=0;for(let i=0;i<n;i++){const u=a[i]-ma,v=b[i]-mb;sab+=u*v;saa+=u*u;sbb+=v*v;}return sab/Math.sqrt(saa*sbb);}
+
+function drawFirms0(){
+  if(!(P.firm&&P.exist)){['ch_fk','ch_fr'].forEach(id=>blankChart(id,P.firm?'Pas d\'entreprises existantes':'Brique « entreprises » désactivée'));['fk_note','fr_note','f0_note'].forEach(id=>setText(id,''));return;}
+  // mêmes tirages que le moteur, sur plusieurs paysages regroupés
+  const er=rng(17),n0=Math.max(1,Math.round(P.N*P.nf/100)),reps=Math.max(1,Math.ceil(20000/n0));const Ks=[],rs=[];const cn=[0,0,0,0],ck=[0,0,0,0];
+  for(let r=0;r<reps;r++)for(const x of landscape(n0,P.k0*P.N,er)){Ks.push(x.K);cn[x.cat]++;ck[x.cat]+=x.K;rs.push(drawRho(er,P));}
+  const SK=distStats(Ks),SR=distStats(rs);
+  hist($('ch_fk'),SK,yrs,'années de revenu médian','des entreprises');
+  const kT=ck.reduce((a,b)=>a+b,0);const per=FIRM_CATS.map((c,j)=>{const m=Math.round(cn[j]/reps);return `${m} ${m>1?c.n:c.n1} (${Math.round(ck[j]/kT*100)} % du capital, ${eur(ck[j]/Math.max(1,cn[j]))} chacune en moyenne)`;}).join(', ');
+  setText('fk_note',`${n0} entreprises pour ${P.N} ménages : ${per}. Capital médian ${eur(SK.med)}, moyen ${eur(SK.mean)}. À l'échelle de ${P.N} ménages, une grande entreprise ou une ETI ne peut exister qu'en « tranche » : leur nombre réel serait bien inférieur à 1.`);
+  if(P.vary){hist($('ch_fr'),SR,pct1,'profit annuel / capital','des entreprises');
+    setText('fr_note',`Médiane ${pct1(SR.med)}, moyenne ${pct1(SR.mean)}. Loi de Pareto d'indice ${fr(P.alpha)} : quelques entreprises très rentables, plafonnées à ${Math.round(RHO_CAP*100)} %.`);}
+  else{blankChart('ch_fr',`Rentabilité égale : ${pct1(P.rho)} pour toutes`);setText('fr_note','Activez « créations inégales » pour des rentabilités dispersées.');}
+  setText('f0_note',`Âge au départ : réparti uniformément entre ${EXIST_AGE_MIN} et ${EXIST_AGE_MIN+EXIST_AGE_SPAN-1} ans (les plus âgées résistent mieux). Propriété : dans les microentreprises et les PME, un propriétaire principal détient ${pct(P.own)}, le reste va à ${SHAREHOLDERS_SMALL} actionnaires ; les grandes entreprises et les ETI sont réparties entre ${SHAREHOLDERS_BIG} actionnaires. Tous sont tirés parmi les ${pct(P.hold)} de ménages détenteurs, d'autant plus souvent qu'ils sont riches.`);
+}
+/* ==== fichier : app/20-panel.js ==== */
+/* =====================================================================
+   Panneau de réglages
+   ===================================================================== */
+// ordres de grandeur affichés sous les réglages (calculs simples, sans simulation)
+function payback(D,s,r){if(r<=0)return Math.ceil(D/s);if(r*D>=s)return null;return Math.ceil(-Math.log(1-r*D/s)/Math.log(1+r));}
+function derived(){
+  const ev=P.pok*P.payoff-P.cost,wait=Math.ceil(P.cost/P.save);
+  const sg=(v,u='')=>`<b>${v>=0?'+':''}${v.toFixed(2).replace('.',',')}${u}</b>`;
+  let h=`<div><span>Gain moyen d'une création</span>${sg(ev)}</div><div><span>Attente pour financer seul</span><b>${wait} ans</b></div>`;
+  if(P.bank){const D=P.cost+P.fee;const pl=payback(D,P.save,P.rl),pi=payback(D,P.save,0);
+    h+=`<div><span>Rembourser un prêt complet après un échec</span><b>libres ${pl==null?'jamais':pl+' ans'}<br>interdits ${pi} ans</b></div>`;}
+  if(P.stock){const ret=P.pok*P.payoff/P.cost-1;
+    h+=`<div><span>Rendement d'une action si toute la création était financée ainsi</span><b>libres ${(ret>=0?'+':'')+Math.round(ret*100)} %<br>interdits ${Math.round((P.pok-1)*100)} %</b></div>`;}
+  if(!P.bank&&!P.stock){const lend=P.pok*Math.min(1+P.r,P.payoff/P.cost)-1;
+    h+=`<div><span>Rendement moyen d'un prêt (gains libres)</span>${sg(lend*100,' %')}</div>`;}
+  setHTML('derived',h);
+}
+// affiche les réglages des briques actives, et les résumés des groupes repliés
+function syncScopes(){
+  const lb=document.querySelector('label[for="pok"]');if(lb)lb.textContent=P.firm?'Survie à 5 ans':'Chance de réussite';
+  $('payoff').closest('.ctl').hidden=!!P.firm;
+  for(const [box,on] of [['in_exist',P.exist],['in_firm',P.firm],['in_inc',P.inc],['in_ini',P.ini],['in_vary',P.vary],['in_bank',P.bank],['in_stock',P.stock],['in_direct',!(P.bank||P.stock)],['wrap_phi',P.bank&&P.stock]])$(box).hidden=!on;
+  setText('sum_soc',`${P.N} pers. · ${P.T} ans · épargne ${pct(P.save)}${P.inc?' · revenus inégaux':''}${P.ini?' · patrimoine':''}`);
+  setText('sum_proj',`idée ${FMT.pidea(P.pidea)}/an · coût ${fr(P.cost)} · ${P.vary?'inégaux':'identiques'}${P.firm?' · entreprises':''}`);
+  setText('sum_fin',P.bank&&P.stock?'banque + bourse':P.bank?'banque':P.stock?'bourse':'prêt direct');
+  setText('sum_mes',`aversion ${f2(EPS)}`);
+}
+function markStale(){const st=$('status');st.classList.add('stale');st.textContent='Paramètres modifiés, résultats à relancer';document.querySelector('main').classList.add('stale');}
+// recopie P dans les curseurs et les cases
+function sync(){for(const k of ids){if(SWITCHES.includes(k)){$(k).checked=!!P[k];continue;}$(k).value=SCALE[k]?SCALE[k].to(P[k]):P[k];setText(k+'_o',FMT[k](P[k]));}derived();syncScopes();}
+function syncEps(){$('eps').value=EPS;setText('eps_o',f2(EPS));}
+// après tout changement de réglage
+function onParamChange(){derived();syncScopes();drawPreviews();saveParams();markStale();}
+function bindPanel(){
+  for(const k of ids){
+    if(SWITCHES.includes(k)){$(k).addEventListener('change',e=>{P[k]=e.target.checked?1:0;onParamChange();});continue;}
+    const inp=$(k);inp.addEventListener('input',()=>{const v=parseFloat(inp.value);P[k]=SCALE[k]?SCALE[k].from(v):v;setText(k+'_o',FMT[k](P[k]));onParamChange();});}
+  $('eps').addEventListener('input',e=>{EPS=parseFloat(e.target.value);syncEps();syncScopes();store.set('labo-eps',String(EPS));renderEquity();});
+  $('reset').addEventListener('click',()=>{P={...DEF};store.del(PARAMS_KEY);sync();drawPreviews();markStale();});
+  $('sweepmetric').addEventListener('change',renderSweep);
+  $('sweepbtn').addEventListener('click',runSweep);
+  // groupes repliables et aides : état mémorisé
+  document.querySelectorAll('details.grp').forEach(d=>{const k='labo-open-'+d.dataset.k;const v=store.get(k);if(v!==null)d.open=v==='1';d.addEventListener('toggle',()=>store.set(k,d.open?'1':'0'));});
+  const help=$('help'),panel=$('panel');help.checked=store.get('labo-help')==='1';panel.classList.toggle('help-off',!help.checked);
+  help.addEventListener('change',()=>{panel.classList.toggle('help-off',!help.checked);store.set('labo-help',help.checked?'1':'0');});
+}
+// onglets (mémorisés, ou choisis par #ancre)
+function bindTabs(){
+  const btns=[...document.querySelectorAll('.tabs button')],panes=[...document.querySelectorAll('.tabpane')];
+  const showTab=t=>{btns.forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t?'true':'false'));panes.forEach(p=>p.classList.toggle('off',p.dataset.pane!==t));store.set('labo-tab',t);};
+  btns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.t)));
+  const valid=t=>btns.some(b=>b.dataset.t===t);let t=store.get('labo-tab')||'syn';const h=(location.hash||'').slice(1);if(valid(h))t=h;showTab(valid(t)?t:'syn');
+}
+// lance la simulation des deux scénarios et affiche les résultats
+async function launch(){const btn=$('run'),prog=$('prog');btn.disabled=true;const t0=performance.now();prog.hidden=false;prog.value=0;
+  try{const [Lw,Iw]=await simulate(P,(d,n)=>{btn.textContent=`Calcul… ${d} / ${n}`;prog.max=n;prog.value=d;});render(Lw,Iw,performance.now()-t0);}
+  catch(e){setText('status','Erreur de calcul : '+e);}
+  finally{btn.disabled=false;btn.textContent='Lancer la simulation';prog.hidden=true;}}
+/* ==== fichier : app/99-main.js ==== */
+/* =====================================================================
+   Démarrage
+   ===================================================================== */
+bindPanel();bindTabs();
+$('run').addEventListener('click',launch);
+sync();syncEps();drawPreviews();launch();
+</script>
