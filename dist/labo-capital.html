@@ -353,6 +353,20 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
     <p class="note">« Ventes à encaisser » : ce que les ménages et l'État ont dépensé dans l'année et que les entreprises recevront l'année suivante. Ce décalage d'un an vient du pas de temps annuel du modèle ; dans la réalité, les paiements circulent en quelques semaines (Banque de France : délais de paiement interentreprises d'environ 45 jours).</p>
   </section>
 
+  <section class="card" id="broadcard">
+    <div class="card-head">
+      <div><h2>La monnaie au sens large</h2></div>
+      <div class="card-tools"><label for="broadmode" class="hint">Afficher</label>
+        <select id="broadmode"><option value="keur">en k€ par ménage</option><option value="share">en part du total</option></select></div>
+    </div>
+    <p>Tout ce que les ménages détiennent, classé de ce qui s'accepte le plus facilement en paiement à ce qui s'accepte le moins : liquidités (moins leurs dettes), dépôts à la banque, obligations d'État, parts d'entreprises et de fonds. C'est l'échelle des agrégats de la BCE (M1, M2, M3), prolongée jusqu'aux titres longs. Contrairement à la monnaie au sens strict, ce total varie : le déficit public crée des obligations, l'investissement et l'usure font varier la valeur des parts.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Gains libres</h3><div class="chartwrap"><svg id="ch_brL" viewBox="0 0 380 260" role="img" aria-label="Monnaie au sens large, gains libres"></svg></div></div>
+      <div><h3 class="sub">Gains interdits</h3><div class="chartwrap"><svg id="ch_brI" viewBox="0 0 380 260" role="img" aria-label="Monnaie au sens large, gains interdits"></svg></div></div>
+    </div>
+    <p class="note">Une part vaut ici sa valeur comptable (capital + trésorerie − dettes de l'entreprise) : il n'y a pas encore de marché qui en fixerait le prix. « Sans propriétaire » : la part de la valeur des entreprises que personne n'a le droit de réclamer (gains interdits). Les obligations du modèle ne sont jamais remboursées ni revendues : elles ne redeviennent jamais de la monnaie au sens strict.</p>
+  </section>
+
   <section class="card" id="totcard">
     <h2>Richesse au fil du temps</h2>
     <p id="totlede">Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.</p>
@@ -883,6 +897,9 @@ function run(world,seed,P){
   // où est la monnaie, en fin d'année (part de la monnaie totale) : ménages selon leur patrimoine net (50 % les moins dotés, 40 % suivants, 10 % les plus dotés),
   // trésorerie des entreprises, ventes de l'année à encaisser l'an prochain, reste (caisse de la banque, qui contient les dépôts, fonds, État)
   const mPoor=new Float64Array(T),mMid=new Float64Array(T),mTop=new Float64Array(T),mFirm=new Float64Array(T),mSale=new Float64Array(T),mOther=new Float64Array(T);
+  // monnaie au sens large, par ménage, de la plus acceptée à la moins acceptée : liquidités (moins les dettes), dépôts, obligations d'État,
+  // parts d'entreprises et de fonds (valeur comptable : capital + trésorerie − dettes) ; la valeur sans propriétaire est dans uT
+  const bCash=new Float64Array(T),bDep=new Float64Array(T),bBond=new Float64Array(T),bEq=new Float64Array(T);
   let pool=0,poolNext=0,feePot=0;const cc={wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
   const money=()=>{let m=F+pool+poolNext+feePot+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
   // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
@@ -1062,6 +1079,7 @@ function run(world,seed,P){
     fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned;
     wearY=0;
     let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i];s+=net[i];}tot[t]=s;gi[t]=gini(net);
+    {let a=0,d=0,o=0,e=0;for(let i=0;i<N;i++){a+=W[i]+eqSave[i]-L[i];d+=D[i];o+=Bh[i];e+=eqv[i];}bCash[t]=a/N;bDep[t]=d/N;bBond[t]=o/N;bEq[t]=e/N;}
     if(closed&&M0>0){const y=Float64Array.from(net).sort(),c5=y[Math.floor(0.5*N)],c9=y[Math.floor(0.9*N)];let h0=0,h1=0,h2=0,R=0;
       for(let i=0;i<N;i++){const h=W[i]+eqSave[i];if(net[i]>=c9)h2+=h;else if(net[i]>=c5)h1+=h;else h0+=h;}
       for(const fm of firms)if(!fm.dead)R+=fm.R;
@@ -1080,7 +1098,7 @@ function run(world,seed,P){
   return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned,fValue:fs.firmV,
-    cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
+    cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
     sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(net).sort();const c9=y[Math.floor(0.9*N)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&WB>0?cc.wageShort/(WB*T):0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     fFundPaid:fs.fundPaid,fFundV:fs.fundV,fFundUn:fs.fundUn,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
     net:Float64Array.from(net),grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
@@ -1097,8 +1115,8 @@ function endDiagnostics(C,dg,part){dg.pQ1=groupMean(C.N,5,i=>C.qi[i],i=>part[i])
 /* =====================================================================
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
-// répartition de la monnaie (séries, moyennées sur les simulations)
-const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther'];
+// répartition de la monnaie, au sens strict puis au sens large (séries, moyennées sur les simulations)
+const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
@@ -1300,11 +1318,11 @@ function lineChart(svg,{W,H,xs,series,yMin=0,yMax,yTicks,xTicks=5,xLabel,yFmt,xF
     tip.hidden=false;const px=gx/W*r.width;const wr=wrap.getBoundingClientRect();tip.style.left=Math.min(px+12,wr.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
   hit.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('visibility','hidden');dots.forEach(d=>d.setAttribute('visibility','hidden'));});
 }
-/* Aires empilées (parts d'un total, de 0 à 100 %). layers : [{ys, color, name}], de bas en haut. */
-function stackChart(svg,{W,H,xs,layers,xMax,xTicks=4,xLabel,xFmt=fmtN,tipX=null}){
+/* Aires empilées, de bas en haut. layers : [{ys, color, name}]. Sans yMax : parts d'un total (0 à 1) ; avec yMax : valeurs, formatées par yFmt. */
+function stackChart(svg,{W,H,xs,layers,xMax,xTicks=4,xLabel,xFmt=fmtN,tipX=null,yMax=1,yFmt=v=>Math.round(v*100)+' %',tipTotal=false}){
   svg.innerHTML='';const m={l:44,r:130,t:10,b:34};const iw=W-m.l-m.r,ih=H-m.t-m.b;
-  const X=x=>m.l+(x-xs[0]+1)/(xMax)*iw,Y=y=>m.t+ih-y*ih;const n=xs.length;
-  for(let i=0;i<=4;i++){const v=i/4;el('line',{x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v),stroke:'var(--grid)'},svg);el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end'},svg,Math.round(v*100)+' %');}
+  const X=x=>m.l+(x-xs[0]+1)/(xMax)*iw,Y=y=>m.t+ih-y/yMax*ih;const n=xs.length;
+  for(let i=0;i<=4;i++){const v=yMax*i/4;el('line',{x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v),stroke:'var(--grid)'},svg);el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end'},svg,yFmt(v));}
   for(let i=0;i<=xTicks;i++){const v=xMax*i/xTicks;el('text',{x:m.l+v/xMax*iw,y:m.t+ih+18,'text-anchor':i===0?'start':i===xTicks?'end':'middle'},svg,xFmt(v));}
   el('text',{x:m.l+iw,y:H-2,'text-anchor':'end'},svg,xLabel);
   const lo=new Float64Array(n),ends=[];
@@ -1321,7 +1339,7 @@ function stackChart(svg,{W,H,xs,layers,xMax,xTicks=4,xLabel,xFmt=fmtN,tipX=null}
   const hit=el('rect',{x:m.l,y:m.t,width:iw,height:ih,fill:'transparent'},svg);
   hit.addEventListener('pointermove',ev=>{const r=svg.getBoundingClientRect();const sx=(ev.clientX-r.left)/r.width*W;let bi=0,bd=1e9;xs.forEach((x,i)=>{const d=Math.abs(X(x)-sx);if(d<bd){bd=d;bi=i;}});
     const gx=X(xs[bi]);guide.setAttribute('x1',gx);guide.setAttribute('x2',gx);guide.setAttribute('visibility','visible');
-    tip.innerHTML=`<div>${(tipX||xFmt)(xs[bi])}</div>`+layers.slice().reverse().map(L=>`<div class="tr"><i style="background:${L.color}"></i>${L.name}<b>${Math.round(L.ys[bi]*100)} %</b></div>`).join('');
+    tip.innerHTML=`<div>${(tipX||xFmt)(xs[bi])}</div>`+layers.slice().reverse().map(L=>`<div class="tr"><i style="background:${L.color}"></i>${L.name}<b>${yFmt(L.ys[bi])}</b></div>`).join('')+(tipTotal?`<div class="tr"><i></i>Total<b>${yFmt(layers.reduce((a,L)=>a+Math.max(0,L.ys[bi]),0))}</b></div>`:'');
     tip.hidden=false;const px=gx/W*r.width;const wr=wrap.getBoundingClientRect();tip.style.left=Math.min(px+12,wr.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
   hit.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('visibility','hidden');});
 }
@@ -1385,7 +1403,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
-  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderMoney(W);renderAge(W);
+  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderMoney(W);renderBroad(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
@@ -1443,6 +1461,26 @@ function renderMoney(W){
     {ys:w.mFirm,color:'#c0762a',name:'Entreprises'},
     {ys:w.mOther,color:'#a3a3a3',name:'Banque, fonds, État'}];
   for(const [id,w] of [['ch_monL',W[0]],['ch_monI',W[1]]])stackChart($(id),{W:380,H:260,xs,layers:lay(w),xMax:P.T,xTicks:P.T%4===0?4:2,xLabel:'année',xFmt:v=>Math.round(v),tipX:v=>'Année '+v});
+}
+
+// monnaie au sens large : tous les titres détenus, du plus accepté au moins accepté ; le total varie
+function renderBroad(W){
+  W=W||(LAST&&LAST.worlds);if(!W)return;
+  const on=!!(P.firm&&P.closed);show('broadcard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),share=$('broadmode').value==='share';
+  const k=a=>Array.from(a,v=>v*UNIT_EUR/1000);
+  const lay=w=>{const L=[
+    {ys:k(w.bCash),color:'#1d5c4f',name:'Liquidités'},
+    {ys:k(w.bDep),color:'#2f8a74',name:'Dépôts'},
+    {ys:k(w.bBond),color:'#6fb7a0',name:'Obligations d\'État'},
+    {ys:k(w.bEq),color:'#b5dccd',name:'Parts'},
+    {ys:k(Array.from(w.uT,v=>v/P.N)),color:'#a3a3a3',name:'Sans propriétaire'}];
+    if(share)for(let i=0;i<xs.length;i++){const t=L.reduce((a,l)=>a+Math.max(0,l.ys[i]),0);if(t>0)for(const l of L)l.ys[i]=Math.max(0,l.ys[i])/t;}
+    return L;};
+  const Ls=W.map(lay);
+  const top=Math.max(...Ls.flatMap(L=>xs.map((_,i)=>L.reduce((a,l)=>a+Math.max(0,l.ys[i]),0))));
+  const opt=share?{}:{yMax:Math.ceil(top/100)*100||1,yFmt:v=>fr(Math.round(v))+' k€',tipTotal:true};
+  [['ch_brL',Ls[0]],['ch_brI',Ls[1]]].forEach(([id,L])=>stackChart($(id),{W:380,H:260,xs,layers:L,xMax:P.T,xTicks:P.T%4===0?4:2,xLabel:'année',xFmt:v=>Math.round(v),tipX:v=>'Année '+v,...opt}));
 }
 
 // économie bouclée : la demande suffit-elle à faire les profits ? où s'arrête la monnaie ?
@@ -1747,6 +1785,8 @@ function bindPanel(){
   $('eps').addEventListener('input',e=>{EPS=parseFloat(e.target.value);syncEps();syncScopes();store.set('labo-eps',String(EPS));renderEquity();});
   $('reset').addEventListener('click',()=>{P={...DEF};store.del(PARAMS_KEY);sync();drawPreviews();markStale();});
   $('sweepmetric').addEventListener('change',renderSweep);
+  $('broadmode').addEventListener('change',e=>{store.set('labo-broad',e.target.value);renderBroad();});
+  {const v=store.get('labo-broad');if(v==='share'||v==='keur')$('broadmode').value=v;}
   $('sweepbtn').addEventListener('click',runSweep);
   // groupes repliables et aides : état mémorisé
   document.querySelectorAll('details.grp').forEach(d=>{const k='labo-open-'+d.dataset.k;const v=store.get(k);if(v!==null)d.open=v==='1';d.addEventListener('toggle',()=>store.set(k,d.open?'1':'0'));});

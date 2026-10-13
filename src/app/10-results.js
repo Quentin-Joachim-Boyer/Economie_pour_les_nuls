@@ -7,7 +7,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
-  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderMoney(W);renderAge(W);
+  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderMoney(W);renderBroad(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
@@ -65,6 +65,26 @@ function renderMoney(W){
     {ys:w.mFirm,color:'#c0762a',name:'Entreprises'},
     {ys:w.mOther,color:'#a3a3a3',name:'Banque, fonds, État'}];
   for(const [id,w] of [['ch_monL',W[0]],['ch_monI',W[1]]])stackChart($(id),{W:380,H:260,xs,layers:lay(w),xMax:P.T,xTicks:P.T%4===0?4:2,xLabel:'année',xFmt:v=>Math.round(v),tipX:v=>'Année '+v});
+}
+
+// monnaie au sens large : tous les titres détenus, du plus accepté au moins accepté ; le total varie
+function renderBroad(W){
+  W=W||(LAST&&LAST.worlds);if(!W)return;
+  const on=!!(P.firm&&P.closed);show('broadcard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),share=$('broadmode').value==='share';
+  const k=a=>Array.from(a,v=>v*UNIT_EUR/1000);
+  const lay=w=>{const L=[
+    {ys:k(w.bCash),color:'#1d5c4f',name:'Liquidités'},
+    {ys:k(w.bDep),color:'#2f8a74',name:'Dépôts'},
+    {ys:k(w.bBond),color:'#6fb7a0',name:'Obligations d\'État'},
+    {ys:k(w.bEq),color:'#b5dccd',name:'Parts'},
+    {ys:k(Array.from(w.uT,v=>v/P.N)),color:'#a3a3a3',name:'Sans propriétaire'}];
+    if(share)for(let i=0;i<xs.length;i++){const t=L.reduce((a,l)=>a+Math.max(0,l.ys[i]),0);if(t>0)for(const l of L)l.ys[i]=Math.max(0,l.ys[i])/t;}
+    return L;};
+  const Ls=W.map(lay);
+  const top=Math.max(...Ls.flatMap(L=>xs.map((_,i)=>L.reduce((a,l)=>a+Math.max(0,l.ys[i]),0))));
+  const opt=share?{}:{yMax:Math.ceil(top/100)*100||1,yFmt:v=>fr(Math.round(v))+' k€',tipTotal:true};
+  [['ch_brL',Ls[0]],['ch_brI',Ls[1]]].forEach(([id,L])=>stackChart($(id),{W:380,H:260,xs,layers:L,xMax:P.T,xTicks:P.T%4===0?4:2,xLabel:'année',xFmt:v=>Math.round(v),tipX:v=>'Année '+v,...opt}));
 }
 
 // économie bouclée : la demande suffit-elle à faire les profits ? où s'arrête la monnaie ?

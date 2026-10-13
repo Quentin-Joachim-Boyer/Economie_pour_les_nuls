@@ -1,8 +1,8 @@
 /* =====================================================================
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
-// répartition de la monnaie (séries, moyennées sur les simulations)
-const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther'];
+// répartition de la monnaie, au sens strict puis au sens large (séries, moyennées sur les simulations)
+const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();

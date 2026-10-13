@@ -186,6 +186,20 @@
     <p class="note">« Ventes à encaisser » : ce que les ménages et l'État ont dépensé dans l'année et que les entreprises recevront l'année suivante. Ce décalage d'un an vient du pas de temps annuel du modèle ; dans la réalité, les paiements circulent en quelques semaines (Banque de France : délais de paiement interentreprises d'environ 45 jours).</p>
   </section>
 
+  <section class="card" id="broadcard">
+    <div class="card-head">
+      <div><h2>La monnaie au sens large</h2></div>
+      <div class="card-tools"><label for="broadmode" class="hint">Afficher</label>
+        <select id="broadmode"><option value="keur">en k€ par ménage</option><option value="share">en part du total</option></select></div>
+    </div>
+    <p>Tout ce que les ménages détiennent, classé de ce qui s'accepte le plus facilement en paiement à ce qui s'accepte le moins : liquidités (moins leurs dettes), dépôts à la banque, obligations d'État, parts d'entreprises et de fonds. C'est l'échelle des agrégats de la BCE (M1, M2, M3), prolongée jusqu'aux titres longs. Contrairement à la monnaie au sens strict, ce total varie : le déficit public crée des obligations, l'investissement et l'usure font varier la valeur des parts.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Gains libres</h3><div class="chartwrap"><svg id="ch_brL" viewBox="0 0 380 260" role="img" aria-label="Monnaie au sens large, gains libres"></svg></div></div>
+      <div><h3 class="sub">Gains interdits</h3><div class="chartwrap"><svg id="ch_brI" viewBox="0 0 380 260" role="img" aria-label="Monnaie au sens large, gains interdits"></svg></div></div>
+    </div>
+    <p class="note">Une part vaut ici sa valeur comptable (capital + trésorerie − dettes de l'entreprise) : il n'y a pas encore de marché qui en fixerait le prix. « Sans propriétaire » : la part de la valeur des entreprises que personne n'a le droit de réclamer (gains interdits). Les obligations du modèle ne sont jamais remboursées ni revendues : elles ne redeviennent jamais de la monnaie au sens strict.</p>
+  </section>
+
   <section class="card" id="totcard">
     <h2>Richesse au fil du temps</h2>
     <p id="totlede">Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.</p>

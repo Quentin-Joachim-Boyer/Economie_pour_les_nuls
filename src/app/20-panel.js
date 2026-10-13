@@ -38,6 +38,8 @@ function bindPanel(){
   $('eps').addEventListener('input',e=>{EPS=parseFloat(e.target.value);syncEps();syncScopes();store.set('labo-eps',String(EPS));renderEquity();});
   $('reset').addEventListener('click',()=>{P={...DEF};store.del(PARAMS_KEY);sync();drawPreviews();markStale();});
   $('sweepmetric').addEventListener('change',renderSweep);
+  $('broadmode').addEventListener('change',e=>{store.set('labo-broad',e.target.value);renderBroad();});
+  {const v=store.get('labo-broad');if(v==='share'||v==='keur')$('broadmode').value=v;}
   $('sweepbtn').addEventListener('click',runSweep);
   // groupes repliables et aides : état mémorisé
   document.querySelectorAll('details.grp').forEach(d=>{const k='labo-open-'+d.dataset.k;const v=store.get(k);if(v!==null)d.open=v==='1';d.addEventListener('toggle',()=>store.set(k,d.open?'1':'0'));});

@@ -66,11 +66,11 @@ function lineChart(svg,{W,H,xs,series,yMin=0,yMax,yTicks,xTicks=5,xLabel,yFmt,xF
     tip.hidden=false;const px=gx/W*r.width;const wr=wrap.getBoundingClientRect();tip.style.left=Math.min(px+12,wr.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
   hit.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('visibility','hidden');dots.forEach(d=>d.setAttribute('visibility','hidden'));});
 }
-/* Aires empilées (parts d'un total, de 0 à 100 %). layers : [{ys, color, name}], de bas en haut. */
-function stackChart(svg,{W,H,xs,layers,xMax,xTicks=4,xLabel,xFmt=fmtN,tipX=null}){
+/* Aires empilées, de bas en haut. layers : [{ys, color, name}]. Sans yMax : parts d'un total (0 à 1) ; avec yMax : valeurs, formatées par yFmt. */
+function stackChart(svg,{W,H,xs,layers,xMax,xTicks=4,xLabel,xFmt=fmtN,tipX=null,yMax=1,yFmt=v=>Math.round(v*100)+' %',tipTotal=false}){
   svg.innerHTML='';const m={l:44,r:130,t:10,b:34};const iw=W-m.l-m.r,ih=H-m.t-m.b;
-  const X=x=>m.l+(x-xs[0]+1)/(xMax)*iw,Y=y=>m.t+ih-y*ih;const n=xs.length;
-  for(let i=0;i<=4;i++){const v=i/4;el('line',{x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v),stroke:'var(--grid)'},svg);el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end'},svg,Math.round(v*100)+' %');}
+  const X=x=>m.l+(x-xs[0]+1)/(xMax)*iw,Y=y=>m.t+ih-y/yMax*ih;const n=xs.length;
+  for(let i=0;i<=4;i++){const v=yMax*i/4;el('line',{x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v),stroke:'var(--grid)'},svg);el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end'},svg,yFmt(v));}
   for(let i=0;i<=xTicks;i++){const v=xMax*i/xTicks;el('text',{x:m.l+v/xMax*iw,y:m.t+ih+18,'text-anchor':i===0?'start':i===xTicks?'end':'middle'},svg,xFmt(v));}
   el('text',{x:m.l+iw,y:H-2,'text-anchor':'end'},svg,xLabel);
   const lo=new Float64Array(n),ends=[];
@@ -87,7 +87,7 @@ function stackChart(svg,{W,H,xs,layers,xMax,xTicks=4,xLabel,xFmt=fmtN,tipX=null}
   const hit=el('rect',{x:m.l,y:m.t,width:iw,height:ih,fill:'transparent'},svg);
   hit.addEventListener('pointermove',ev=>{const r=svg.getBoundingClientRect();const sx=(ev.clientX-r.left)/r.width*W;let bi=0,bd=1e9;xs.forEach((x,i)=>{const d=Math.abs(X(x)-sx);if(d<bd){bd=d;bi=i;}});
     const gx=X(xs[bi]);guide.setAttribute('x1',gx);guide.setAttribute('x2',gx);guide.setAttribute('visibility','visible');
-    tip.innerHTML=`<div>${(tipX||xFmt)(xs[bi])}</div>`+layers.slice().reverse().map(L=>`<div class="tr"><i style="background:${L.color}"></i>${L.name}<b>${Math.round(L.ys[bi]*100)} %</b></div>`).join('');
+    tip.innerHTML=`<div>${(tipX||xFmt)(xs[bi])}</div>`+layers.slice().reverse().map(L=>`<div class="tr"><i style="background:${L.color}"></i>${L.name}<b>${yFmt(L.ys[bi])}</b></div>`).join('')+(tipTotal?`<div class="tr"><i></i>Total<b>${yFmt(layers.reduce((a,L)=>a+Math.max(0,L.ys[bi]),0))}</b></div>`:'');
     tip.hidden=false;const px=gx/W*r.width;const wr=wrap.getBoundingClientRect();tip.style.left=Math.min(px+12,wr.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
   hit.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('visibility','hidden');});
 }
