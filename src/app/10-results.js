@@ -7,7 +7,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
-  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderMoney(W);renderBroad(W);renderAge(W);
+  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
@@ -51,6 +51,22 @@ function renderReal(W){
   setText('utilnote','Ventes rapportées à ce que le capital permet de produire, au rythme du départ (100 %). Au-dessus de 100 %, les entreprises vendent plus qu\'elles ne pourraient produire : le modèle n\'a encore ni limite de production ni prix qui monteraient, et ce signal montre où cela commence à compter.');
   const kL=k(W[0].rK),kI=k(W[1].rK);
   lineChart($('ch_k'),{...year,W:380,H:260,xs,yMax:mx(kL,kI),yTicks:4,yFmt:kf,series:seriesLI(kL,kI)});
+}
+
+// le travail : chômage, heures travaillées, demande que la population active ne peut pas servir
+function renderWork(W){
+  const on=!!(P.firm&&P.closed&&P.unemp);show('workcard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),year={xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,xTicks:P.T%4===0?4:2};
+  const p100=a=>Array.from(a,v=>v*100),pf=v=>fr(Math.round(v))+' %';
+  const ref=(v)=>({ys:xs.map(()=>v),color:'var(--muted)',dash:true,name:'France'});
+  const uL=p100(W[0].lU),uI=p100(W[1].lU);
+  lineChart($('ch_unemp'),{...year,W:380,H:260,xs,yMax:niceMax(Math.max(10,...uL,...uI)),yTicks:4,yFmt:pf,series:[ref(7.4),...seriesLI(uL,uI)]});
+  const hL=Array.from(W[0].lHours),hI=Array.from(W[1].lHours);
+  lineChart($('ch_hours'),{...year,W:380,H:260,xs,yMax:2000,yTicks:4,yFmt:v=>fr(Math.round(v))+' h',series:[{ys:xs.map(()=>HOURS_PER_JOB),color:'var(--muted)',dash:true,name:'Plein emploi'},...seriesLI(hL,hI)]});
+  const mL=p100(W[0].lUnmet),mI=p100(W[1].lUnmet);
+  lineChart($('ch_unmet'),{...year,W:380,H:260,xs,yMax:100,yTicks:4,yFmt:pf,series:seriesLI(mL,mI)});
+  const lL=p100(W[0].lLong),lI=p100(W[1].lLong);
+  lineChart($('ch_long'),{...year,W:380,H:260,xs,yMax:100,yTicks:4,yFmt:pf,series:[ref(23),...seriesLI(lL,lI)]});
 }
 
 // où est la monnaie ? sa quantité est fixe : on suit qui la détient, année par année

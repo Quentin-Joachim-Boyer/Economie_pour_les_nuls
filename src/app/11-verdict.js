@@ -17,6 +17,8 @@ function verdictItems(L){
     {l:'Entreprises disparues',get:w=>w.fDied,f:int,dir:'low',k:'fDied'});
   if(P.firm&&P.closed)V.push({l:'Consommation du ménage médian, la dernière année',get:w=>w.rCons[L]*UNIT_EUR,f:v=>fr(Math.round(v/100)*100)+' €',dir:'high',k:'cons'},
     {l:'Utilisation des capacités, la dernière année',get:w=>w.rUtil[L],f:pct,dir:null,k:'util'});
+  if(P.firm&&P.closed&&P.unemp)V.push({l:'Taux de chômage, la dernière année',get:w=>w.lU[L],f:pct1,dir:'low',k:'unemp'},
+    {l:'Heures travaillées par ménage, la dernière année',get:w=>w.lHours[L],f:v=>fr(Math.round(v))+' h',dir:null,k:'hours'});
   if(P.bank||P.firm)V.push({l:'Intérêts reçus par les déposants',get:w=>w.interest,f:int,dir:null,k:'interest'});
   return V;
 }

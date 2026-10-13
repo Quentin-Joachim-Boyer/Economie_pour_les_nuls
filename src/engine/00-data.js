@@ -73,3 +73,23 @@ const STATE_DEFAULTS={gW:0.123,gP:0.099,defT:0.051,debt0:1.156,rB:0.019};
 
 /* ---------- fonds ---------- */
 const FUND_ID_BASE=-10;               // un fonds f apparaît parmi les détenteurs sous l'identifiant −10 − f
+
+/* ---------- chômage (économie bouclée) ----------
+   taux de chômage BIT 2024 : 7,4 % ; par âge : 15-24 ans 18,8 %, 25-49 ans 6,7 %, 50 ans ou plus 4,9 % (Insee, « Chômage », 2024).
+   Les personnes de référence de moins de 30 ans ont surtout 25-29 ans : on prend la moyenne des 15-24 et 25-49 ans (12,75 %).
+   Les 50 ans ou plus gardent 4,9 % (la retraite n'est pas encore modélisée).
+   Par catégorie socioprofessionnelle 2025 (Insee, « Inégalités face au chômage ») : ouvriers peu qualifiés 17,1 %, employés peu
+   qualifiés 11,4 %, ouvriers qualifiés 8,6 %, employés qualifiés 7,3 %, professions intermédiaires 5,0 %, cadres 4,0 %.
+   Rapprochement avec les quintiles de revenu (par ordre de salaire) : Q1 peu qualifiés (14,25 %), Q2 qualifiés (7,95 %),
+   Q3 entre qualifiés et intermédiaires (6,5 %), Q4 intermédiaires (5,0 %), Q5 cadres (4,0 %).
+   Transitions annuelles 2023-2024 (Insee, « Transitions sur le marché du travail ») : 40,3 % des chômeurs sont en emploi un an
+   plus tard, 35,8 % encore au chômage (le reste devient inactif, ce que le modèle ne représente pas) : parmi ceux qui restent
+   actifs, 53 % retrouvent un emploi dans l'année. Le flux d'entrée au chômage est calé pour que chacun ait, en régime stable,
+   son taux de chômage cible : s = 0,53 × u / (1 − u).
+   Durée annuelle effective du travail 2024 (Insee, enquête Emploi) : salariés à temps complet 1 661 h, à temps partiel 970 h
+   (17,4 % des salariés), indépendants 1 916 h ; salariés ≈ 88 % des emplois : ≈ 1 586 h par emploi. */
+const UNEMP_RATE=0.074;
+const UNEMP_BY_AGE=[0.1275,0.067,0.067,0.049,0.049,0.049];   // groupes d'âge du modèle : <30, 30-39, 40-49, 50-59, 60-69, 70+
+const UNEMP_BY_QUINTILE=[0.1425,0.0795,0.065,0.05,0.04];
+const UNEMP_EXIT=0.403/(0.403+0.358);
+const HOURS_PER_JOB=0.88*(0.826*1661+0.174*970)+0.12*1916;
