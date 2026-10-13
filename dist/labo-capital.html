@@ -244,6 +244,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
           <div class="inner" id="in_closed">
             <div class="ctl"><div class="top"><label for="mpcW">Consommation tirée du patrimoine</label><output id="mpcW_o"></output></div><input type="range" id="mpcW" min="0" max="0.1" step="0.001"><small>Part de son patrimoine qu'un ménage dépense chaque année, en plus de son revenu non épargné. France : 14 % des actifs liquides, 2,2 % des actifs financiers peu liquides, 1,3 % de l'immobilier (Chauvin et Muellbauer, 2018) ; pondéré par la composition du patrimoine des ménages : 2,9 %.</small></div>
             <label class="switch" for="unemp"><input type="checkbox" id="unemp"><span><b>Chômage</b><span class="hint">Les entreprises et l'État emploient le travail nécessaire pour produire ce qui se vend ; les autres sont au chômage, sans allocation. Au départ 7,4 % (Insee 2024), plus de risque pour les jeunes et les bas revenus. La population active plafonne la production : la demande en trop attend l'année suivante.</span></span></label>
+            <label class="switch" for="prices"><input type="checkbox" id="prices"><span><b>Prix et salaires</b><span class="hint">Un seul prix : coût du travail × (1 + marge), la marge montant quand la demande dépasse la production de départ (courbe de Phillips, Insee). Les salaires rattrapent 85 % de l'inflation passée (Banque de France) et ne baissent pas. Avec gains interdits, seul l'enrichissement réel est interdit : mises, dettes, dépôts et obligations sont indexés sur les prix.</span></span></label>
             <label class="switch" for="state"><input type="checkbox" id="state"><span><b>État minimal</b><span class="hint">Il prélève un impôt sur les ventes, paie des fonctionnaires, achète aux entreprises et emprunte aux ménages pour couvrir son déficit.</span></span></label>
             <div class="inner" id="in_state">
             <div class="ctl"><div class="top"><label for="gW">Salaires publics</label><output id="gW_o"></output></div><input type="range" id="gW" min="0" max="0.3" step="0.001"><small>En part du PIB de l'année précédente. France 2025 : 370 Md€, 12,3 % du PIB (Insee). Ils font partie du revenu des ménages.</small></div>
@@ -333,7 +334,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
 
   <section class="card" id="realcard">
     <h2>L'économie réelle</h2>
-    <p>Ce que l'économie produit et ce que les ménages consomment vraiment, année par année, en milliers d'euros par ménage (prix fixes : tout est déjà « réel »). Recommandation de la commission Stiglitz-Sen-Fitoussi (2009) : regarder la consommation des ménages, sa médiane plutôt que sa moyenne, et la production nette de l'usure plutôt que le PIB.</p>
+    <p>Ce que l'économie produit et ce que les ménages consomment vraiment, année par année, en milliers d'euros du départ par ménage (corrigés de l'inflation). Recommandation de la commission Stiglitz-Sen-Fitoussi (2009) : regarder la consommation des ménages, sa médiane plutôt que sa moyenne, et la production nette de l'usure plutôt que le PIB.</p>
     <div class="charts2">
       <div><h3 class="sub">Consommation par ménage</h3><div class="chartwrap"><svg id="ch_cons" viewBox="0 0 380 260" role="img" aria-label="Consommation médiane et moyenne par ménage"></svg></div><p class="note">En trait plein, le ménage du milieu ; en pointillé, la moyenne, tirée par les plus aisés.</p></div>
       <div><h3 class="sub">Production nette par ménage</h3><div class="chartwrap"><svg id="ch_ndp" viewBox="0 0 380 260" role="img" aria-label="Production nette de l'usure par ménage"></svg></div><p class="note">PIB moins l'usure du capital : ce qui reste une fois les équipements entretenus.</p></div>
@@ -341,6 +342,19 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
     <div class="charts2">
       <div><h3 class="sub">Utilisation des capacités</h3><div class="chartwrap"><svg id="ch_util" viewBox="0 0 380 260" role="img" aria-label="Ventes rapportées aux capacités de production"></svg></div><p class="note" id="utilnote"></p></div>
       <div><h3 class="sub">Capital des entreprises par ménage</h3><div class="chartwrap"><svg id="ch_k" viewBox="0 0 380 260" role="img" aria-label="Capital productif net par ménage"></svg></div><p class="note">En milliers d'euros : ce qui est accumulé pour produire demain.</p></div>
+    </div>
+  </section>
+
+  <section class="card" id="pricecard">
+    <h2>Les prix</h2>
+    <p>Un seul bien, donc un seul prix : le coût du travail par unité produite, plus une marge. La marge monte quand la demande dépasse la production de départ et baisse quand elle reste en dessous ; les salaires rattrapent ensuite 85 % de l'inflation de l'année passée, sans jamais baisser en euros.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Inflation</h3><div class="chartwrap"><svg id="ch_infl" viewBox="0 0 380 260" role="img" aria-label="Inflation annuelle"></svg></div><p class="note">Hausse du prix d'une année sur l'autre. En pointillé, la cible de la BCE (2 %).</p></div>
+      <div><h3 class="sub">Niveau des prix</h3><div class="chartwrap"><svg id="ch_price" viewBox="0 0 380 260" role="img" aria-label="Indice des prix"></svg></div><p class="note">100 au départ. À 200, il faut deux fois plus d'euros pour acheter la même chose.</p></div>
+    </div>
+    <div class="charts2">
+      <div><h3 class="sub">Pouvoir d'achat du salaire</h3><div class="chartwrap"><svg id="ch_wreal" viewBox="0 0 380 260" role="img" aria-label="Salaire réel"></svg></div><p class="note">Salaire en euros divisé par le prix, 100 au départ. Il baisse quand les salaires rattrapent l'inflation avec retard, monte quand les prix baissent sans que les salaires baissent.</p></div>
+      <div><h3 class="sub">Tension de la demande</h3><div class="chartwrap"><svg id="ch_gap" viewBox="0 0 380 260" role="img" aria-label="Écart de la demande à la production de départ"></svg></div><p class="note">Demande réelle (y compris en attente) rapportée à la production de départ, moins 100 %. Au-dessus de zéro, la marge et les prix montent.</p></div>
     </div>
   </section>
 
@@ -352,7 +366,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <div><h3 class="sub">Heures travaillées par ménage et par an</h3><div class="chartwrap"><svg id="ch_hours" viewBox="0 0 380 260" role="img" aria-label="Heures travaillées par ménage, année par année"></svg></div><p class="note">Tout le travail effectué dans l'année, rapporté au nombre de ménages. En pointillé, le plein emploi.</p></div>
     </div>
     <div class="charts2">
-      <div><h3 class="sub">Demande en attente</h3><div class="chartwrap"><svg id="ch_unmet" viewBox="0 0 380 260" role="img" aria-label="Part de la demande qui ne peut pas être servie"></svg></div><p class="note">Part des achats que la population active ne peut pas produire dans l'année : ils attendent l'année suivante. Dans la réalité, les prix monteraient ; le modèle n'a pas encore de prix.</p></div>
+      <div><h3 class="sub">Demande en attente</h3><div class="chartwrap"><svg id="ch_unmet" viewBox="0 0 380 260" role="img" aria-label="Part de la demande qui ne peut pas être servie"></svg></div><p class="note" id="unmetnote"></p></div>
       <div><h3 class="sub">Chômage de longue durée</h3><div class="chartwrap"><svg id="ch_long" viewBox="0 0 380 260" role="img" aria-label="Part des chômeurs depuis plus d'un an"></svg></div><p class="note">Part des chômeurs qui l'étaient déjà l'année précédente. Insee 2024 : environ 23 % (1,7 % des actifs sur 7,4 %). Avec un pas annuel, les chômages de quelques mois n'apparaissent pas.</p></div>
     </div>
   </section>
@@ -539,6 +553,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li><b>Économie bouclée : monnaie fixe, un seul bien.</b> Démarche des modèles « stock-flux cohérents » (Godley et Lavoie, <i>Monetary Economics</i>, 2007) et des modèles multi-agents macroéconomiques (Lengnick, 2013 ; Caiani et coauteurs, 2016) : chaque euro versé est reçu par quelqu'un, et le modèle vérifie chaque année que la monnaie totale ne varie pas. Les salaires sont payés sur les ventes ; ventes = consommation + investissement + créations de l'année précédente ; profit brut d'ensemble = ventes − salaires, réparti selon la rentabilité de chaque entreprise. Consommation : revenu non épargné, plus une part du patrimoine (France : 14 % des actifs liquides, 2,2 % des actifs financiers peu liquides, 1,3 % de l'immobilier, Chauvin et Muellbauer, <a href="https://www.insee.fr/fr/statistiques/fichier/3622027/500-501-502_Chauvin-Muellbauer_FR.pdf">Économie et Statistique, 2018</a>, pondérés par la composition du patrimoine : 2,9 %). Trésorerie des entreprises : elles gardent ce qu'il faut pour investir et versent le reste (sociétés non financières 2023 : épargne brute 320 Md€, investissement 336 Md€, dividendes versés 263 Md€, Insee, tableau 7.101). Les coûts de la banque et des fonds deviennent des salaires ; la trésorerie d'une entreprise qui disparaît rembourse d'abord la banque, et ce qui n'appartient à personne lui revient.</li>
       <li><b>État minimal.</b> Comptes des administrations publiques 2025 (<a href="https://www.insee.fr/fr/statistiques/8956575">Insee, premiers résultats</a>) : rémunérations 370,0 Md€ (12,3 % du PIB), consommations intermédiaires 165,0 Md€ et investissement 131,6 Md€ (9,9 % du PIB), intérêts 64,7 Md€ pour une dette de 3 460,5 Md€ (taux apparent 1,9 %), dette 115,6 % du PIB, déficit 5,1 % du PIB. L'impôt porte sur les ventes des entreprises, à un taux calé pour retrouver ce déficit au départ (le même dans les deux scénarios). Démarche du modèle « SIM » de Godley et Lavoie (2007) : l'État dépense, prélève et finance son déficit ; identité des soldes sectoriels : épargne privée − investissement = déficit public (sans étranger).</li>
       <li><b>Chômage.</b> Les entreprises et l'État emploient le travail nécessaire pour produire ce qui est vendu (demande effective, Keynes) ; la demande de travail, comptée en salaires (un salaire plus élevé reflète une productivité plus élevée), suit le PIB, et la population active plafonne la production. Taux de départ 7,4 % ; par âge 18,8 % (15-24 ans), 6,7 % (25-49 ans), 4,9 % (50 ans ou plus) (<a href="https://www.insee.fr/fr/statistiques/8612532">Insee, chômage 2024</a>) ; par catégorie sociale 17,1 % (ouvriers peu qualifiés) à 4,0 % (cadres) (<a href="https://www.insee.fr/fr/statistiques/8733055">Insee, inégalités face au chômage 2025</a>), rapprochés des quintiles de revenu. 53 % des chômeurs qui restent actifs retrouvent un emploi dans l'année (<a href="https://www.insee.fr/fr/statistiques/8376848">Insee, transitions 2023-2024</a>) : le flux d'entrée au chômage de chacun en découle. Embauches au hasard parmi les chômeurs. 1 586 heures par emploi et par an (<a href="https://www.insee.fr/fr/statistiques/8376854">Insee, durée du travail 2024</a> : temps complet 1 661 h, temps partiel 970 h, indépendants 1 916 h).</li>
+      <li><b>Prix et salaires.</b> Un seul bien, donc un seul prix, fixé comme coût du travail par unité produite × (1 + marge) (Kalecki) ; marge de départ tirée de la part des salaires dans la valeur ajoutée des sociétés non financières, 65 % (Insee, tableau 7.101). La marge réagit à l'écart entre la demande réelle et la production de départ, avec une pente de 0,14 : courbe de Phillips française de l'Insee (<a href="https://www.insee.fr/fr/statistiques/fichier/3372330/032018_dossier.pdf">Note de conjoncture, mars 2018</a> : un point de chômage réduit la hausse des salaires de 0,48 point par an, répercutée à 30 % sur les prix). Les salaires rattrapent 85 % de l'inflation de l'année passée (<a href="https://www.banque-france.fr/fr/publications-et-statistiques/publications/les-negociations-de-salaire-dans-le-contexte-de-hausse-de">Banque de France, Bulletin 245, 2023</a> : hausses négociées de 4,4 % pour 2023 après 5,2 % d'inflation) et ne baissent pas en euros (Le Bihan, Montornès et Heckel, 2012). Le capital est compté à son coût de remplacement. Avec gains interdits, la règle porte sur l'enrichissement réel : mises restantes, dettes, dépôts et obligations sont revalorisés de l'inflation. Les montants affichés sont en euros du départ.</li>
       <li><b>Coûts de fonctionnement de la banque et de la bourse.</b> Choix de travail, sans source.</li>
     </ul>
   </section>
@@ -558,6 +573,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li>La population représente la société entière (tous âges) au départ ; mais personne ne vieillit, ne meurt ni n'hérite pendant les 40 ans simulés.</li>
       <li>Sans économie bouclée, les entreprises n'emploient personne et ne paient pas de salaires. Avec gains interdits, leurs profits non distribués n'appartiennent à personne et sont perdus si elles disparaissent.</li>
       <li>Dans le scénario « gains interdits », personne ne contourne la règle.</li>
+      <li>Prix : un seul bien, pas d'importations ni d'énergie ; pas d'anticipations d'inflation ; la marge ne dépend pas de la concurrence ; les taux d'intérêt des gains libres restent fixes (pas de banque centrale).</li>
       <li>Chômage : sans allocation, ni inactivité, ni retraite ; un ménage = un emploi ; heures fixes par emploi ; productivité fixe ; les chômeurs ne vivent que de leur patrimoine. Pas de prix : la demande que la population active ne peut pas servir attend l'année suivante au lieu de faire monter les prix.</li>
       <li>État minimal : ni prestations sociales ni redistribution (le revenu des ménages reste calé sur le niveau de vie, déjà après impôts et prestations), ni impôt sur les ménages ou les profits ; les obligations publiques ne se revendent pas et ne sont jamais remboursées. Sans croissance ni inflation, un déficit durable fait monter la dette rapportée au PIB.</li>
       <li>Économie bouclée : sans étranger, sans logement neuf ni prix qui bougent. En France, une partie de l'épargne des ménages est absorbée par l'achat de logements neufs et par le déficit public ; ici, elle ne peut l'être que par l'investissement des entreprises, d'où un excès d'épargne. Avec gains interdits, les profits qui dépassent les mises restent immobilisés dans les entreprises.</li>
@@ -665,6 +681,21 @@ const UNEMP_BY_AGE=[0.1275,0.067,0.067,0.049,0.049,0.049];   // groupes d'âge d
 const UNEMP_BY_QUINTILE=[0.1425,0.0795,0.065,0.05,0.04];
 const UNEMP_EXIT=0.403/(0.403+0.358);
 const HOURS_PER_JOB=0.88*(0.826*1661+0.174*970)+0.12*1916;
+
+/* ---------- prix et salaires (économie bouclée) ----------
+   Un seul bien, donc un seul prix : prix = coût du travail par unité produite × (1 + marge) (Kalecki).
+   Marge de départ : part des salaires dans la valeur ajoutée des sociétés non financières, 65 % (Insee, tableau 7.101) : 1/0,65 − 1.
+   La marge réagit à la tension : (1 + marge) × (1 + θ × écart), écart = demande réelle (y compris en attente) / production de départ − 1
+   (la production de départ correspond au chômage de départ, pris comme chômage « sans tension »).
+   θ ≈ 0,14 : courbe de Phillips française estimée par l'Insee (Note de conjoncture, mars 2018, dossier) : un point de chômage en plus
+   réduit la hausse annuelle des salaires d'environ 0,48 point (1,2·10⁻³ par trimestre), et les prix en répercutent 0,30 : 0,30 × 0,48 ≈ 0,14.
+   Salaires : ils rattrapent 85 % de l'inflation de l'année précédente (Banque de France, Bulletin 245, 2023 : hausses négociées
+   de 4,4 % pour 2023 après 5,2 % d'inflation en 2022, Smic indexé), et ne baissent pas en euros (rigidité à la baisse des salaires
+   nominaux : Le Bihan, Montornès et Heckel, 2012, données françaises). */
+const WAGE_SHARE0=0.65;
+const MARKUP0=1/WAGE_SHARE0-1;
+const PHILLIPS_THETA=0.30*0.0048*100;
+const WAGE_INDEXATION=4.4/5.2;
 /* ==== fichier : engine/01-math.js ==== */
 /* =====================================================================
    Outils mathématiques
@@ -769,7 +800,8 @@ function makeFunds(C){
   const uF=new Float64Array(N),capF=new Float64Array(N);// parts détenues par chaque ménage, et sa mise restante
   let totFC=0;const syncFC=()=>{totFC=0;for(let f=0;f<NF;f++)totFC+=FC[f];};
   // prix d'une part : valeur du fonds / nombre de parts (au plus 1 avec gains interdits)
-  const price=f=>{if(FU[f]<=eps)return 1;const p=(FC[f]+FS[f])/FU[f];return capped?Math.min(1,p):p;};
+  // pcap : prix maximal d'une part avec gains interdits (1, revalorisé de l'inflation si la règle porte sur les gains réels)
+  let pcap=1;const price=f=>{if(FU[f]<=eps)return 1;const p=(FC[f]+FS[f])/FU[f];return capped?Math.min(pcap,p):p;};
   return {NF,M,fundOf,income:FI,stake:FS,
     // versement de l'épargne-actions de l'année dans les fonds
     subscribe(){for(let i=0;i<N;i++){const q=eqSave[i];if(q<=eps)continue;const f=fundOf[i];let p=price(f);
@@ -789,6 +821,8 @@ function makeFunds(C){
       const left=Float64Array.from(FI);for(let i=0;i<N;i++){const f=fundOf[i];if(FI[f]<=eps||uF[i]<=eps)continue;let x=FI[f]*uF[i]/FU[f];if(capped){x=Math.min(x,capF[i]);capF[i]-=x;}W[i]+=x;if(capInc)capInc[i]+=x;left[f]-=x;fs.fundPaid+=x;}
       for(let f=0;f<NF;f++){FC[f]+=Math.max(0,left[f]);FI[f]=0;}syncFC();},
     // monnaie détenue par les fonds (trésorerie et reçu de l'année pas encore reversé)
+    // gains interdits, règle réelle : mises restantes et prix maximal revalorisés de l'inflation (facteur g)
+    index(g){pcap*=g;for(let i=0;i<N;i++)capF[i]*=g;},
     cash(){let s=0;for(let f=0;f<NF;f++)s+=FC[f]+FI[f];return s;},
     // valeur des parts de fonds de chaque ménage (après évaluation des participations dans FS) ; renvoie {total, unclaimed}
     value(eqv){const pr=new Float64Array(NF);let fv=0;for(let f=0;f<NF;f++){pr[f]=FU[f]>eps?(FC[f]+FS[f])/FU[f]:0;fv+=FC[f]+FS[f];}let claimed=0;
@@ -941,7 +975,7 @@ function makeLabour(C,wage){
 function run(world,seed,P){
   const N=P.N,T=P.T,eps=1e-9;
   const bank=!!P.bank,stock=!!P.stock,firmOn=!!P.firm,capped=world==='I',closed=firmOn&&!!P.closed,stateOn=closed&&!!P.state;
-  const rate=world==='L'?P.rl:0;                       // taux d'intérêt (nul avec gains interdits)
+  let rate=world==='L'?P.rl:0;                         // taux d'intérêt (nul avec gains interdits ; avec les prix, l'inflation : gain réel nul)
   const depE=bank?P.dep:0,invE=stock?Math.min(P.inv,1-depE):0; // parts de l'épargne déposée et placée en actions
   const phi=stock?(bank?P.phi:1):0;                    // part d'un besoin de financement demandée à la bourse
   const C={world,seed,P,N,T,stock,prng:rng(seed*7919+13),rnd:rng(seed),firms:[],
@@ -978,6 +1012,9 @@ function run(world,seed,P){
   const lab=makeLabour({N,P,seed,qi,age0,T,on:closed&&!!P.unemp},wage);const emp=lab.emp;
   let WB=0;for(let i=0;i<N;i++)if(emp[i])WB+=wage[i];
   let wageSum=0,back=0,GDP0=0,capGDP=0;const WB0=WB;const unmet=new Float64Array(T);
+  // prix (un seul bien) : indice des prix Pidx, des salaires wIdx, marge ; écart de demande de l'année précédente
+  const pricesOn=closed&&!!P.prices;let Pidx=1,wIdx=1,mk=MARKUP0,gapPrev=0,inflPrev=0,Pnet=1;
+  const pP=new Float64Array(T),pInfl=new Float64Array(T),pWr=new Float64Array(T),pGap=new Float64Array(T);
   // indicateurs d'économie réelle (Stiglitz, Sen et Fitoussi 2009) : consommation médiane et moyenne par ménage, production nette
   // de l'usure, utilisation des capacités (ventes / ventes que permettrait le capital, au rythme du départ)
   const consH=new Float64Array(N),consMed=new Float64Array(T),consMean=new Float64Array(T),ndp=new Float64Array(T),util=new Float64Array(T),kNet=new Float64Array(T);
@@ -993,7 +1030,7 @@ function run(world,seed,P){
   let pool=0,poolNext=0,feePot=0;const cc={wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
   const money=()=>{let m=F+pool+poolNext+feePot+back+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
   // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
-  const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,pubDebt=0,GDPprev=0;const rB=stateOn&&world==='L'?P.rB:0;
+  const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,pubDebt=0,GDPprev=0;let rB=stateOn&&world==='L'?P.rB:0;
   const sc={tax:0,gw:0,gp:0,int:0,cut:0,spend:0};
   let M0=0;
   if(closed){let notional=0;for(const fm of firms)notional+=fm.rho*fm.K;pool=WB+notional;
@@ -1010,7 +1047,18 @@ function run(world,seed,P){
     M0=money();}
 
   for(let t=0;t<T;t++){
-    if(t>0)partic.update(net,t);
+    if(t>0)partic.update(pricesOn&&Pnet!==1?Float64Array.from(net,v=>v/Pnet):net,t);
+
+    /* ---------- prix : les salaires rattrapent l'inflation passée, la marge suit la tension ; le capital est réévalué ---------- */
+    let infl=0;
+    if(pricesOn&&t>0){wIdx*=1+Math.max(0,WAGE_INDEXATION*inflPrev);mk=Math.max(0,(1+mk)*(1+PHILLIPS_THETA*gapPrev)-1);
+      const Pn=wIdx*(1+mk)/(1+MARKUP0);infl=Pn/Pidx-1;Pidx=Pn;inflPrev=infl;
+      for(const fm of firms)if(!fm.dead)fm.K*=1+infl;     // capital au coût de remplacement
+      if(capped){// gains interdits, règle réelle : les mises restantes, dettes, dépôts et obligations sont indexés sur les prix
+        const g=1+Math.max(0,infl);rate=g-1;if(stateOn)rB=g-1;
+        for(const fm of firms)if(!fm.dead){const hr=fm.hr;for(let k=0;k<fm.n;k++)hr[k]*=g;}
+        funds.index(g);}}
+    const feeB=P.fee*Pidx,feeQ=P.feeE*Pidx;
 
     /* ---------- intérêts des dettes personnelles, reversés aux déposants ---------- */
     if(bank&&rate>0){let acc=0,sumD=0;for(let i=0;i<N;i++){if(L[i]>eps){const x=L[i]*rate;L[i]+=x;acc+=x;}sumD+=D[i];}
@@ -1018,8 +1066,9 @@ function run(world,seed,P){
 
     /* ---------- économie bouclée : salaires payés sur les ventes, puis sur la trésorerie des entreprises ---------- */
     let ratio=1,sales=0,GW=0;
+    if(pricesOn){gapPrev=GDP0>0?((pool+back)+(stateOn?P.gW*GDPprev:0))/Pidx/GDP0-1:0;pGap[t]=gapPrev;}
     if(closed&&lab.on){// la demande au-delà de ce que la population active peut produire attend l'année suivante (commandes en attente)
-      pool+=back;back=0;const capS=Math.max(0,capGDP-(stateOn?P.gW*GDPprev:0));
+      pool+=back;back=0;const capS=Math.max(0,capGDP*Pidx-(stateOn?P.gW*GDPprev:0));
       if(pool>capS){back=pool-capS;pool=capS;}unmet[t]=pool+back>0?back/(pool+back):0;}
     if(closed){sales=pool;{let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;util[t]=cap0>0&&K>0&&K0>0?sales/(cap0*K/K0):0;}
       if(stateOn){// impôt sur les ventes, puis dépenses (fonctionnaires, achats, intérêts) ; le déficit est emprunté aux ménages
@@ -1032,7 +1081,7 @@ function run(world,seed,P){
         if(INT>0&&pubDebt>0)for(let i=0;i<N;i++){const x=INT*Bh[i]/pubDebt;W[i]+=x;capInc[i]+=x;}
         poolNext+=GP;sc.gw+=GW;sc.gp+=GP;sc.int+=INT;defR[t]=GDPprev>0?(GW+GP+INT-tax)/GDPprev:0;}
       // salaires privés : sur les ventes, puis sur la trésorerie des entreprises
-      if(lab.on){lab.adjust(GDP0>0?WB0*(sales+GW)/GDP0:0,t);WB=lab.effEmp();}
+      if(lab.on){lab.adjust(GDP0>0?WB0*(sales+GW)/Pidx/GDP0:0,t);WB=lab.effEmp()*wIdx;}else if(pricesOn)WB=WB0*wIdx;
       wageSum+=WB;
       const WBp=Math.max(0,WB-GW);let paid=Math.min(pool,WBp);pool-=paid;
       if(paid<WBp){const need=WBp-paid;let totK=0;for(const fm of firms)if(!fm.dead)totK+=fm.K;
@@ -1041,7 +1090,7 @@ function run(world,seed,P){
 
     /* ---------- épargne : remboursement des dettes, dépôt, actions, liquidités ---------- */
     if(closed){// le ménage reçoit son salaire, consomme (revenu et patrimoine), puis place ce qui reste
-      for(let i=0;i<N;i++){const y=wage[i]*ratio*emp[i];W[i]+=y;const inc=y+capInc[i];
+      for(let i=0;i<N;i++){const y=wage[i]*wIdx*ratio*emp[i];W[i]+=y;const inc=y+capInc[i];
         const c=(1-sr[i])*inc+P.mpcW*Math.max(0,t===0?init0[i]:net[i]);
         let pc=Math.min(c,Math.max(0,W[i]));W[i]-=pc;
         if(c-pc>eps&&bank){const x=Math.min(c-pc,D[i],Math.max(F,0));D[i]-=x;F-=x;pc+=x;}
@@ -1112,7 +1161,7 @@ function run(world,seed,P){
       if(rnd()>=P.pidea)continue;
       ideas[i]++;
       // le projet est tiré dès l'idée : réussite, coût et gain, inconnus de tous à l'avance
-      const ok=rnd()<P.pok;const pj=drawProject(rnd,P);const ci=pj.cost,gain0=pj.gain;
+      const ok=rnd()<P.pok;const pj=drawProject(rnd,P);const ci=pj.cost*Pidx,gain0=pj.gain*Pidx;
       // apport personnel : liquidités, parts de fonds, puis dépôt (dans la limite de ce que la banque a en caisse)
       const depAvail=bank?Math.min(D[i],Math.max(F,0)):0;
       const fAv=stock?funds.available(i):0;const avail=W[i]+fAv+depAvail;
@@ -1127,27 +1176,27 @@ function run(world,seed,P){
           for(let j=0;j<N;j++){lent[j]=(j!==i)?need*W[j]/pool:0;W[j]-=lent[j];}
           lentDirect=true;
         }else{// capacités : la bourse (trésorerie des fonds) et la banque (caisse, si pas déjà endetté)
-          let capE=0;if(stock)capE=Math.max(0,funds.capacity()-fromFund/funds.M-P.feeE);
+          let capE=0;if(stock)capE=Math.max(0,funds.capacity()-fromFund/funds.M-feeQ);
           const debtBlock=bank&&L[i]>eps;
-          const capB=(bank&&!debtBlock)?Math.max(0,F-fromDep-P.fee):0;
+          const capB=(bank&&!debtBlock)?Math.max(0,F-fromDep-feeB):0;
           needE=need*phi;needB=need-needE;
           if(needE>capE){needB+=needE-capE;needE=capE;}
           if(needB>capB){needE+=needB-capB;needB=capB;}
           if(needE>capE+eps||needB>capB+eps){st.refused++;refI[i]++;if(debtBlock)st.refusedDebt++;else st.refusedFund++;continue;}
           if(needE<eps)needE=0;if(needB<eps)needB=0;}}
       W[i]-=fromCash;funds.redeem(i,fromFund);if(fromDep>eps){D[i]-=fromDep;F-=fromDep;}
-      if(needB>0){F-=needB+P.fee;if(!firmOn)L[i]+=needB+P.fee;st.loans++;}
+      if(needB>0){F-=needB+feeB;if(!firmOn)L[i]+=needB+feeB;st.loans++;}
       let raised=0,res=null;
       if(needE>0){// levée auprès des fonds, coût d'introduction compris
-        const totalE=needE+P.feeE;res=funds.raise(totalE);
+        const totalE=needE+feeQ;res=funds.raise(totalE);
         raised=totalE;st.issues++;st.eqRaised+=totalE;st.holders+=res.hi.length;}
       st.funded++;
-      if(closed){poolNext+=ci;feePot+=(needB>0?P.fee:0)+(needE>0?P.feeE:0);}
+      if(closed){poolNext+=ci;feePot+=(needB>0?feeB:0)+(needE>0?feeQ:0);}
       if(firmOn){// le projet devient une entreprise : capital, dette propre, propriétaires (fondateur et fonds)
         const fm=newHoldings({},8);addHolder(fm,i,Math.max(own,1e-6),Math.max(own,1e-6));
         if(raised>0)for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);
         const rho=drawRho(rnd,P);
-        firms.push(Object.assign(fm,{K:ci,R:0,debt:needB>0?needB+P.fee:0,rho,age:0,f:i,selfC:0,dead:false,old:false}));fs.created++;
+        firms.push(Object.assign(fm,{K:ci,R:0,debt:needB>0?needB+feeB:0,rho,age:0,f:i,selfC:0,dead:false,old:false}));fs.created++;
         continue;}
       // sans la brique « entreprises » : le projet réussit ou échoue tout de suite
       if(ok)succ[i]++;else fail[i]++;
@@ -1167,18 +1216,20 @@ function run(world,seed,P){
       let sw=0;for(let i=0;i<N;i++)sw+=wage[i]*emp[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]*emp[i]/sw;W[i]+=x;capInc[i]+=x;}
       feePot=0;pool+=poolNext;poolNext=0;
       if(stateOn){GDPprev=sales+GW;debtR[t]=GDPprev>0?pubDebt/GDPprev:0;}
-      {const y=Float64Array.from(consH).sort();consMed[t]=y[Math.floor(N/2)];let sm=0;for(let i=0;i<N;i++)sm+=consH[i];consMean[t]=sm/N;
-       ndp[t]=(sales+GW-wearY)/N;let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;kNet[t]=K/N;}
+      // en euros du départ (divisés par l'indice des prix)
+      {const y=Float64Array.from(consH).sort();consMed[t]=y[Math.floor(N/2)]/Pidx;let sm=0;for(let i=0;i<N;i++)sm+=consH[i];consMean[t]=sm/N/Pidx;
+       ndp[t]=(sales+GW-wearY)/N/Pidx;let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;kNet[t]=K/N/Pidx;}
+      pP[t]=Pidx;pInfl[t]=infl;pWr[t]=wIdx/Pidx;
       lab.close(t);
       cc.drift=Math.max(cc.drift,Math.abs(money()-M0)/M0);}
     const eqv=new Float64Array(N);let unowned=0,firmV=0;funds.stake.fill(0);
     if(firmOn)for(const fm of firms){if(fm.dead)continue;const V=Math.max(0,fm.K+fm.R-fm.debt);firmV+=V;unowned+=V-valueHoldings(fm,V,capped,eqv,funds.stake);}
     {const fv=funds.value(eqv);fs.fundV=fv.total;fs.fundUn=fv.unclaimed;unowned+=fv.unclaimed;}
-    fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned;
+    fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned/Pidx;Pnet=Pidx;
     wearY=0;
-    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i];s+=net[i];}tot[t]=s;gi[t]=gini(net);
-    {let a=0,d=0,o=0,e=0;for(let i=0;i<N;i++){a+=W[i]+eqSave[i]-L[i];d+=D[i];o+=Bh[i];e+=eqv[i];}bCash[t]=a/N;bDep[t]=d/N;bBond[t]=o/N;bEq[t]=e/N;
-     let l=0,fd=0;for(let i=0;i<N;i++)l+=L[i];for(const fm of firms)if(!fm.dead)fd+=fm.debt;bSale[t]=(pool+poolNext+feePot+back)/N;bBank[t]=(F-d+l+fd+Sc)/N;}
+    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i];s+=net[i];}tot[t]=s/Pidx;gi[t]=gini(net);
+    {let a=0,d=0,o=0,e=0;for(let i=0;i<N;i++){a+=W[i]+eqSave[i]-L[i];d+=D[i];o+=Bh[i];e+=eqv[i];}bCash[t]=a/N/Pidx;bDep[t]=d/N/Pidx;bBond[t]=o/N/Pidx;bEq[t]=e/N/Pidx;
+     let l=0,fd=0;for(let i=0;i<N;i++)l+=L[i];for(const fm of firms)if(!fm.dead)fd+=fm.debt;bSale[t]=(pool+poolNext+feePot+back)/N/Pidx;bBank[t]=(F-d+l+fd+Sc)/N/Pidx;}
     if(closed&&M0>0){const y=Float64Array.from(net).sort(),c5=y[Math.floor(0.5*N)],c9=y[Math.floor(0.9*N)];let h0=0,h1=0,h2=0,R=0;
       for(let i=0;i<N;i++){const h=W[i]+eqSave[i];if(net[i]>=c9)h2+=h;else if(net[i]>=c5)h1+=h;else h0+=h;}
       for(const fm of firms)if(!fm.dead)R+=fm.R;
@@ -1196,11 +1247,11 @@ function run(world,seed,P){
   const hasStart=P.ini||(firmOn&&P.exist);
   return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
-    fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned,fValue:fs.firmV,
+    fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned/Pidx,fValue:fs.firmV/Pidx,
     cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,lU:lab.out.uT,lLong:lab.out.longT,lHours:lab.out.hoursT,lUnmet:unmet,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
     sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(net).sort();const c9=y[Math.floor(0.9*N)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&wageSum>0?cc.wageShort/wageSum:0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
-    fFundPaid:fs.fundPaid,fFundV:fs.fundV,fFundUn:fs.fundUn,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
-    net:Float64Array.from(net),grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
+    fFundPaid:fs.fundPaid,fFundV:fs.fundV/Pidx,fFundUn:fs.fundUn/Pidx,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
+    net:Float64Array.from(net,v=>v/Pidx),pP,pInfl,pWr,pGap,pInflAvg:Pidx>0?Math.pow(Pidx,1/Math.max(1,T-1))-1:0,grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
 }
 
 /* ---------- diagnostics par âge et par revenu (comparés à l'Insee dans l'onglet Hypothèses) ---------- */
@@ -1215,7 +1266,7 @@ function endDiagnostics(C,dg,part){dg.pQ1=groupMean(C.N,5,i=>C.qi[i],i=>part[i])
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
 // répartition de la monnaie, au sens strict puis au sens large (séries, moyennées sur les simulations)
-const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet'];
+const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
@@ -1258,7 +1309,7 @@ const SUM_KEYS=['funded','refused','loans','debt','indebted','fund','refusedDebt
 const PER_RUN={
   mean:(x,e)=>e.mean, bottom10:(x,e)=>e.bottom10, top1:(x,e)=>e.top1==null?NaN:e.top1, gini:(x,e,T)=>x.gi[T-1],
   funded:x=>x.funded, refused:x=>x.refused, indebted:(x,e)=>e.indebted, totE:(x,e,T)=>x.tot[T-1]+x.uT[T-1],
-  fUnowned:x=>x.fUnowned, cons:(x,e,T)=>x.rCons[T-1], util:(x,e,T)=>x.rUtil[T-1], unemp:(x,e,T)=>x.lU[T-1], hours:(x,e,T)=>x.lHours[T-1], fDied:x=>x.fDied, interest:x=>x.interest, qratio:(x,e,T,q)=>q[0].mean>0?q[4].mean/q[0].mean:NaN};
+  fUnowned:x=>x.fUnowned, cons:(x,e,T)=>x.rCons[T-1], util:(x,e,T)=>x.rUtil[T-1], unemp:(x,e,T)=>x.lU[T-1], hours:(x,e,T)=>x.lHours[T-1], infl:x=>x.pInflAvg, fDied:x=>x.fDied, interest:x=>x.interest, qratio:(x,e,T,q)=>q[0].mean>0?q[4].mean/q[0].mean:NaN};
 // moyenne élément par élément des diagnostics (tableaux), en ignorant les cases vides
 function meanDiagnostics(xs){const dg={},R=xs.length;for(const k in xs[0].dg){const v=xs[0].dg[k];
   if(Array.isArray(v)){const sm=v.map(()=>0),cn=v.map(()=>0);for(const x of xs)x.dg[k].forEach((y,g)=>{if(isFinite(y)){sm[g]+=y;cn[g]++;}});dg[k]=sm.map((y,g)=>cn[g]?y/cn[g]:NaN);}
@@ -1314,8 +1365,8 @@ const fmtN=v=>{if(Math.abs(v)>=10000)return Math.round(v/1000)+' k';if(Math.abs(
    Pour ajouter un paramètre : une entrée dans DEF, un format dans FMT, un curseur (id = clé, sortie = clé_o) dans page.html,
    puis augmenter PARAMS_KEY si l'ancienne valeur mémorisée ne doit pas être reprise.
    ===================================================================== */
-const DEF={N:2000,T:40,save:0.18,incM:1.48,inc:1,sigI:0.595,sprof:1,ini:1,m0:1,alW:1.85,pidea:0.012,cost:4.3,pok:0.6,payoff:11,vary:1,firm:1,rho:0.107,payout:0.5,invest:0.11,depr:0.093,closed:1,mpcW:0.029,unemp:1,state:1,gW:0.123,gP:0.099,defT:0.051,debt0:1.156,rB:0.019,exist:1,k0:3.75,nf:17,own:0.5,hold:0.16,rhoIW:0.25,ageb:1.2,sig:2.4,alpha:1.5,bank:1,stock:1,r:0.8,dep:0.5,fee:0.05,rl:0.035,inv:0.25,phi:0.5,m:10,nfd:10,part:0.2,feeE:0.05,runs:30};
-const SWITCHES=['inc','sprof','ini','vary','firm','exist','closed','unemp','state','bank','stock'];   // cases à cocher (0 ou 1)
+const DEF={N:2000,T:40,save:0.18,incM:1.48,inc:1,sigI:0.595,sprof:1,ini:1,m0:1,alW:1.85,pidea:0.012,cost:4.3,pok:0.6,payoff:11,vary:1,firm:1,rho:0.107,payout:0.5,invest:0.11,depr:0.093,closed:1,mpcW:0.029,unemp:1,prices:1,state:1,gW:0.123,gP:0.099,defT:0.051,debt0:1.156,rB:0.019,exist:1,k0:3.75,nf:17,own:0.5,hold:0.16,rhoIW:0.25,ageb:1.2,sig:2.4,alpha:1.5,bank:1,stock:1,r:0.8,dep:0.5,fee:0.05,rl:0.035,inv:0.25,phi:0.5,m:10,nfd:10,part:0.2,feeE:0.05,runs:30};
+const SWITCHES=['inc','sprof','ini','vary','firm','exist','closed','unemp','prices','state','bank','stock'];   // cases à cocher (0 ou 1)
 const ids=Object.keys(DEF);
 const none=()=>'',dec=n=>v=>fr(v,{maximumFractionDigits:n});
 const FMT={N:v=>fr(v),T:v=>v,save:v=>v.toFixed(2),runs:v=>v,incM:v=>fr(v,{maximumFractionDigits:2})+' × '+fr(UNIT_EUR)+' €',
@@ -1329,7 +1380,7 @@ const SCALE={N:{from:s=>{const v=100*Math.pow(500,s/100);const p=Math.pow(10,Mat
 
 // mémoire du navigateur (peut être indisponible : toutes les lectures et écritures sont protégées)
 const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
-const PARAMS_KEY='labo-params-v26';
+const PARAMS_KEY='labo-params-v27';
 let P={...DEF};
 try{const s=JSON.parse(store.get(PARAMS_KEY)||'null');if(s)for(const k of ids)if(typeof s[k]==='number')P[k]=s[k];}catch(e){}
 const saveParams=()=>store.set(PARAMS_KEY,JSON.stringify(P));
@@ -1502,7 +1553,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
-  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
+  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderPrices(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
@@ -1548,6 +1599,28 @@ function renderReal(W){
   lineChart($('ch_k'),{...year,W:380,H:260,xs,yMax:mx(kL,kI),yTicks:4,yFmt:kf,series:seriesLI(kL,kI)});
 }
 
+// bornes « rondes » d'un axe à 4 graduations qui contient [lo, hi]
+function niceRange(lo,hi,n=4){lo=Math.min(lo,0);const raw=(hi-lo)/n||1;const p=Math.pow(10,Math.floor(Math.log10(raw)));const m=raw/p;
+  let step=(m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p;let a=Math.floor(lo/step)*step;
+  while(a+n*step<hi-1e-9){const k=[1,2,2.5,5,10];const i=k.findIndex(x=>x*p>step);step=i>=0?k[i]*p:step*2;a=Math.floor(lo/step)*step;}
+  return [a,a+n*step];}
+// les prix : inflation, niveau des prix, salaire réel, tension
+function renderPrices(W){
+  const on=!!(P.firm&&P.closed&&P.prices);show('pricecard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),year={xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,xTicks:P.T%4===0?4:2};
+  const p100=a=>Array.from(a,v=>v*100),pf=v=>fr(Math.round(v*10)/10)+' %',ix=v=>fr(Math.round(v));
+  const ref=(v,name)=>({ys:xs.map(()=>v),color:'var(--muted)',dash:true,name});
+  const range=(...a)=>{const f=a.flat();return [Math.min(0,...f),Math.max(...f)];};
+  const iL=p100(W[0].pInfl),iI=p100(W[1].pInfl);let [lo,hi]=range(iL,iI,[2]);const [a0,a1]=niceRange(lo,hi);
+  lineChart($('ch_infl'),{...year,W:380,H:260,xs,yMin:a0,yMax:a1,yTicks:4,yFmt:pf,series:[ref(2,'Cible BCE'),...seriesLI(iL,iI)]});
+  const pL=p100(W[0].pP),pI=p100(W[1].pP);
+  lineChart($('ch_price'),{...year,W:380,H:260,xs,yMax:niceMax(Math.max(...pL,...pI,100)),yTicks:4,yFmt:ix,series:[ref(100,'Départ'),...seriesLI(pL,pI)]});
+  const wL=p100(W[0].pWr),wI=p100(W[1].pWr);
+  lineChart($('ch_wreal'),{...year,W:380,H:260,xs,yMin:50,yMax:Math.max(...wL,...wI)>150?250:150,yTicks:4,yFmt:ix,series:[ref(100,'Départ'),...seriesLI(wL,wI)]});
+  const gL=p100(W[0].pGap),gI=p100(W[1].pGap);[lo,hi]=range(gL,gI);const m=niceMax(Math.max(Math.abs(lo),Math.abs(hi),5));
+  lineChart($('ch_gap'),{...year,W:380,H:260,xs,yMin:-m,yMax:m,yTicks:4,yFmt:v=>(v>0?'+':'')+fr(Math.round(v))+' %',series:seriesLI(gL,gI)});
+}
+
 // le travail : chômage, heures travaillées, demande que la population active ne peut pas servir
 function renderWork(W){
   const on=!!(P.firm&&P.closed&&P.unemp);show('workcard',on);if(!on)return;
@@ -1558,6 +1631,7 @@ function renderWork(W){
   lineChart($('ch_unemp'),{...year,W:380,H:260,xs,yMax:niceMax(Math.max(10,...uL,...uI)),yTicks:4,yFmt:pf,series:[ref(7.4),...seriesLI(uL,uI)]});
   const hL=Array.from(W[0].lHours),hI=Array.from(W[1].lHours);
   lineChart($('ch_hours'),{...year,W:380,H:260,xs,yMax:2000,yTicks:4,yFmt:v=>fr(Math.round(v))+' h',series:[{ys:xs.map(()=>HOURS_PER_JOB),color:'var(--muted)',dash:true,name:'Plein emploi'},...seriesLI(hL,hI)]});
+  setText('unmetnote','Part des achats que la population active ne peut pas produire dans l\'année : ils attendent l\'année suivante.'+(P.prices?' Avec les prix, la tension se reporte surtout sur les prix (carte « Les prix »).':' Dans la réalité, les prix monteraient : activer « Prix et salaires ».'));
   const mL=p100(W[0].lUnmet),mI=p100(W[1].lUnmet);
   lineChart($('ch_unmet'),{...year,W:380,H:260,xs,yMax:100,yTicks:4,yFmt:pf,series:seriesLI(mL,mI)});
   const lL=p100(W[0].lLong),lI=p100(W[1].lLong);
@@ -1691,7 +1765,7 @@ function renderCharts([Lw,Iw]){
       {ys:Array.from(Iw.tot),color:'var(--i)',dash:true,name:'Interdits, ménages'},{ys:Array.from(Lw.tot),color:'var(--l)',dash:true,name:'Libres, ménages'}]
     :seriesLI(Lw.tot,Iw.tot,true);
   lineChart($('ch_total'),{...year,W:760,H:280,xs,yMax:niceMax(Math.max(...series.map(s=>Math.max(...s.ys)))),yTicks:4,xTicks:P.T%5===0?5:2,yFmt:fmtN,tipY:int,area:false,series});
-  setText('totlede',P.firm?'En trait plein : la richesse de toute l\'économie, c\'est-à-dire celle de la population, plus la valeur des entreprises qui n\'appartient à personne. En pointillé : la seule richesse de la population (liquidités, dépôts et parts d\'entreprises, moins les dettes). Moyenne sur les simulations.':'Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.');
+  setText('totlede',P.firm?'En trait plein : la richesse de toute l\'économie, c\'est-à-dire celle de la population, plus la valeur des entreprises qui n\'appartient à personne. En pointillé : la seule richesse de la population (liquidités, dépôts et parts d\'entreprises, moins les dettes). Moyenne sur les simulations'+(P.closed&&P.prices?', en euros du départ (corrigés de l\'inflation).':'.'):'Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.');
   // Gini au fil du temps
   lineChart($('ch_gini'),{...year,W:380,H:260,xs,yMax:Math.max(0.1,Math.ceil(Math.max(...Lw.gi,...Iw.gi)*10)/10),yTicks:4,xTicks:P.T%4===0?4:2,yFmt:f2,series:seriesLI(Lw.gi,Iw.gi)});
   // Lorenz, au départ et à la fin
@@ -1721,6 +1795,7 @@ function verdictItems(L){
     {l:'Entreprises disparues',get:w=>w.fDied,f:int,dir:'low',k:'fDied'});
   if(P.firm&&P.closed)V.push({l:'Consommation du ménage médian, la dernière année',get:w=>w.rCons[L]*UNIT_EUR,f:v=>fr(Math.round(v/100)*100)+' €',dir:'high',k:'cons'},
     {l:'Utilisation des capacités, la dernière année',get:w=>w.rUtil[L],f:pct,dir:null,k:'util'});
+  if(P.firm&&P.closed&&P.prices)V.push({l:'Inflation moyenne par an',get:w=>w.pP[L]>0?Math.pow(w.pP[L],1/Math.max(1,L))-1:null,f:pct1,dir:null,k:'infl'});
   if(P.firm&&P.closed&&P.unemp)V.push({l:'Taux de chômage, la dernière année',get:w=>w.lU[L],f:pct1,dir:'low',k:'unemp'},
     {l:'Heures travaillées par ménage, la dernière année',get:w=>w.lHours[L],f:v=>fr(Math.round(v))+' h',dir:null,k:'hours'});
   if(P.bank||P.firm)V.push({l:'Intérêts reçus par les déposants',get:w=>w.interest,f:int,dir:null,k:'interest'});

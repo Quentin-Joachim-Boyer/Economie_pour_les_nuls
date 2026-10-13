@@ -93,3 +93,18 @@ const UNEMP_BY_AGE=[0.1275,0.067,0.067,0.049,0.049,0.049];   // groupes d'âge d
 const UNEMP_BY_QUINTILE=[0.1425,0.0795,0.065,0.05,0.04];
 const UNEMP_EXIT=0.403/(0.403+0.358);
 const HOURS_PER_JOB=0.88*(0.826*1661+0.174*970)+0.12*1916;
+
+/* ---------- prix et salaires (économie bouclée) ----------
+   Un seul bien, donc un seul prix : prix = coût du travail par unité produite × (1 + marge) (Kalecki).
+   Marge de départ : part des salaires dans la valeur ajoutée des sociétés non financières, 65 % (Insee, tableau 7.101) : 1/0,65 − 1.
+   La marge réagit à la tension : (1 + marge) × (1 + θ × écart), écart = demande réelle (y compris en attente) / production de départ − 1
+   (la production de départ correspond au chômage de départ, pris comme chômage « sans tension »).
+   θ ≈ 0,14 : courbe de Phillips française estimée par l'Insee (Note de conjoncture, mars 2018, dossier) : un point de chômage en plus
+   réduit la hausse annuelle des salaires d'environ 0,48 point (1,2·10⁻³ par trimestre), et les prix en répercutent 0,30 : 0,30 × 0,48 ≈ 0,14.
+   Salaires : ils rattrapent 85 % de l'inflation de l'année précédente (Banque de France, Bulletin 245, 2023 : hausses négociées
+   de 4,4 % pour 2023 après 5,2 % d'inflation en 2022, Smic indexé), et ne baissent pas en euros (rigidité à la baisse des salaires
+   nominaux : Le Bihan, Montornès et Heckel, 2012, données françaises). */
+const WAGE_SHARE0=0.65;
+const MARKUP0=1/WAGE_SHARE0-1;
+const PHILLIPS_THETA=0.30*0.0048*100;
+const WAGE_INDEXATION=4.4/5.2;

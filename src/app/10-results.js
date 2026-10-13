@@ -7,7 +7,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
-  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
+  renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderPrices(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);
@@ -53,6 +53,28 @@ function renderReal(W){
   lineChart($('ch_k'),{...year,W:380,H:260,xs,yMax:mx(kL,kI),yTicks:4,yFmt:kf,series:seriesLI(kL,kI)});
 }
 
+// bornes « rondes » d'un axe à 4 graduations qui contient [lo, hi]
+function niceRange(lo,hi,n=4){lo=Math.min(lo,0);const raw=(hi-lo)/n||1;const p=Math.pow(10,Math.floor(Math.log10(raw)));const m=raw/p;
+  let step=(m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p;let a=Math.floor(lo/step)*step;
+  while(a+n*step<hi-1e-9){const k=[1,2,2.5,5,10];const i=k.findIndex(x=>x*p>step);step=i>=0?k[i]*p:step*2;a=Math.floor(lo/step)*step;}
+  return [a,a+n*step];}
+// les prix : inflation, niveau des prix, salaire réel, tension
+function renderPrices(W){
+  const on=!!(P.firm&&P.closed&&P.prices);show('pricecard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),year={xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,xTicks:P.T%4===0?4:2};
+  const p100=a=>Array.from(a,v=>v*100),pf=v=>fr(Math.round(v*10)/10)+' %',ix=v=>fr(Math.round(v));
+  const ref=(v,name)=>({ys:xs.map(()=>v),color:'var(--muted)',dash:true,name});
+  const range=(...a)=>{const f=a.flat();return [Math.min(0,...f),Math.max(...f)];};
+  const iL=p100(W[0].pInfl),iI=p100(W[1].pInfl);let [lo,hi]=range(iL,iI,[2]);const [a0,a1]=niceRange(lo,hi);
+  lineChart($('ch_infl'),{...year,W:380,H:260,xs,yMin:a0,yMax:a1,yTicks:4,yFmt:pf,series:[ref(2,'Cible BCE'),...seriesLI(iL,iI)]});
+  const pL=p100(W[0].pP),pI=p100(W[1].pP);
+  lineChart($('ch_price'),{...year,W:380,H:260,xs,yMax:niceMax(Math.max(...pL,...pI,100)),yTicks:4,yFmt:ix,series:[ref(100,'Départ'),...seriesLI(pL,pI)]});
+  const wL=p100(W[0].pWr),wI=p100(W[1].pWr);
+  lineChart($('ch_wreal'),{...year,W:380,H:260,xs,yMin:50,yMax:Math.max(...wL,...wI)>150?250:150,yTicks:4,yFmt:ix,series:[ref(100,'Départ'),...seriesLI(wL,wI)]});
+  const gL=p100(W[0].pGap),gI=p100(W[1].pGap);[lo,hi]=range(gL,gI);const m=niceMax(Math.max(Math.abs(lo),Math.abs(hi),5));
+  lineChart($('ch_gap'),{...year,W:380,H:260,xs,yMin:-m,yMax:m,yTicks:4,yFmt:v=>(v>0?'+':'')+fr(Math.round(v))+' %',series:seriesLI(gL,gI)});
+}
+
 // le travail : chômage, heures travaillées, demande que la population active ne peut pas servir
 function renderWork(W){
   const on=!!(P.firm&&P.closed&&P.unemp);show('workcard',on);if(!on)return;
@@ -63,6 +85,7 @@ function renderWork(W){
   lineChart($('ch_unemp'),{...year,W:380,H:260,xs,yMax:niceMax(Math.max(10,...uL,...uI)),yTicks:4,yFmt:pf,series:[ref(7.4),...seriesLI(uL,uI)]});
   const hL=Array.from(W[0].lHours),hI=Array.from(W[1].lHours);
   lineChart($('ch_hours'),{...year,W:380,H:260,xs,yMax:2000,yTicks:4,yFmt:v=>fr(Math.round(v))+' h',series:[{ys:xs.map(()=>HOURS_PER_JOB),color:'var(--muted)',dash:true,name:'Plein emploi'},...seriesLI(hL,hI)]});
+  setText('unmetnote','Part des achats que la population active ne peut pas produire dans l\'année : ils attendent l\'année suivante.'+(P.prices?' Avec les prix, la tension se reporte surtout sur les prix (carte « Les prix »).':' Dans la réalité, les prix monteraient : activer « Prix et salaires ».'));
   const mL=p100(W[0].lUnmet),mI=p100(W[1].lUnmet);
   lineChart($('ch_unmet'),{...year,W:380,H:260,xs,yMax:100,yTicks:4,yFmt:pf,series:seriesLI(mL,mI)});
   const lL=p100(W[0].lLong),lI=p100(W[1].lLong);
@@ -196,7 +219,7 @@ function renderCharts([Lw,Iw]){
       {ys:Array.from(Iw.tot),color:'var(--i)',dash:true,name:'Interdits, ménages'},{ys:Array.from(Lw.tot),color:'var(--l)',dash:true,name:'Libres, ménages'}]
     :seriesLI(Lw.tot,Iw.tot,true);
   lineChart($('ch_total'),{...year,W:760,H:280,xs,yMax:niceMax(Math.max(...series.map(s=>Math.max(...s.ys)))),yTicks:4,xTicks:P.T%5===0?5:2,yFmt:fmtN,tipY:int,area:false,series});
-  setText('totlede',P.firm?'En trait plein : la richesse de toute l\'économie, c\'est-à-dire celle de la population, plus la valeur des entreprises qui n\'appartient à personne. En pointillé : la seule richesse de la population (liquidités, dépôts et parts d\'entreprises, moins les dettes). Moyenne sur les simulations.':'Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.');
+  setText('totlede',P.firm?'En trait plein : la richesse de toute l\'économie, c\'est-à-dire celle de la population, plus la valeur des entreprises qui n\'appartient à personne. En pointillé : la seule richesse de la population (liquidités, dépôts et parts d\'entreprises, moins les dettes). Moyenne sur les simulations'+(P.closed&&P.prices?', en euros du départ (corrigés de l\'inflation).':'.'):'Somme des avoirs nets de toute la population (liquidités, dépôts et parts, moins les dettes), en moyenne sur les simulations.');
   // Gini au fil du temps
   lineChart($('ch_gini'),{...year,W:380,H:260,xs,yMax:Math.max(0.1,Math.ceil(Math.max(...Lw.gi,...Iw.gi)*10)/10),yTicks:4,xTicks:P.T%4===0?4:2,yFmt:f2,series:seriesLI(Lw.gi,Iw.gi)});
   // Lorenz, au départ et à la fin

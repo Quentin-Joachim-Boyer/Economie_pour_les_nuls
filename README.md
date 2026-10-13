@@ -60,6 +60,6 @@ Le moteur (`src/engine/`) ne touche jamais au DOM : il est aussi exécuté dans 
 
 ### Tests
 
-- `tests/regress.js` : 13 configurations × 2 scénarios × 2 graines, toutes les sorties comparées à 1e-8 près.
+- `tests/regress.js` : 14 configurations × 2 scénarios × 2 graines, toutes les sorties comparées à 1e-8 près.
 - `tests/ui.py` : charge la page, lance 4 configurations, compare tout le texte affiché et les tracés SVG. `--shots` enregistre des captures des onglets, `--nospace` ignore les espaces.
 - `tests/perf.js` : temps par simulation selon le nombre de ménages.

@@ -14,7 +14,8 @@ function makeFunds(C){
   const uF=new Float64Array(N),capF=new Float64Array(N);// parts détenues par chaque ménage, et sa mise restante
   let totFC=0;const syncFC=()=>{totFC=0;for(let f=0;f<NF;f++)totFC+=FC[f];};
   // prix d'une part : valeur du fonds / nombre de parts (au plus 1 avec gains interdits)
-  const price=f=>{if(FU[f]<=eps)return 1;const p=(FC[f]+FS[f])/FU[f];return capped?Math.min(1,p):p;};
+  // pcap : prix maximal d'une part avec gains interdits (1, revalorisé de l'inflation si la règle porte sur les gains réels)
+  let pcap=1;const price=f=>{if(FU[f]<=eps)return 1;const p=(FC[f]+FS[f])/FU[f];return capped?Math.min(pcap,p):p;};
   return {NF,M,fundOf,income:FI,stake:FS,
     // versement de l'épargne-actions de l'année dans les fonds
     subscribe(){for(let i=0;i<N;i++){const q=eqSave[i];if(q<=eps)continue;const f=fundOf[i];let p=price(f);
@@ -34,6 +35,8 @@ function makeFunds(C){
       const left=Float64Array.from(FI);for(let i=0;i<N;i++){const f=fundOf[i];if(FI[f]<=eps||uF[i]<=eps)continue;let x=FI[f]*uF[i]/FU[f];if(capped){x=Math.min(x,capF[i]);capF[i]-=x;}W[i]+=x;if(capInc)capInc[i]+=x;left[f]-=x;fs.fundPaid+=x;}
       for(let f=0;f<NF;f++){FC[f]+=Math.max(0,left[f]);FI[f]=0;}syncFC();},
     // monnaie détenue par les fonds (trésorerie et reçu de l'année pas encore reversé)
+    // gains interdits, règle réelle : mises restantes et prix maximal revalorisés de l'inflation (facteur g)
+    index(g){pcap*=g;for(let i=0;i<N;i++)capF[i]*=g;},
     cash(){let s=0;for(let f=0;f<NF;f++)s+=FC[f]+FI[f];return s;},
     // valeur des parts de fonds de chaque ménage (après évaluation des participations dans FS) ; renvoie {total, unclaimed}
     value(eqv){const pr=new Float64Array(NF);let fv=0;for(let f=0;f<NF;f++){pr[f]=FU[f]>eps?(FC[f]+FS[f])/FU[f]:0;fv+=FC[f]+FS[f];}let claimed=0;
