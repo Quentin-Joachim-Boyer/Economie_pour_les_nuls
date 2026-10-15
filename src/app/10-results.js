@@ -8,7 +8,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
   renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderPrices(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
-  renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
+  renderBank(W);renderCircuit(W);renderSocial(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);renderScore(W);
   const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
@@ -142,6 +142,16 @@ function renderCircuit(W){
 }
 
 // État minimal : dette, impôt, déficit
+function renderSocial(W){
+  const on=!!(P.firm&&P.closed&&P.state&&P.social);show('socialcard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),year={xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,xTicks:P.T%4===0?4:2};
+  const p=a=>Array.from(a,v=>v*100),pf=v=>fr(Math.round(v))+' %';
+  const dL=p(W[0].sPub),dI=p(W[1].sPub),oL=p(W[0].sPO),oI=p(W[1].sPO);
+  lineChart($('ch_pub'),{...year,W:380,H:260,xs,yMax:niceMax(Math.max(60,...dL,...dI,...oL,...oI)),yTicks:4,yFmt:pf,
+    series:[{ys:oI,color:'var(--i)',dash:true,name:'Prélèv. I'},{ys:oL,color:'var(--l)',dash:true,name:'Prélèv. L'},{ys:dI,color:'var(--i)',name:'Dépenses I'},{ys:dL,color:'var(--l)',name:'Dépenses L'}]});
+  const rL=p(W[0].dRet),rI=p(W[1].dRet);
+  lineChart($('ch_ret'),{...year,W:380,H:260,xs,yMax:100,yTicks:4,yFmt:pf,series:seriesLI(rL,rI)});
+}
 function renderState(W){
   const on=!!(P.firm&&P.closed&&P.state);show('statecard',on);if(!on)return;
   const xs=Array.from({length:P.T},(_,i)=>i+1);const ys=W.map(w=>Array.from(w.sDebt,v=>v*100));

@@ -133,7 +133,8 @@ const REF_FR=[
   {k:'debt',l:'Dette publique / PIB',v:1.157,y:'2025',tol:0.10,u:'pct',src:'Insee Première n° 2106 (comptes des administrations publiques 2025)',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'deficit',l:'Déficit public / PIB',v:0.051,y:'2025',tol:0.01,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
-  {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2106 (modèle : salaires et achats publics, intérêts ; pas encore de prestations sociales)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',src:'Insee Première n° 2106 (modèle : sans dépenses de santé, de famille ni minima sociaux)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'po',l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
   {k:'hhdebt',l:'Dette des ménages / PIB',v:0.591,y:'2025',tol:0.10,u:'pct',set:1,src:'Banque de France, taux d\'endettement des agents non financiers, T4 2025 (modèle : pas de crédit immobilier)',url:'https://www.banque-france.fr/fr/statistiques/comptes-nationaux-financiers/taux-dendettement-des-agents-non-financiers-comparaisons-internationales-2025-q4'}];
@@ -144,3 +145,52 @@ const REF_FR=[
    Les salaires réels suivent la productivité à long terme (Insee, Note de conjoncture mars 2018 : équation de salaire indexée
    à long terme sur la productivité). */
 const PROD_GROWTH=0.007;
+
+/* ---------- protection sociale et prélèvements (économie bouclée, avec l'État) ----------
+   Le revenu tiré pour chaque ménage est son revenu disponible (Insee). Le coût du travail payé par l'employeur est plus élevé :
+   - cotisations sociales : 571,8 Md€ pour 1 536,3 Md€ de rémunération des salariés et 138,4 Md€ de revenu mixte en 2024
+     (Insee, France portrait social 2025, fiche revenu disponible) : 34,1 % du coût du travail ;
+   - impôt sur le revenu + CSG-CRDS, en part du revenu avant redistribution, par quintile de niveau de vie, 2024 (Insee, France
+     portrait social 2025, « Redistribution monétaire ») : 4,0 / 5,0 / 7,0 / 9,5 / 18,8 %.
+   TVA : 207,8 Md€ pour 1 527,5 Md€ de consommation des ménages en 2024 (Insee) : 13,6 % du prix hors taxe.
+   Impôt sur les sociétés : 68,0 Md€ avant crédits d'impôt pour 486,5 Md€ d'excédent brut d'exploitation des SNF (Insee 2024) : 14 %.
+   Le reste des recettes (impôts sur la production) est un taux sur les ventes, calé pour retrouver le déficit de départ.
+   Retraite : départ à 62 ans et 9 mois en moyenne (Drees 2023) ; pension = 64,5 % du revenu d'activité (pension nette moyenne,
+   droits dérivés compris, rapportée au revenu d'activité net moyen : COR, rapport 2026) ; revalorisée sur les prix.
+   Assurance chômage : 71 % du salaire net perdu (Unédic, 2015, avant les réformes de 2019-2021), durée potentielle d'environ
+   un an et demi (486 à 564 jours, Unédic 2024-2025) : versée l'année de la perte d'emploi et la suivante. */
+const COT_RATE=571.8/(1536.3+138.4);
+const IR_BY_QUINTILE=[0.040,0.050,0.070,0.095,0.188];
+const TVA_RATE=207.8/1527.5;
+const IS_RATE=68.0/486.5;
+const RET_AGE=62.75, PENSION_REPL=0.645, UI_REPL=0.71, UI_YEARS=2;
+// emplois par ménage actif : 46,27 milliards d'heures (Eurostat, 2024) / 1 586 h par emploi, pour 31,27 millions de ménages dont
+// ceux dont la personne de référence a moins de 62 ans et 9 mois (pyramide des ménages, Insee)
+const ACTIVE_HH_SHARE=(()=>{let a=0,t=0;for(const [lo,hi,n] of AGE_PYRAMID){t+=n;a+=n*Math.max(0,Math.min(1,(RET_AGE-lo)/(hi-lo)));}return a/t;})();
+const JOBS_PER_ACTIVE_HH=(46.27e9/HOURS_PER_JOB)/(31.27e6*ACTIVE_HH_SHARE);
+
+/* ---------- démographie (ménages) ----------
+   Décès : loi de Gompertz (risque × 2 tous les 8,5 ans d'âge : « +8 à 10 % par an d'âge », Ined) calée pour une espérance de vie
+   à 60 ans de 25,9 ans (moyenne femmes 27,9 / hommes 23,9, Insee, bilan démographique 2025).
+   Un ménage qui disparaît est remplacé par un jeune ménage de 25 ans (choix de travail : le départ du domicile parental se fait
+   vers 19-20 ans, la formation d'un ménage plus tard) ; son patrimoine va à un ménage d'une génération plus jeune (25 à 35 ans de
+   moins : âge moyen des mères à la naissance 31 ans ; âge moyen des héritiers ≈ 50 ans, CAE 2021), après des droits de
+   succession effectifs de 5 % (France Stratégie 2017). */
+const GOMPERTZ_B=Math.log(2)/8.5;
+const GOMPERTZ_A=(()=>{const e60=a=>{let s=0,S=1;for(let x=60;x<130;x+=0.1){S*=Math.exp(-a*Math.exp(GOMPERTZ_B*x)*0.1);s+=S*0.1;}return s;};
+  let lo=1e-9,hi=1e-2;for(let k=0;k<80;k++){const m=Math.sqrt(lo*hi);if(e60(m)>25.9)lo=m;else hi=m;}return Math.sqrt(lo*hi);})();
+const deathProb=age=>1-Math.exp(-GOMPERTZ_A*Math.exp(GOMPERTZ_B*(age+0.5))*1);
+const NEW_HH_AGE=25, HEIR_GAP=[25,35], ESTATE_TAX=0.05;
+
+/* ---------- épargne selon l'âge ----------
+   taux d'épargne net : 4 % pour les 18-29 ans, 15 % pour les 50-64 ans, 8 % pour les 65 ans et plus (Insee, travaux présentés au
+   COR, février 2026) ; entre 30 et 49 ans, interpolation linéaire (choix) ; 60-69 ans : moitié 15 %, moitié 8 %.
+   Groupes du modèle : <30, 30-39, 40-49, 50-59, 60-69, 70+. Profil relatif : il est combiné au profil par quintile de revenu
+   (calage sur marges), le niveau d'ensemble restant le taux d'épargne choisi. */
+const SAVE_BY_AGE=[4,7.7,11.3,15,11.5,8];
+
+/* ---------- circulation de l'épargne ----------
+   Les banques gardent en réserve 1 % des dépôts (réserves obligatoires de la BCE, 1 % depuis 2012) et placent le reste de leur
+   caisse en obligations d'État : l'État emprunte d'abord à la banque. Les fonds gardent une poche de liquidités de 5 % de leur
+   valeur (choix de travail : les fonds actions sont presque entièrement investis) et rendent le reste à leurs porteurs. */
+const BANK_RESERVE=0.01, FUND_CASH=0.05;

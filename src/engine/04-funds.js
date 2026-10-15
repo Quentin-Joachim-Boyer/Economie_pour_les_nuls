@@ -35,6 +35,12 @@ function makeFunds(C){
       const left=Float64Array.from(FI);for(let i=0;i<N;i++){const f=fundOf[i];if(FI[f]<=eps||uF[i]<=eps)continue;let x=FI[f]*uF[i]/FU[f];if(capped){x=Math.min(x,capF[i]);capF[i]-=x;}W[i]+=x;if(capInc)capInc[i]+=x;left[f]-=x;fs.fundPaid+=x;}
       for(let f=0;f<NF;f++){FC[f]+=Math.max(0,left[f]);FI[f]=0;}syncFC();},
     // monnaie détenue par les fonds (trésorerie et reçu de l'année pas encore reversé)
+    // poche de liquidités : au-delà de `share` de la valeur du fonds, la trésorerie est rendue aux porteurs (rachat de parts)
+    release(share){for(let f=0;f<NF;f++){const v=FC[f]+FS[f];const ex=FC[f]-share*v;if(ex<=eps||FU[f]<=eps)continue;const p=price(f);let paid=0;
+        for(let i=0;i<N;i++){if(fundOf[i]!==f||uF[i]<=eps)continue;const x=ex*uF[i]/FU[f];const du=Math.min(uF[i],x/Math.max(p,1e-12));uF[i]-=du;capF[i]=Math.max(0,capF[i]-x);W[i]+=x;if(capInc)capInc[i]+=x;paid+=x;}
+        let u=0;for(let i=0;i<N;i++)if(fundOf[i]===f)u+=uF[i];FU[f]=u;FC[f]-=paid;}syncFC();},
+    // héritage : les parts d'un ménage passent à un autre ménage du même fonds
+    move(i,j){if(fundOf[i]!==fundOf[j])return false;uF[j]+=uF[i];capF[j]+=capF[i];uF[i]=0;capF[i]=0;return true;},
     // parts reçues au départ en échange d'une partie du patrimoine (le fonds détient en contrepartie des parts d'entreprises existantes)
     seed(i,a){if(a<=eps)return;const f=fundOf[i];uF[i]+=a;FU[f]+=a;capF[i]+=a;},
     // gains interdits, règle réelle : mises restantes et prix maximal revalorisés de l'inflation (facteur g)

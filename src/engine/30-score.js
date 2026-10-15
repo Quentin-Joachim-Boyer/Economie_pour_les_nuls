@@ -19,7 +19,8 @@ function scoreCard(w,P){
     growth:closed?[growth(w.rNdp,0,Math.min(10,L)),growth(w.rNdp,Math.max(0,L-10),L)]:[null,null],
     debt:P.state&&closed?[w.sDebt[0],w.sDebt[L]]:[null,null],deficit:P.state&&closed?[w.sDef[0],w.sDef[L]]:[null,null],
     stock:P.stock?[w.fPart0,w.fPart1]:[null,null],
-    spend:P.state&&closed?[P.gW+P.gP+P.rB*P.debt0,null]:[null,null],prod:closed?[P.prodG||0,P.prodG||0]:[0,0],surv5:P.firm?[P.pok,null]:[null,null],hhdebt:[0,null]};
+    spend:P.state&&closed?(P.social?[avg(w.sPub,0,2),avg(w.sPub,L-2,L)]:[P.gW+P.gP+P.rB*P.debt0,null]):[null,null],
+    po:P.state&&closed&&P.social?[avg(w.sPO,0,2),avg(w.sPO,L-2,L)]:[null,null],prod:closed?[P.prodG||0,P.prodG||0]:[0,0],surv5:P.firm?[P.pok,null]:[null,null],hhdebt:[0,null]};
   return REF_FR.map(r=>{const [s,e]=M[r.k]||[null,null];
     const gap=v=>v==null||!isFinite(v)?null:(r.rel?(v-r.v)/r.v:v-r.v);
     const ok=v=>{const g=gap(v);return g==null?null:Math.abs(g)<=r.tol;};

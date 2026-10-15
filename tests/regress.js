@@ -7,7 +7,7 @@ const ctx={console,Math,Float64Array,Int32Array,Int8Array,Uint8Array,Array,Objec
 vm.runInContext(m[1]+'\nthis.run=run;this.aggFrom=aggFrom;',ctx);
 const defM=html.match(/const DEF=(\{[^;]*\});/);const DEF=eval('('+defM[1]+')');
 const base={...DEF,N:300,runs:2};
-const CONFIGS={def:{},open:{closed:0},noState:{state:0},noUnemp:{unemp:0},noPrices:{prices:0},noFirm:{firm:0},noBank:{bank:0},noStock:{stock:0},direct:{bank:0,stock:0},noIni:{ini:0},noInc:{inc:0},noExist:{exist:0},noVary:{vary:0},noFirmDirect:{firm:0,bank:0,stock:0},small:{N:120,T:15}};
+const CONFIGS={def:{},open:{closed:0},noState:{state:0},noUnemp:{unemp:0},noPrices:{prices:0},noSocial:{social:0},noDemo:{demo:0},noCirc:{circ:0},noFirm:{firm:0},noBank:{bank:0},noStock:{stock:0},direct:{bank:0,stock:0},noIni:{ini:0},noInc:{inc:0},noExist:{exist:0},noVary:{vary:0},noFirmDirect:{firm:0,bank:0,stock:0},small:{N:120,T:15}};
 const round=v=>typeof v==='number'?(isFinite(v)?Number(v.toPrecision(10)):String(v)):v;
 const ser=x=>{if(x==null)return x;if(ArrayBuffer.isView(x))return Array.from(x,round);if(Array.isArray(x))return x.map(ser);if(typeof x==='object'){const o={};for(const k of Object.keys(x).sort())o[k]=ser(x[k]);return o;}return round(x);};
 // sorties retirées volontairement lors du nettoyage (toujours nulles ou inutilisées)
