@@ -138,7 +138,7 @@ const REF_FR=[
   {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
   {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',src:'Insee Première n° 2106 (modèle : sans dépenses de santé, de famille ni minima sociaux)',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'po',l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-  {k:'dep',l:'Ménages de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
+  {k:'dep',l:'Personnes de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
   {k:'credit',l:'Crédits bancaires aux entreprises / PIB',v:1437.1/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, Financement des entreprises, août 2026 (1 437,1 Md€ de crédits aux sociétés non financières) ; PIB 2025 : 2 991,1 Md€ (Insee)',url:'https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08'},
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
@@ -198,8 +198,9 @@ const NEW_HH_AGE=25, HEIR_GAP=[25,35], ESTATE_TAX=0.05;
    Naissances vivantes : Insee Focus n° 357, figure 1a (France hors Mayotte, 1985-2013) et Insee, « Naissances et taux de natalité »
    (France, 2014-2025) ; à partir de 2026, projection centrale de l'Insee : 630 843 en 2026, 476 424 en 2070 (interpolation
    linéaire entre les deux, Insee Première n° 2108).
-   Quand les décès dépassent les entrées, des places restent vides : le nombre de ménages baisse, comme la population projetée
-   après 2037. Les statistiques par ménage ne portent que sur les ménages présents.
+   Les entrées sont comptées en personnes : adultes du modèle au départ (personnes de référence et conjoints) × (génération + migrants)
+   / adultes de France ; un ménage entrant compte 1 + (part des couples à 30 ans) adultes. Le nombre de ménages peut baisser (places
+   vides) ou monter (jusqu'à +50 %, places de réserve) ; les statistiques par ménage ne portent que sur les ménages présents.
    Allongement de la vie : espérance de vie à la naissance de 83,1 ans en 2025 (moyenne femmes 85,9 / hommes 80,3) et 88,1 ans
    en 2070 (89,5 / 86,7, projection centrale Insee) : + 5 ans en 45 ans ; la table de mortalité glisse de 0,11 an d'âge par an. */
 const BIRTHS={1985:796138,1986:805543,1987:795790,1988:800560,1989:796101,1990:793071,1991:790078,1992:774755,1993:741306,1994:740774,
@@ -209,7 +210,22 @@ const BIRTHS={1985:796138,1986:805543,1987:795790,1988:800560,1989:796101,1990:7
 const births=y=>BIRTHS[y]!=null?BIRTHS[y]:y<1985?BIRTHS[1985]:630843+(476424-630843)*Math.min(1,(y-2026)/(2070-2026));
 const NET_MIGRATION=150000, POP20={2010:48.603e6,2026:53.555e6}, START_YEAR=2026;
 const ENTRY_RATE=(y0,t)=>(births(y0+t-NEW_HH_AGE)+NET_MIGRATION)/(POP20[y0]||POP20[START_YEAR]);
-const MORT_SHIFT=5.0/45;
+const MORT_SHIFT=5.0/45, DEMO_RESERVE=0.5;   // places de réserve : jusqu'à +50 % de ménages
+
+/* ---------- conjoint survivant ----------
+   Un ménage en couple ne disparaît qu'au décès du second conjoint. Part des personnes vivant en couple selon l'âge, France 2023
+   (Insee, recensement, dossier complet France, tableau FAM G3) : 10,9 % (15-24 ans), 63,3 % (25-39), 69,7 % (40-54), 67,6 % (55-64),
+   65,9 % (65-79), 41,0 % (80 ans ou plus). Ce sont des personnes : pour les ménages, ces parts sont multipliées par un même
+   facteur pour retrouver 49,0 % de ménages formés d'un couple (7 986 633 sans enfant + 7 349 137 avec, sur 31 274 741 ménages,
+   même tableau FAM T1). Les jeunes ménages qui entrent ont la part des 25-39 ans (la mise en couple n'est pas modélisée).
+   Le conjoint a 2,5 ans de moins que la personne de référence (écart moyen entre conjoints, Insee Première n° 1613) et la même
+   mortalité (les sexes ne sont pas distingués). Au décès d'un conjoint, le revenu et la pension du ménage sont ramenés aux deux
+   tiers : le niveau de vie est maintenu (1,5 unité de consommation → 1, échelle Insee), proche de ce qui est observé en moyenne
+   (veuves −3 %, veufs +18 %, Bonnet et Hourriez 2008), grâce à la pension de réversion (54 % de la pension de base du défunt).
+   Pas de droits de succession entre époux (exonération depuis 2007). Repère : environ 235 000 à 250 000 veuvages par an (COR 2012 ;
+   246 700 nouveaux bénéficiaires d'une pension de réversion en 2023, Drees). */
+const COUPLE_BY_AGE=a=>a<25?0.109:a<40?0.633:a<55?0.697:a<65?0.676:a<80?0.659:0.410;
+const COUPLE_HH_SHARE=(7986633+7349137)/31274741, SPOUSE_GAP=2.5, WIDOW_INCOME=1/1.5;
 // personnes de 65 ans ou plus pour 100 personnes de 20 à 64 ans : 40 en 2026, 49 en 2040, 62 en 2070 (projection centrale Insee,
 // Insee Première n° 2108) ; 28,3 en 2010 et 38,8 en 2024 (calculés sur la figure 5)
 const DEP_PROJ=y=>y<=2026?0.401:y<=2040?0.401+(0.49-0.401)*(y-2026)/14:0.49+(0.62-0.49)*Math.min(1,(y-2040)/30);

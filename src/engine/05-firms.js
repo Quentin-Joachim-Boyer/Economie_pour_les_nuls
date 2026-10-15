@@ -27,16 +27,17 @@ function hazardModel(P){
    entre tous les ménages en proportion de leur patrimoine restant : la distribution d'ensemble reste celle de l'Insee.
    Modifie C.firms, C.W, C.W0, C.init0 ; renvoie quelques indicateurs. */
 function seedExistingFirms(C){
-  const {N,P,W,W0,init0,firms}=C;const er=rng(C.seed*104729+3);const n0=Math.max(1,Math.round(N*P.nf/100));
-  const wt=i=>P.ini?Math.pow(Math.max(W0[i],1e-9),HOLD_GAMMA):1;const nH=Math.max(1,Math.round(N*P.hold));
+  // N0 : ménages présents au départ (les places de réserve de la démographie, à la fin, sont vides)
+  const {N,P,W,W0,init0,firms}=C;const N0=C.N0||N;const er=rng(C.seed*104729+3);const n0=Math.max(1,Math.round(N0*P.nf/100));
+  const wt=i=>P.ini?Math.pow(Math.max(W0[i],1e-9),HOLD_GAMMA):1;const nH=Math.max(1,Math.round(N0*P.hold));
   // tirage pondéré sans remise des détenteurs (clés d'Efraimidis-Spirakis)
-  const keys=Array.from({length:N},(_,i)=>[Math.log(Math.max(er(),1e-12))/wt(i),i]).sort((a,b)=>b[0]-a[0]);const H=keys.slice(0,nH).map(x=>x[1]);
+  const keys=Array.from({length:N0},(_,i)=>[Math.log(Math.max(er(),1e-12))/wt(i),i]).sort((a,b)=>b[0]-a[0]);const H=keys.slice(0,nH).map(x=>x[1]);
   const cdf=new Float64Array(nH);{let c=0;for(let k=0;k<nH;k++){c+=wt(H[k]);cdf[k]=c;}}
   const pick=()=>{const x=er()*cdf[nH-1];let lo=0,hi=nH-1;while(lo<hi){const m=(lo+hi)>>1;if(cdf[m]<x)lo=m+1;else hi=m;}return H[lo];};
   // économie bouclée : chaque entreprise détient au départ la trésorerie d'une année d'investissement (sa règle d'autofinancement),
   // payée par ses détenteurs comme le capital : la valeur d'une entreprise est K + R
   const r0=P.closed?P.invest:0,lam=C.creditOn?SNF_CREDIT_K:0;   // dette bancaire de départ (crédit)
-  for(const ls of landscape(n0,P.k0*N,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho=drawRho(er,P);
+  for(const ls of landscape(n0,P.k0*N0,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho=drawRho(er,P);
     const owner=isBig?-1:pick();const own=isBig?0:P.own;const V=K*(1+r0-lam);
     const fm=newHoldings({K,R:K*r0,debt:K*lam,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
     if(owner>=0){addHolder(fm,owner,V*own,V*own);init0[owner]+=V*own;}
@@ -52,6 +53,6 @@ function seedExistingFirms(C){
     const sw=new Float64Array(NF);for(let i=0;i<N;i++)sw[fu.fundOf[i]]+=Math.max(0,W[i]);
     for(let i=0;i<N;i++){const f=fu.fundOf[i];if(sw[f]<=0||W[i]<=0)continue;const x=Math.min(W[i],toF[f]*W[i]/sw[f]);W[i]-=x;W0[i]-=x;fu.seed(i,x);}}
   // part des parts détenue par les 5 % qui en ont le plus
-  const b=Array.from(init0,(v,i)=>v-W0[i]).sort((a,b)=>b-a);const tot=b.reduce((a,c)=>a+c,0);const k5=Math.max(1,Math.round(N*0.05));let t5=0;for(let k=0;k<k5;k++)t5+=b[k];
+  const b=Array.from(init0,(v,i)=>v-W0[i]).sort((a,b)=>b-a);const tot=b.reduce((a,c)=>a+c,0);const k5=Math.max(1,Math.round(N0*0.05));let t5=0;for(let k=0;k<k5;k++)t5+=b[k];
   return {exist0:n0,bizEx:tb>0?ex/tb:0,biz5:tot>0?t5/tot:0};
 }

@@ -482,8 +482,8 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <div><h3 class="sub">Ménages retraités</h3><div class="chartwrap"><svg id="ch_ret" viewBox="0 0 380 260" role="img" aria-label="Part des ménages retraités"></svg></div><p class="note">Ménages dont la personne de référence a au moins 62 ans et 9 mois.</p></div>
     </div>
     <h3 class="sub">Vieillissement</h3>
-    <div class="chartwrap"><svg id="ch_dep" viewBox="0 0 760 260" role="img" aria-label="Ménages de 65 ans ou plus pour 100 ménages de 20 à 64 ans, comparé à la projection de l'Insee"></svg></div>
-    <p class="note">Ménages dont la personne de référence a 65 ans ou plus, pour 100 ménages de 20 à 64 ans (la démographie est la même dans les deux scénarios). En pointillé, la projection centrale de l'Insee pour les personnes (40 en 2026, 49 en 2040, 62 en 2070, Insee Première n° 2108). Les jeunes ménages entrent selon les naissances réelles d'il y a 25 ans, plus les migrants.</p>
+    <div class="chartwrap"><svg id="ch_dep" viewBox="0 0 760 260" role="img" aria-label="Personnes de 65 ans ou plus pour 100 personnes de 20 à 64 ans, comparé à la projection de l'Insee"></svg></div>
+    <p class="note">Personnes de 65 ans ou plus (personnes de référence et conjoints) pour 100 personnes de 20 à 64 ans ; la démographie est la même dans les deux scénarios. En pointillé, la projection centrale de l'Insee (40 en 2026, 49 en 2040, 62 en 2070, Insee Première n° 2108). Les jeunes ménages entrent selon les naissances réelles d'il y a 25 ans, plus les migrants ; un ménage en couple ne disparaît qu'au décès du second conjoint. Le modèle ne compte pas les adultes qui vivent chez leurs parents ou chez d'autres.</p>
   </section>
 
   <section class="card" id="statecard">
@@ -635,7 +635,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li><b>Bilans de départ cohérents.</b> Les parts d'entreprises existantes sont prises sur le patrimoine Insee de leurs détenteurs ; ce qui dépasse le patrimoine d'un détenteur passe à des fonds (investisseurs institutionnels : assurance-vie, OPC), dont les parts sont réparties entre tous les ménages selon leur patrimoine : la distribution de départ reste exactement celle de l'Insee (Gini 0,68, 10 % les plus dotés : 50 %, comme l'enquête européenne HFCS 2021). Chaque entreprise démarre avec une année d'investissement en trésorerie. Les ventes de l'année 0 sont celles que le modèle dépense lui-même (consommation, investissement, achats publics), et le profit d'ensemble en découle : pas de choc artificiel au départ.</li>
       <li><b>Gains de productivité.</b> La production par heure de travail croît de 0,7 % par an, tendance française sur 25 ans (<a href="https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf">COR, avril 2026</a> : « autour de 0,7 % par an » ; 1,0 % sur 35 ans, 0,4 % sur 15 ans). Les salaires réels suivent la productivité (Insee, <a href="https://www.insee.fr/fr/statistiques/fichier/3372330/032018_dossier.pdf">Note de conjoncture, mars 2018</a> : à long terme, le salaire est indexé sur la productivité) ; le coût du travail par unité produite, et donc le prix, n'en est pas changé. Le progrès technique est exogène : il ne dépend ni de l'investissement ni de la recherche.</li>
       <li><b>Protection sociale et prélèvements.</b> Le revenu tiré pour chaque ménage est son revenu disponible (Insee) ; l'employeur paie le coût du travail, plus élevé : cotisations sociales (34,1 % du coût du travail : 571,8 Md€ pour 1 674,7 Md€ de rémunérations et revenus mixtes en 2024) et impôt sur le revenu + CSG par quintile (4,0 / 5,0 / 7,0 / 9,5 / 18,8 % du revenu, <a href="https://www.insee.fr/fr/statistiques/8612544">Insee, France portrait social 2025</a>). TVA : 13,6 % (207,8 Md€ pour 1 527,5 Md€ de consommation) ; impôt sur les sociétés : 14 % de l'excédent brut d'exploitation (68,0 / 486,5 Md€) ; le reste des recettes est un impôt sur les ventes calé sur le déficit de départ. Retraite à 62 ans et 9 mois (<a href="https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/250731_PANORAMAS-retraites">Drees 2025</a>), pension de 64,5 % du revenu d'activité (<a href="https://www.cor-retraites.fr/sites/default/files/2026-06/RA_Part3_Chap2.pdf">COR 2026</a>), revalorisée sur les prix. Allocation chômage : 71 % du revenu net perdu (Unédic 2015), l'année de la perte d'emploi et la suivante (durée potentielle 486 à 564 jours, Unédic). Emplois par ménage actif : 1,4, pour retrouver les 46,3 milliards d'heures travaillées en 2024 (Eurostat).</li>
-      <li><b>Démographie.</b> Décès selon une loi de Gompertz (risque doublé tous les 8,5 ans d'âge, Ined) calée sur une espérance de vie à 60 ans de 25,9 ans (Insee, bilan démographique 2025) ; espérance de vie à la naissance obtenue : 83,2 ans (Insee : 83,1). La table de mortalité glisse de 0,11 an d'âge par an : + 5 ans d'espérance de vie de 2025 à 2070, comme dans la projection centrale de l'Insee (83,1 → 88,1 ans en moyenne femmes-hommes, <a href="https://www.insee.fr/fr/statistiques/9004289">Insee Première n° 2108</a>). Les jeunes ménages entrent à 25 ans (choix de travail), sans patrimoine, au revenu tiré dans la même loi, au rythme des générations réelles : chaque année, les naissances d'il y a 25 ans (<a href="https://www.insee.fr/fr/statistiques/8614311">Insee</a> ; après 2025, projection centrale : 631 000 en 2026, 476 000 en 2070) plus 150 000 migrants (hypothèse Insee), rapportés aux 53,6 millions d'adultes de 2026, chaque place de ménage représentant une part fixe des adultes (0,59 ménage par adulte). Au départ, il entre autant de ménages qu'il en disparaît (1,8 % par an) ; quand les décès dépassent les entrées, des places restent vides et les statistiques par ménage ne portent que sur les ménages présents. Le patrimoine d'un ménage disparu va à un ménage de 25 à 35 ans plus jeune (âge des mères à la naissance : 31 ans ; héritiers : 50 ans en moyenne, <a href="https://cae-eco.fr/static/pdf/cae-note069.pdf">CAE 2021</a>), après 5 % de droits de succession (France Stratégie 2017). Épargne selon l'âge : 4 % avant 30 ans, 15 % à 50-64 ans, 8 % après 65 ans (Insee, travaux présentés au COR, février 2026), combinée au profil par quintile de revenu.</li>
+      <li><b>Démographie.</b> Décès selon une loi de Gompertz (risque doublé tous les 8,5 ans d'âge, Ined) calée sur une espérance de vie à 60 ans de 25,9 ans (Insee, bilan démographique 2025) ; espérance de vie à la naissance obtenue : 83,2 ans (Insee : 83,1). La table de mortalité glisse de 0,11 an d'âge par an : + 5 ans d'espérance de vie de 2025 à 2070, comme dans la projection centrale de l'Insee (83,1 → 88,1 ans en moyenne femmes-hommes, <a href="https://www.insee.fr/fr/statistiques/9004289">Insee Première n° 2108</a>). Les jeunes ménages entrent à 25 ans (choix de travail), sans patrimoine, au revenu tiré dans la même loi, au rythme des générations réelles : chaque année, les naissances d'il y a 25 ans (<a href="https://www.insee.fr/fr/statistiques/8614311">Insee</a> ; après 2025, projection centrale : 631 000 en 2026, 476 000 en 2070) plus 150 000 migrants (hypothèse Insee), rapportés aux 53,6 millions d'adultes de 2026, chaque place de ménage représentant une part fixe des adultes (0,59 ménage par adulte). Le nombre de ménages peut monter ou baisser ; les statistiques par ménage ne portent que sur les ménages présents. <b>Conjoint survivant</b> : 49 % des ménages sont des couples (Insee 2023), répartis selon la part des personnes en couple par âge (10,9 % avant 25 ans, 63 à 70 % de 25 à 79 ans, 41 % après 80 ans, <a href="https://insee.fr/fr/statistiques/2011101?geo=FE-1">Insee, recensement 2023</a>) ; le conjoint a 2,5 ans de moins (Insee Première n° 1613). Un ménage en couple ne disparaît qu'au décès du second conjoint ; au premier décès, revenu et pension sont ramenés aux deux tiers, ce qui maintient le niveau de vie (1,5 → 1 unité de consommation), comme en moyenne après un veuvage grâce à la pension de réversion (Bonnet et Hourriez 2008 : veuves −3 %, veufs +18 %), et le patrimoine reste au survivant sans droits de succession (exonération entre époux). Le patrimoine d'un ménage disparu va à un ménage de 25 à 35 ans plus jeune (âge des mères à la naissance : 31 ans ; héritiers : 50 ans en moyenne, <a href="https://cae-eco.fr/static/pdf/cae-note069.pdf">CAE 2021</a>), après 5 % de droits de succession (France Stratégie 2017). Épargne selon l'âge : 4 % avant 30 ans, 15 % à 50-64 ans, 8 % après 65 ans (Insee, travaux présentés au COR, février 2026), combinée au profil par quintile de revenu.</li>
       <li><b>Circulation de l'épargne.</b> La banque garde 1 % des dépôts en réserve (réserves obligatoires de la BCE) et prête le reste de sa caisse à l'État ; les fonds gardent 5 % de leur valeur en liquidités (choix de travail) et rendent le reste à leurs porteurs. Sans ces deux règles, une part croissante de la monnaie dort dans la banque et les fonds.</li>
       <li><b>Création monétaire par le crédit.</b> « Les crédits font les dépôts » (<a href="https://www.banque-france.fr/fr/publications-et-statistiques/publications/comment-est-creee-la-monnaie">Banque de France</a> ; McLeay, Radia et Thomas, Banque d'Angleterre, 2014) : un prêt crée de la monnaie, le remboursement du principal la détruit. Au départ, les entreprises doivent à la banque 47 % de leur capital (1 437 Md€ de crédits aux sociétés non financières, <a href="https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08">Banque de France, août 2026</a>, pour 3 033 Md€ de capital) ; elles renouvellent leurs prêts et ne remboursent que la dette au-delà de ce ratio. La banque prête tant que ses fonds propres couvrent 11,2 % de ses prêts (exigence moyenne de CET1 pour 2026, <a href="https://www.bankingsupervision.europa.eu/activities/srep/2025/html/ssm.srep202511_aggregatedresults2025.en.html">BCE, SREP 2025</a> ; pondération 100 % pour les entreprises, 0 % pour l'État) et 3 % de son bilan (levier, Bâle III) ; elle verse en dividendes, aux fonds, ce qui dépasse 16,1 % (ratio effectif des banques françaises fin 2024, ACPR, et de la zone euro mi-2025, BCE). Elle finance d'abord le déficit de l'État. Les déposants reçoivent 1,30 % (rémunération moyenne des dépôts des ménages, Banque de France) ; 67,9 % de la marge paie les frais de la banque, versés en salaires (coefficient d'exploitation 2024, ACPR). Sous l'exigence, les dépôts au-delà de 100 000 € (garantie FGDR) sont convertis en fonds propres (renflouement interne, directive BRRD 2014/59/UE). Avec gains interdits, la banque prête à l'inflation + ses pertes attendues + ses frais : elle ne s'enrichit pas, mais ses fonds propres gardent leur valeur réelle (choix de l'utilisateur).</li>
       <li><b>Grandes entreprises et ETI.</b> Avec 2 000 ménages, une seule entreprise du modèle représente les 327 grandes entreprises françaises (près de la moitié du capital). Plutôt que de disparaître d'un coup, elle perd chaque année une part de son capital et de sa dette : le taux de défaillance des ETI et grandes entreprises, 0,85 % (65 défaillances en 2024 pour 7 623 entreprises, <a href="https://www.banque-france.fr/system/files/webstats/Defaillances_dentreprises_en_France_202412_20250115/FR_Stat_Info_Defaillances_d_Entreprises_202412.pdf">Banque de France</a>), multiplié par le risque relatif de sa marge par rapport à sa marge de départ.</li>
@@ -663,7 +663,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li>Revenus : tout le revenu disponible des ménages (salaires, mais aussi pensions et prestations) est versé comme un salaire par les entreprises et l'État, et tous les impôts portent sur les ventes ; la part des profits dans la valeur ajoutée en est sous-estimée (environ 15 % contre 32 % en France). À corriger avec la protection sociale et les prélèvements sur les revenus.</li>
       <li>Finances publiques : ni règle budgétaire ni réaction du solde à la dette, conformément aux estimations pour la France (coefficient non significatif : Checherita-Westphal et Žďárek 2017, Berti et coauteurs 2016, Bruegel 2025) ; la dette monte tant que le déficit primaire persiste.</li>
       <li>Protection sociale : pas encore de dépenses de santé, de prestations familiales, d'aides au logement ni de minima sociaux ; pas de taux de remplacement différent selon le revenu ; un ménage = une personne de référence.</li>
-      <li>Démographie : un ménage s'arrête au décès de sa personne de référence (pas de conjoint survivant), et sa taille ne change pas. Le rapport entre ménages âgés et ménages d'âge actif monte d'abord plus vite que celui des personnes projeté par l'Insee (51 contre 46 pour 100 après 10 ans), puis plafonne vers 55 et redescend à 51 en fin de période, contre 60 pour l'Insee : les vieux ménages disparaissent trop tôt sans conjoint survivant.</li>
+      <li>Démographie : hommes et femmes ont la même mortalité (le conjoint survivant n'est pas plus souvent une femme), la mise en couple et les séparations ne sont pas modélisées (un jeune ménage est en couple dès son entrée, avec la probabilité observée vers 30 ans), et le nombre d'emplois par ménage actif ne dépend pas du couple. Le vieillissement suit la projection de l'Insee pendant 30 ans (46 contre 46 pour 100 après 10 ans, 53 contre 52 après 20 ans), mais redescend à 51 en fin de période contre 60 : la loi de Gompertz fait sans doute mourir trop tôt les très âgés. Les veuvages sont un peu trop nombreux (environ 300 000 par an à l'échelle de la France, contre 235 000 à 250 000).</li>
       <li>Prix : un seul bien, pas d'importations ni d'énergie ; pas d'anticipations d'inflation ; la marge ne dépend pas de la concurrence ; les taux d'intérêt des gains libres restent fixes (pas de banque centrale).</li>
       <li>Chômage : sans allocation, ni inactivité, ni retraite ; un ménage = un emploi ; heures fixes par emploi ; productivité fixe ; les chômeurs ne vivent que de leur patrimoine. Pas de prix : la demande que la population active ne peut pas servir attend l'année suivante au lieu de faire monter les prix.</li>
       <li>État minimal : ni prestations sociales ni redistribution (le revenu des ménages reste calé sur le niveau de vie, déjà après impôts et prestations), ni impôt sur les ménages ou les profits ; les obligations publiques ne se revendent pas et ne sont jamais remboursées. Sans croissance ni inflation, un déficit durable fait monter la dette rapportée au PIB.</li>
@@ -817,7 +817,7 @@ const REF_FR=[
   {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
   {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',src:'Insee Première n° 2106 (modèle : sans dépenses de santé, de famille ni minima sociaux)',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'po',l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-  {k:'dep',l:'Ménages de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
+  {k:'dep',l:'Personnes de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
   {k:'credit',l:'Crédits bancaires aux entreprises / PIB',v:1437.1/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, Financement des entreprises, août 2026 (1 437,1 Md€ de crédits aux sociétés non financières) ; PIB 2025 : 2 991,1 Md€ (Insee)',url:'https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08'},
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
@@ -877,8 +877,9 @@ const NEW_HH_AGE=25, HEIR_GAP=[25,35], ESTATE_TAX=0.05;
    Naissances vivantes : Insee Focus n° 357, figure 1a (France hors Mayotte, 1985-2013) et Insee, « Naissances et taux de natalité »
    (France, 2014-2025) ; à partir de 2026, projection centrale de l'Insee : 630 843 en 2026, 476 424 en 2070 (interpolation
    linéaire entre les deux, Insee Première n° 2108).
-   Quand les décès dépassent les entrées, des places restent vides : le nombre de ménages baisse, comme la population projetée
-   après 2037. Les statistiques par ménage ne portent que sur les ménages présents.
+   Les entrées sont comptées en personnes : adultes du modèle au départ (personnes de référence et conjoints) × (génération + migrants)
+   / adultes de France ; un ménage entrant compte 1 + (part des couples à 30 ans) adultes. Le nombre de ménages peut baisser (places
+   vides) ou monter (jusqu'à +50 %, places de réserve) ; les statistiques par ménage ne portent que sur les ménages présents.
    Allongement de la vie : espérance de vie à la naissance de 83,1 ans en 2025 (moyenne femmes 85,9 / hommes 80,3) et 88,1 ans
    en 2070 (89,5 / 86,7, projection centrale Insee) : + 5 ans en 45 ans ; la table de mortalité glisse de 0,11 an d'âge par an. */
 const BIRTHS={1985:796138,1986:805543,1987:795790,1988:800560,1989:796101,1990:793071,1991:790078,1992:774755,1993:741306,1994:740774,
@@ -888,7 +889,22 @@ const BIRTHS={1985:796138,1986:805543,1987:795790,1988:800560,1989:796101,1990:7
 const births=y=>BIRTHS[y]!=null?BIRTHS[y]:y<1985?BIRTHS[1985]:630843+(476424-630843)*Math.min(1,(y-2026)/(2070-2026));
 const NET_MIGRATION=150000, POP20={2010:48.603e6,2026:53.555e6}, START_YEAR=2026;
 const ENTRY_RATE=(y0,t)=>(births(y0+t-NEW_HH_AGE)+NET_MIGRATION)/(POP20[y0]||POP20[START_YEAR]);
-const MORT_SHIFT=5.0/45;
+const MORT_SHIFT=5.0/45, DEMO_RESERVE=0.5;   // places de réserve : jusqu'à +50 % de ménages
+
+/* ---------- conjoint survivant ----------
+   Un ménage en couple ne disparaît qu'au décès du second conjoint. Part des personnes vivant en couple selon l'âge, France 2023
+   (Insee, recensement, dossier complet France, tableau FAM G3) : 10,9 % (15-24 ans), 63,3 % (25-39), 69,7 % (40-54), 67,6 % (55-64),
+   65,9 % (65-79), 41,0 % (80 ans ou plus). Ce sont des personnes : pour les ménages, ces parts sont multipliées par un même
+   facteur pour retrouver 49,0 % de ménages formés d'un couple (7 986 633 sans enfant + 7 349 137 avec, sur 31 274 741 ménages,
+   même tableau FAM T1). Les jeunes ménages qui entrent ont la part des 25-39 ans (la mise en couple n'est pas modélisée).
+   Le conjoint a 2,5 ans de moins que la personne de référence (écart moyen entre conjoints, Insee Première n° 1613) et la même
+   mortalité (les sexes ne sont pas distingués). Au décès d'un conjoint, le revenu et la pension du ménage sont ramenés aux deux
+   tiers : le niveau de vie est maintenu (1,5 unité de consommation → 1, échelle Insee), proche de ce qui est observé en moyenne
+   (veuves −3 %, veufs +18 %, Bonnet et Hourriez 2008), grâce à la pension de réversion (54 % de la pension de base du défunt).
+   Pas de droits de succession entre époux (exonération depuis 2007). Repère : environ 235 000 à 250 000 veuvages par an (COR 2012 ;
+   246 700 nouveaux bénéficiaires d'une pension de réversion en 2023, Drees). */
+const COUPLE_BY_AGE=a=>a<25?0.109:a<40?0.633:a<55?0.697:a<65?0.676:a<80?0.659:0.410;
+const COUPLE_HH_SHARE=(7986633+7349137)/31274741, SPOUSE_GAP=2.5, WIDOW_INCOME=1/1.5;
 // personnes de 65 ans ou plus pour 100 personnes de 20 à 64 ans : 40 en 2026, 49 en 2040, 62 en 2070 (projection centrale Insee,
 // Insee Première n° 2108) ; 28,3 en 2010 et 38,8 en 2024 (calculés sur la figure 5)
 const DEP_PROJ=y=>y<=2026?0.401:y<=2040?0.401+(0.49-0.401)*(y-2026)/14:0.49+(0.62-0.49)*Math.min(1,(y-2040)/30);
@@ -1112,16 +1128,17 @@ function hazardModel(P){
    entre tous les ménages en proportion de leur patrimoine restant : la distribution d'ensemble reste celle de l'Insee.
    Modifie C.firms, C.W, C.W0, C.init0 ; renvoie quelques indicateurs. */
 function seedExistingFirms(C){
-  const {N,P,W,W0,init0,firms}=C;const er=rng(C.seed*104729+3);const n0=Math.max(1,Math.round(N*P.nf/100));
-  const wt=i=>P.ini?Math.pow(Math.max(W0[i],1e-9),HOLD_GAMMA):1;const nH=Math.max(1,Math.round(N*P.hold));
+  // N0 : ménages présents au départ (les places de réserve de la démographie, à la fin, sont vides)
+  const {N,P,W,W0,init0,firms}=C;const N0=C.N0||N;const er=rng(C.seed*104729+3);const n0=Math.max(1,Math.round(N0*P.nf/100));
+  const wt=i=>P.ini?Math.pow(Math.max(W0[i],1e-9),HOLD_GAMMA):1;const nH=Math.max(1,Math.round(N0*P.hold));
   // tirage pondéré sans remise des détenteurs (clés d'Efraimidis-Spirakis)
-  const keys=Array.from({length:N},(_,i)=>[Math.log(Math.max(er(),1e-12))/wt(i),i]).sort((a,b)=>b[0]-a[0]);const H=keys.slice(0,nH).map(x=>x[1]);
+  const keys=Array.from({length:N0},(_,i)=>[Math.log(Math.max(er(),1e-12))/wt(i),i]).sort((a,b)=>b[0]-a[0]);const H=keys.slice(0,nH).map(x=>x[1]);
   const cdf=new Float64Array(nH);{let c=0;for(let k=0;k<nH;k++){c+=wt(H[k]);cdf[k]=c;}}
   const pick=()=>{const x=er()*cdf[nH-1];let lo=0,hi=nH-1;while(lo<hi){const m=(lo+hi)>>1;if(cdf[m]<x)lo=m+1;else hi=m;}return H[lo];};
   // économie bouclée : chaque entreprise détient au départ la trésorerie d'une année d'investissement (sa règle d'autofinancement),
   // payée par ses détenteurs comme le capital : la valeur d'une entreprise est K + R
   const r0=P.closed?P.invest:0,lam=C.creditOn?SNF_CREDIT_K:0;   // dette bancaire de départ (crédit)
-  for(const ls of landscape(n0,P.k0*N,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho=drawRho(er,P);
+  for(const ls of landscape(n0,P.k0*N0,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho=drawRho(er,P);
     const owner=isBig?-1:pick();const own=isBig?0:P.own;const V=K*(1+r0-lam);
     const fm=newHoldings({K,R:K*r0,debt:K*lam,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
     if(owner>=0){addHolder(fm,owner,V*own,V*own);init0[owner]+=V*own;}
@@ -1137,7 +1154,7 @@ function seedExistingFirms(C){
     const sw=new Float64Array(NF);for(let i=0;i<N;i++)sw[fu.fundOf[i]]+=Math.max(0,W[i]);
     for(let i=0;i<N;i++){const f=fu.fundOf[i];if(sw[f]<=0||W[i]<=0)continue;const x=Math.min(W[i],toF[f]*W[i]/sw[f]);W[i]-=x;W0[i]-=x;fu.seed(i,x);}}
   // part des parts détenue par les 5 % qui en ont le plus
-  const b=Array.from(init0,(v,i)=>v-W0[i]).sort((a,b)=>b-a);const tot=b.reduce((a,c)=>a+c,0);const k5=Math.max(1,Math.round(N*0.05));let t5=0;for(let k=0;k<k5;k++)t5+=b[k];
+  const b=Array.from(init0,(v,i)=>v-W0[i]).sort((a,b)=>b-a);const tot=b.reduce((a,c)=>a+c,0);const k5=Math.max(1,Math.round(N0*0.05));let t5=0;for(let k=0;k<k5;k++)t5+=b[k];
   return {exist0:n0,bizEx:tb>0?ex/tb:0,biz5:tot>0?t5/tot:0};
 }
 /* ==== fichier : engine/06-participation.js ==== */
@@ -1153,21 +1170,21 @@ function seedExistingFirms(C){
    ===================================================================== */
 const wealthGroup=w=>{let g=0;while(g<PART_WEALTH_CUTS.length&&w>=PART_WEALTH_CUTS[g])g++;return g;};
 function makeParticipation(C){
-  const {N,P,prng,age0,qi,init0}=C;const target=C.stock?Math.max(0,Math.min(1,P.part)):0;
+  const {N,P,prng,age0,qi,init0}=C;const N0=C.N0||N;const target=C.stock?Math.max(0,Math.min(1,P.part)):0;
   const uP=new Float64Array(N);for(let i=0;i<N;i++)uP[i]=prng();
   const part=new Uint8Array(N);
   const mW=PART_BY_WEALTH.map(x=>x[1]),mA=PART_BY_AGE.slice(),mQ=P.inc?PART_INCOME_FACTOR:[1,1,1,1,1];
   const prob=(i,w,t)=>Math.min(1,mW[wealthGroup(w)]*mA[ageGroup(age0[i]+t)]*mQ[qi[i]]);
   if(target>0){const gw0=new Int8Array(N),ga0=new Int8Array(N);const nw=new Float64Array(6),na=new Float64Array(6);
-    for(let i=0;i<N;i++){gw0[i]=wealthGroup(init0[i]);ga0[i]=ageGroup(age0[i]);nw[gw0[i]]++;na[ga0[i]]++;}
+    for(let i=0;i<N0;i++){gw0[i]=wealthGroup(init0[i]);ga0[i]=ageGroup(age0[i]);nw[gw0[i]]++;na[ga0[i]]++;}
     let sw=0,sa=0;for(let g=0;g<6;g++){sw+=nw[g]*PART_BY_WEALTH[g][1];sa+=na[g]*PART_BY_AGE[g];}
-    const tW=PART_BY_WEALTH.map(x=>x[1]*target*N/sw),tA=PART_BY_AGE.map(v=>v*target*N/sa);
+    const tW=PART_BY_WEALTH.map(x=>x[1]*target*N0/sw),tA=PART_BY_AGE.map(v=>v*target*N0/sa);
     // même calcul que prob(i, init0[i], 0), avec les groupes mis en cache
     const p0=i=>Math.min(1,mW[gw0[i]]*mA[ga0[i]]*mQ[qi[i]]);
     for(let it=0;it<60;it++){
-      const pw=new Float64Array(6),pa=new Float64Array(6);for(let i=0;i<N;i++)pw[gw0[i]]+=p0(i);
+      const pw=new Float64Array(6),pa=new Float64Array(6);for(let i=0;i<N0;i++)pw[gw0[i]]+=p0(i);
       for(let g=0;g<6;g++)if(nw[g]>0&&pw[g]>0)mW[g]*=Math.min(50,tW[g]*nw[g]/pw[g]);
-      for(let i=0;i<N;i++)pa[ga0[i]]+=p0(i);
+      for(let i=0;i<N0;i++)pa[ga0[i]]+=p0(i);
       for(let g=0;g<6;g++)if(na[g]>0&&pa[g]>0)mA[g]*=Math.min(50,tA[g]*na[g]/pa[g]);}}
   return {part,
     // met à jour qui épargne en actions, selon le patrimoine de chacun l'année t
@@ -1247,12 +1264,13 @@ function makeLabour(C,wage){
    des intérêts avec gains libres et aucun avec gains interdits.
    ===================================================================== */
 function run(world,seed,P){
-  const N=P.N,T=P.T,eps=1e-9;
+  /* N0 ménages au départ ; avec la démographie, N0/2 places de réserve (vides au départ) permettent au nombre de ménages de croître */
+  const N0=P.N,T=P.T,eps=1e-9,dem0=!!(P.firm&&P.closed&&P.demo),N=dem0?N0+Math.round(DEMO_RESERVE*N0):N0;
   const bank=!!P.bank,stock=!!P.stock,firmOn=!!P.firm,capped=world==='I',closed=firmOn&&!!P.closed,stateOn=closed&&!!P.state;
   let rate=world==='L'?P.rl:0;                         // taux d'intérêt (nul avec gains interdits ; avec les prix, l'inflation : gain réel nul)
   const depE=bank?P.dep:0,invE=stock?Math.min(P.inv,1-depE):0; // parts de l'épargne déposée et placée en actions
   const phi=stock?(bank?P.phi:1):0;                    // part d'un besoin de financement demandée à la bourse
-  const C={world,seed,P,N,T,stock,prng:rng(seed*7919+13),rnd:rng(seed),firms:[],
+  const C={world,seed,P,N,N0,T,stock,prng:rng(seed*7919+13),rnd:rng(seed),firms:[],
     fs:{wear:0,created:0,died:0,bankrupt:0,bankLoss:0,divPaid:0,lostR:0,invested:0,extE:0,extB:0,fundPaid:0,fundV:0,fundUn:0,unowned:0,firmV:0}};
   const {rnd,firms,fs}=C;
   // W liquidités, D dépôts, eqSave épargne-actions de l'année (versée aux fonds), L dette personnelle, net patrimoine net
@@ -1264,7 +1282,10 @@ function run(world,seed,P){
   const capInc=closed?(C.capInc=new Float64Array(N)):null;
 
   /* ---------- départ ---------- */
-  const pop=makePopulation(P,N,C.prng);const {wage,sr,qi,age0}=pop;
+  const pop=makePopulation(P,N0,C.prng);
+  if(N>N0)for(const k of ['wage','sr','qi','age0','W0']){const a=new pop[k].constructor(N);a.set(pop[k]);pop[k]=a;}
+  const {wage,sr,qi,age0}=pop;
+  const vac=new Uint8Array(N);for(let i=N0;i<N;i++)vac[i]=1;C.vac=vac;
   Object.assign(C,{W0:pop.W0,qi,age0});
   const funds=C.funds=makeFunds(C);
   // crédit : la banque crée la monnaie qu'elle prête (Mc = monnaie créée nette : prêts − remboursements de principal)
@@ -1277,8 +1298,8 @@ function run(world,seed,P){
   const hazard=hazardModel(P);
   let exist={exist0:0,biz5:0,bizEx:0};if(firmOn&&P.exist)exist=seedExistingFirms(C);
   const partic=makeParticipation(C);const part=partic.part;
-  partic.update(init0,0);const part0=partic.stat(init0);
-  const dg=startDiagnostics(C,part);
+  partic.update(init0,0);const part0=partic.stat(init0,vac);
+  const dg=startDiagnostics({...C,N:N0},part);
 
   let F=0;                                              // caisse de la banque
   const st={funded:0,refused:0,loans:0,refusedDebt:0,refusedFund:0,interest:0,issues:0,eqRaised:0,eqPaid:0,holders:0};
@@ -1296,8 +1317,8 @@ function run(world,seed,P){
      démographie : décès, jeunes ménages, héritage (générateur propre) */
   const soc=stateOn&&!!P.social,dem=closed&&!!P.demo;
   const retired=new Uint8Array(N),pens=new Float64Array(N),lcF=new Float64Array(N).fill(1);
-  const act=new Uint8Array(N).fill(1);
-  if(soc)for(let i=0;i<N;i++){lcF[i]=1/((1-IR_BY_QUINTILE[qi[i]])*(1-COT_RATE));if(age0[i]>=RET_AGE){retired[i]=1;act[i]=0;pens[i]=wage[i];}}
+  const act=new Uint8Array(N).fill(1);for(let i=N0;i<N;i++)act[i]=0;
+  if(soc)for(let i=0;i<N0;i++){lcF[i]=1/((1-IR_BY_QUINTILE[qi[i]])*(1-COT_RATE));if(age0[i]>=RET_AGE){retired[i]=1;act[i]=0;pens[i]=wage[i];}}
   const lab=makeLabour({N,P,seed,qi,age0,T,on:closed&&!!P.unemp,act,jobs:soc?JOBS_PER_ACTIVE_HH:1},wage);const emp=lab.emp;
   let WB=0;for(let i=0;i<N;i++)if(emp[i])WB+=wage[i];
   const uiOf=i=>act[i]&&!emp[i]&&lab.dur[i]<UI_YEARS?UI_REPL*wage[i]:0;   // allocation chômage (en unités du départ, avant wIdx)
@@ -1305,7 +1326,12 @@ function run(world,seed,P){
   const kEq=new Float64Array(T),kBail=new Float64Array(T),kCred=new Float64Array(T),kCET1=new Float64Array(T),kM=new Float64Array(T);let rhoS=1,LCsoc0=0;const kQ=new Float64Array(5),srQ=new Float64Array(5),srCell=new Float64Array(30),kCell=new Float64Array(30);
   const dR=rng(seed*15485863+11),dZ=normalFrom(dR);
   // démographie : places de ménage vides (décès non remplacés) ; y0 = année de départ
-  const vac=new Uint8Array(N),y0=P.y0||START_YEAR;let entAcc=0,nAlive=N;
+  const y0=P.y0||START_YEAR;let entAcc=0,nAlive=N0;
+  // conjoint survivant : sp = conjoint en vie (générateur propre) ; facteur k pour retrouver la part de couples parmi les ménages
+  const gS=rng(seed*15485863+13),sp=new Uint8Array(N);let kC=0,wid=0,adults0=0,pE=0;const dWid=new Float64Array(T);
+  if(dem){let s=0;for(let i=0;i<N0;i++)s+=COUPLE_BY_AGE(age0[i]);kC=COUPLE_HH_SHARE*N0/Math.max(s,1e-9);for(let i=0;i<N0;i++)sp[i]=gS()<Math.min(1,kC*COUPLE_BY_AGE(age0[i]))?1:0;
+    for(let i=0;i<N0;i++)adults0+=1+sp[i];pE=Math.min(1,kC*COUPLE_BY_AGE(30));}
+  const widow=i=>{sp[i]=0;wage[i]*=WIDOW_INCOME;pens[i]*=WIDOW_INCOME;wid++;};
   const liveOf=a=>{if(nAlive===N)return Float64Array.from(a);const o=new Float64Array(nAlive);let k=0;for(let i=0;i<N;i++)if(!vac[i])o[k++]=a[i];return o;};const depR=new Float64Array(T),hhN=new Float64Array(T);
   const wCut=(()=>{const y=Float64Array.from(wage).sort();return [1,2,3,4].map(k=>y[Math.floor(k*N/5)]);})();
   let wageSum=0,back=0,GDP0=0,GDPr0=0,capGDP=0;const WB0=WB;const unmet=new Float64Array(T);
@@ -1606,7 +1632,11 @@ function run(world,seed,P){
     funds.payout();if(circ)funds.release(FUND_CASH);
     if(dem){/* démographie : décès (loi de Gompertz), héritage à un ménage d'une génération plus jeune (même fonds, pour lui transmettre
         ses parts), droits de succession à l'État ; le ménage disparu est remplacé par un jeune ménage sans patrimoine */
-      for(let i=0;i<N;i++){const a=age0[i]+t,u=dR();if(vac[i]||u>=deathProb(a-MORT_SHIFT*t))continue;deaths++;
+      for(let i=0;i<N;i++){const a=age0[i]+t,u=dR();if(vac[i])continue;
+        if(u>=deathProb(a-MORT_SHIFT*t)){// le conjoint peut décéder seul : le ménage continue, avec un revenu réduit
+          if(sp[i]&&gS()<deathProb(a-SPOUSE_GAP-MORT_SHIFT*t))widow(i);continue;}
+        if(sp[i]){widow(i);age0[i]-=SPOUSE_GAP;continue;}   // le conjoint survivant devient la personne de référence, et garde le patrimoine
+        deaths++;
         let j=-1;for(let k=0;k<60&&j<0;k++){const c=Math.floor(dR()*N);if(c!==i&&!vac[c]&&funds.fundOf[c]===funds.fundOf[i]){const ac=age0[c]+t;if(ac>=a-HEIR_GAP[1]&&ac<=a-HEIR_GAP[0])j=c;}}
         for(let k=0;k<200&&j<0;k++){const c=Math.floor(dR()*N);if(c!==i&&!vac[c]&&funds.fundOf[c]===funds.fundOf[i])j=c;}
         if(j<0){j=(i+1)%N;while(vac[j]&&j!==i)j=(j+1)%N;}
@@ -1619,13 +1649,14 @@ function run(world,seed,P){
         vac[i]=1;nAlive--;retired[i]=0;pens[i]=0;consH[i]=0;lab.retire(i);}
       /* entrées : la génération qui atteint 25 ans et les migrants, dans les places vides (une génération plus nombreuse que les places
          libres attend l'année suivante, au plus une année de retard) */
-      entAcc=Math.min(entAcc+N*ENTRY_RATE(y0,t),N*ENTRY_RATE(y0,t)*2);
+      // en personnes : adultes du modèle au départ × (génération + migrants) / adultes de France ; un ménage entrant compte 1 + pE adultes
+      const eY=adults0*ENTRY_RATE(y0,t)/(1+pE);entAcc=Math.min(entAcc+eY,2*eY);
       for(let i=0;i<N&&entAcc>=1;i++){if(!vac[i])continue;entAcc--;vac[i]=0;nAlive++;
         // jeune ménage : nouveau revenu (même loi), quintile, épargne et propension à consommer de son quintile
-        age0[i]=NEW_HH_AGE-(t+1);retired[i]=0;pens[i]=0;
+        age0[i]=NEW_HH_AGE-(t+1);retired[i]=0;pens[i]=0;sp[i]=gS()<pE?1:0;
         wage[i]=P.inc?P.incM*Math.exp(P.sigI*dZ()):P.incM;let q=0;while(q<4&&wage[i]>=wCut[q])q++;qi[i]=q;
         {const c=ageGroup(NEW_HH_AGE)*5+q;sr[i]=srCell[c];cA[i]=Math.max(0,1-sr[i]-P.mpcW*kCell[c]);}if(soc)lcF[i]=1/((1-IR_BY_QUINTILE[q])*(1-COT_RATE));lab.enter(i);}
-      dRet[t]=deaths;}
+      dRet[t]=deaths;dWid[t]=wid;}
     if(closed){// les coûts de la banque et des fonds sont les salaires de leurs employés (répartis comme les salaires) ; les dépenses de l'année font les ventes de la suivante
       let sw=0;for(let i=0;i<N;i++)sw+=wage[i]*emp[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]*emp[i]/sw;W[i]+=x;capInc[i]+=x;}
       feePot=0;pool+=poolNext;poolNext=0;
@@ -1636,8 +1667,9 @@ function run(world,seed,P){
       {const y=liveOf(consH).sort();consMed[t]=y[Math.floor(y.length/2)]/Pidx;let sm=0;for(let i=0;i<N;i++)sm+=consH[i];consMean[t]=sm/nAlive/Pidx;
        ndp[t]=(sales+GW-wearY)/nAlive/Pidx;let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;kNet[t]=K/nAlive/Pidx;}
       pP[t]=Pidx;pInfl[t]=infl;pWr[t]=wIdx/Pidx;
-      lab.close(t,nAlive);{let r=0,o=0,w=0;for(let i=0;i<N;i++){if(vac[i])continue;r+=retired[i];const a=age0[i]+t;if(a>=65)o++;else if(a>=20)w++;}
-        retSh[t]=r/nAlive;depR[t]=w>0?o/w:0;hhN[t]=nAlive/N;}
+      lab.close(t,nAlive);{let r=0,o=0,w=0;for(let i=0;i<N;i++){if(vac[i])continue;r+=retired[i];const a=age0[i]+t;if(a>=65)o++;else if(a>=20)w++;
+          if(sp[i]){const b=a-SPOUSE_GAP;if(b>=65)o++;else if(b>=20)w++;}}   // en personnes : personne de référence et conjoint
+        retSh[t]=r/nAlive;depR[t]=w>0?o/w:0;hhN[t]=nAlive/N0;}
       cc.drift=Math.max(cc.drift,Math.abs(money()-M0-Mc)/M0);
       if(credit){let lo=0;for(const fm of firms)if(!fm.dead)lo+=fm.debt;kCred[t]=GDPprev>0?lo/GDPprev:0;kCET1[t]=lo>1e-3*N?bankEq()/lo:0;kEq[t]=GDPprev>0?bankEq()/GDPprev:0;let sd=0;for(let i=0;i<N;i++)sd+=D[i];kM[t]=(money()-F+sd)/nAlive/Pidx;kBail[t]=GDPprev>0?bailY/GDPprev:0;bailY=0;}}
     const eqv=new Float64Array(N);let unowned=0,firmV=0;funds.stake.fill(0);
@@ -1659,7 +1691,7 @@ function run(world,seed,P){
 
   /* ---------- résultats ---------- */
   for(const fm of firms)if(!fm.dead&&fm.f>=0)succ[fm.f]++;
-  partic.update(net,T);const part1=partic.stat(net,vac);endDiagnostics(C,dg,part);
+  partic.update(net,T);const part1=partic.stat(net,vac);endDiagnostics(C,dg,part,vac);
   let alive=0,oldAlive=0;for(const fm of firms)if(!fm.dead){alive++;if(fm.old)oldAlive++;}
   let debt=0,indebted=0;for(let i=0;i<N;i++){debt+=L[i];if(L[i]>eps)indebted++;}
   // résultats par ménage : seulement les ménages présents à la fin
@@ -1669,13 +1701,13 @@ function run(world,seed,P){
   for(let i=0;i<N;i++){const p=succ[i]+fail[i];grp[i]=ideas[i]===0?0:p===0?1:succ[i]>=fail[i]?2:3;owes[i]=L[i]>eps?1:0;}
   const hasStart=P.ini||(firmOn&&P.exist);
   const netL=pick(net);
-  return {tot,gi,uT,...st,lor:lorenz(netL,40),debt,indebted:indebted/nAlive,fund:F,depR,hhN,
+  return {tot,gi,uT,...st,lor:lorenz(netL,40),debt,indebted:indebted/nAlive,fund:F,depR,hhN,dWid,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned/Pidx,fValue:fs.firmV/Pidx,
     cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,lU:lab.out.uT,kEq,kBail,kCred,kCET1,kM,sPub,sPO,dDeaths:dRet,dRet:retSh,lLong:lab.out.longT,lHours:lab.out.hoursT,lUnmet:unmet,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
     sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(netL).sort();const c9=y[Math.floor(0.9*y.length)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&wageSum>0?cc.wageShort/wageSum:0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     fFundPaid:fs.fundPaid,fFundV:fs.fundV/Pidx,fFundUn:fs.fundUn/Pidx,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
-    net:Float64Array.from(netL,v=>v/Pidx),pP,pInfl,pWr,pGap,pInflAvg:Pidx>0?Math.pow(Pidx,1/Math.max(1,T-1))-1:0,grp:pick(grp),owes:pick(owes),qi:pick(qi),refI:Int32Array.from(keep,i=>refI[i]),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
+    net:Float64Array.from(netL,v=>v/Pidx),pP,pInfl,pWr,pGap,pInflAvg:Pidx>0?Math.pow(Pidx,1/Math.max(1,T-1))-1:0,grp:pick(grp),owes:pick(owes),qi:pick(qi),refI:Int32Array.from(keep,i=>refI[i]),lor0:hasStart?lorenz(init0.subarray(0,N0),40):null,gini0:hasStart?gini(init0.subarray(0,N0)):null};
 }
 
 /* ---------- diagnostics par âge et par revenu (comparés à l'Insee dans l'onglet Hypothèses) ---------- */
@@ -1684,13 +1716,13 @@ function groupMedian(N,n,gf,vf){const L=Array.from({length:n},()=>[]);for(let i=
 function startDiagnostics(C,part){const {N,age0,init0,qi}=C;
   return {wAge:groupMedian(N,6,i=>ageGroup(age0[i]),i=>init0[i]),pA0:groupMean(N,6,i=>ageGroup(age0[i]),i=>part[i]),pQ0:groupMean(N,5,i=>qi[i],i=>part[i]),
     ageMed0:Float64Array.from(age0).sort()[Math.floor(N/2)]};}
-function endDiagnostics(C,dg,part){dg.pQ1=groupMean(C.N,5,i=>C.qi[i],i=>part[i]);}
+function endDiagnostics(C,dg,part,vac){const s=new Float64Array(5),c=new Float64Array(5);for(let i=0;i<C.N;i++){if(vac&&vac[i])continue;s[C.qi[i]]+=part[i];c[C.qi[i]]++;}dg.pQ1=Array.from(s,(v,g)=>c[g]?v/c[g]:NaN);}
 /* ==== fichier : engine/20-stats.js ==== */
 /* =====================================================================
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
 // répartition de la monnaie, au sens strict puis au sens large (séries, moyennées sur les simulations)
-const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN'];
+const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
