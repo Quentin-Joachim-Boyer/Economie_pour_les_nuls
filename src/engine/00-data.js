@@ -177,6 +177,25 @@ const IR_BY_QUINTILE=[0.040,0.050,0.070,0.095,0.188];
 const TVA_RATE=207.8/1527.5;
 const IS_RATE=68.0/486.5;
 const RET_AGE=62.75, PENSION_REPL=0.645, UI_REPL=0.71, UI_YEARS=2;
+
+/* ---------- prestations sociales (hors retraites et chômage) et santé ----------
+   Le revenu disponible tiré pour chaque ménage contient des prestations non contributives : prestations familiales, aides au
+   logement, minima sociaux et prime d'activité. Montant moyen par unité de consommation en 2024, par quintile de niveau de vie :
+   5 600, 1 720, 820, 500 et 260 € (1 770 € pour l'ensemble, 5,8 % du niveau de vie ; niveau de vie moyen 30 900 €) (Insee, France
+   portrait social 2025, « Redistribution monétaire », figure 1). Pour un ménage d'âge actif, cette part de son revenu (rapportée au
+   niveau de vie moyen de son quintile dans le modèle) est versée par l'État et non par l'employeur ; elle reste versée s'il perd son
+   emploi (minima sociaux). Total France 2023 : 91,9 Md€, 3,1 % du PIB (Drees, Minima sociaux et prestations sociales, éd. 2025).
+   Santé et autres prestations en nature achetées au secteur marchand (soins de ville, médicaments, cliniques) : 186 Md€ en 2024,
+   6,4 % du PIB (Insee Première n° 2054) : des achats de l'État aux entreprises, en plus des consommations intermédiaires et de
+   l'investissement publics (l'hôpital public est déjà dans les salaires et les achats publics). */
+const BEN_UC=[5600,1720,820,500,260], NV_MEAN=30900, HEALTH_INKIND=186/2920;
+/* Autres impôts sur la production payés par les entreprises (D.29 : taxes foncières des entreprises, CFE, C3S, taxes sur les salaires…) :
+   en baisse de 1,8 Md€ (−2,5 %) en 2024, soit environ 72 Md€, 2,5 % du PIB (calcul d'après Insee Résultats n° 81, comptes des APU 2024).
+   Le reste des recettes publiques qui ne sont ni cotisations, ni impôt sur le revenu et CSG, ni TVA, ni impôt sur les sociétés (autres
+   impôts sur les produits comme les accises sur l'énergie, impôts sur le patrimoine des ménages, ventes des administrations, revenus
+   de la propriété…) est prélevé sur la consommation des ménages, à un taux calé pour que le déficit de départ soit celui observé.
+   Recettes publiques totales 2024 : 1 500,6 Md€, 51,4 % du PIB (même source). */
+const PROD_TAX_GDP=72/2920;
 // emplois par ménage actif : 46,27 milliards d'heures (Eurostat, 2024) / 1 586 h par emploi, pour 31,27 millions de ménages dont
 // ceux dont la personne de référence a moins de 62 ans et 9 mois (pyramide des ménages, Insee)
 const ACTIVE_HH_SHARE=(()=>{let a=0,t=0;for(const [lo,hi,n] of AGE_PYRAMID){t+=n;a+=n*Math.max(0,Math.min(1,(RET_AGE-lo)/(hi-lo)));}return a/t;})();

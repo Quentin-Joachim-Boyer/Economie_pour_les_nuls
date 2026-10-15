@@ -269,7 +269,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
             <div class="ctl"><div class="top"><label for="prodG">Gains de productivité par an</label><output id="prodG_o"></output></div><input type="range" id="prodG" min="0" max="0.03" step="0.001"><small>Production par heure de travail en plus chaque année ; les salaires réels suivent. France : environ 0,7 % par an sur 25 ans, 1,0 % sur 35 ans, 0,4 % sur 15 ans (COR, avril 2026).</small></div>
             <label class="switch" for="unemp"><input type="checkbox" id="unemp"><span><b>Chômage</b><span class="hint">Les entreprises et l'État emploient le travail nécessaire pour produire ce qui se vend ; les autres sont au chômage, sans allocation. Au départ 7,4 % (Insee 2024), plus de risque pour les jeunes et les bas revenus. La population active plafonne la production : la demande en trop attend l'année suivante.</span></span></label>
             <label class="switch" for="prices"><input type="checkbox" id="prices"><span><b>Prix et salaires</b><span class="hint">Un seul prix : coût du travail × (1 + marge), la marge montant quand la demande dépasse la production de départ (courbe de Phillips, Insee). Les salaires rattrapent 85 % de l'inflation passée (Banque de France) et ne baissent pas. Avec gains interdits, seul l'enrichissement réel est interdit : mises, dettes, dépôts et obligations sont indexés sur les prix.</span></span></label>
-            <label class="switch" for="social"><input type="checkbox" id="social"><span><b>Protection sociale et prélèvements</b><span class="hint">Avec l'État. Retraite à 62 ans et 9 mois (pension : 64,5 % du revenu d'activité, revalorisée sur les prix), allocation chômage (71 % du revenu perdu, deux ans), cotisations et impôt sur le revenu par quintile, TVA, impôt sur les sociétés (Insee, Drees, COR, Unédic).</span></span></label>
+            <label class="switch" for="social"><input type="checkbox" id="social"><span><b>Protection sociale et prélèvements</b><span class="hint">Avec l'État. Retraite à 62 ans et 9 mois (pension : 64,5 % du revenu d'activité, revalorisée sur les prix), allocation chômage (71 % du revenu perdu, deux ans), prestations familiales, logement et minima sociaux, dépenses de santé, cotisations et impôt sur le revenu par quintile, TVA, impôt sur les sociétés, impôts de production (Insee, Drees, COR, Unédic).</span></span></label>
             <label class="switch" for="demo"><input type="checkbox" id="demo"><span><b>Démographie</b><span class="hint">Décès selon l'âge (espérance de vie Insee, en hausse) ; jeunes ménages entrant au rythme des naissances d'il y a 25 ans et des migrants ; le patrimoine passe à un ménage d'une génération plus jeune, après 5 % de droits de succession. Épargne selon l'âge (Insee, COR).</span></span></label>
             <label class="switch" for="circ"><input type="checkbox" id="circ"><span><b>Circulation de l'épargne</b><span class="hint">Avec l'État. La banque place en obligations publiques sa caisse au-delà de 1 % des dépôts (réserves obligatoires de la BCE) ; les fonds rendent à leurs porteurs leur trésorerie au-delà de 5 % de leur valeur.</span></span></label>
             <label class="switch" for="credit"><input type="checkbox" id="credit"><span><b>Création monétaire par le crédit</b><span class="hint">Avec la banque. Un prêt crée de la monnaie, son remboursement la détruit (Banque de France). La banque prête aux entreprises, et à l'État d'abord, tant que ses fonds propres dépassent 11,2 % de ses prêts (exigence de la BCE) et 3 % de son bilan ; elle verse en dividendes ce qui dépasse 16,1 % (ratio effectif, ACPR). Au départ, les entreprises lui doivent 47 % de leur capital.</span></span></label>
@@ -634,7 +634,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li><b>Prix et salaires.</b> Un seul bien, donc un seul prix, fixé comme coût du travail par unité produite × (1 + marge) (Kalecki) ; marge de départ tirée de la part des salaires dans la valeur ajoutée des sociétés non financières, 65 % (Insee, tableau 7.101). La marge réagit à l'écart entre la demande réelle et la production de départ, avec une pente de 0,14 : courbe de Phillips française de l'Insee (<a href="https://www.insee.fr/fr/statistiques/fichier/3372330/032018_dossier.pdf">Note de conjoncture, mars 2018</a> : un point de chômage réduit la hausse des salaires de 0,48 point par an, répercutée à 30 % sur les prix). Les salaires rattrapent 85 % de l'inflation de l'année passée (<a href="https://www.banque-france.fr/fr/publications-et-statistiques/publications/les-negociations-de-salaire-dans-le-contexte-de-hausse-de">Banque de France, Bulletin 245, 2023</a> : hausses négociées de 4,4 % pour 2023 après 5,2 % d'inflation) et ne baissent pas en euros (Le Bihan, Montornès et Heckel, 2012). Le capital est compté à son coût de remplacement. Avec gains interdits, la règle porte sur l'enrichissement réel : mises restantes, dettes, dépôts et obligations sont revalorisés de l'inflation. Les montants affichés sont en euros du départ.</li>
       <li><b>Bilans de départ cohérents.</b> Les parts d'entreprises existantes sont prises sur le patrimoine Insee de leurs détenteurs ; ce qui dépasse le patrimoine d'un détenteur passe à des fonds (investisseurs institutionnels : assurance-vie, OPC), dont les parts sont réparties entre tous les ménages selon leur patrimoine : la distribution de départ reste exactement celle de l'Insee (Gini 0,68, 10 % les plus dotés : 50 %, comme l'enquête européenne HFCS 2021). Chaque entreprise démarre avec une année d'investissement en trésorerie. Les ventes de l'année 0 sont celles que le modèle dépense lui-même (consommation, investissement, achats publics), et le profit d'ensemble en découle : pas de choc artificiel au départ.</li>
       <li><b>Gains de productivité.</b> La production par heure de travail croît de 0,7 % par an, tendance française sur 25 ans (<a href="https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf">COR, avril 2026</a> : « autour de 0,7 % par an » ; 1,0 % sur 35 ans, 0,4 % sur 15 ans). Les salaires réels suivent la productivité (Insee, <a href="https://www.insee.fr/fr/statistiques/fichier/3372330/032018_dossier.pdf">Note de conjoncture, mars 2018</a> : à long terme, le salaire est indexé sur la productivité) ; le coût du travail par unité produite, et donc le prix, n'en est pas changé. Le progrès technique est exogène : il ne dépend ni de l'investissement ni de la recherche.</li>
-      <li><b>Protection sociale et prélèvements.</b> Le revenu tiré pour chaque ménage est son revenu disponible (Insee) ; l'employeur paie le coût du travail, plus élevé : cotisations sociales (34,1 % du coût du travail : 571,8 Md€ pour 1 674,7 Md€ de rémunérations et revenus mixtes en 2024) et impôt sur le revenu + CSG par quintile (4,0 / 5,0 / 7,0 / 9,5 / 18,8 % du revenu, <a href="https://www.insee.fr/fr/statistiques/8612544">Insee, France portrait social 2025</a>). TVA : 13,6 % (207,8 Md€ pour 1 527,5 Md€ de consommation) ; impôt sur les sociétés : 14 % de l'excédent brut d'exploitation (68,0 / 486,5 Md€) ; le reste des recettes est un impôt sur les ventes calé sur le déficit de départ. Retraite à 62 ans et 9 mois (<a href="https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/250731_PANORAMAS-retraites">Drees 2025</a>), pension de 64,5 % du revenu d'activité (<a href="https://www.cor-retraites.fr/sites/default/files/2026-06/RA_Part3_Chap2.pdf">COR 2026</a>), revalorisée sur les prix. Allocation chômage : 71 % du revenu net perdu (Unédic 2015), l'année de la perte d'emploi et la suivante (durée potentielle 486 à 564 jours, Unédic). Emplois par ménage actif : 1,4, pour retrouver les 46,3 milliards d'heures travaillées en 2024 (Eurostat).</li>
+      <li><b>Protection sociale et prélèvements.</b> Le revenu tiré pour chaque ménage est son revenu disponible (Insee) ; l'employeur paie le coût du travail, plus élevé : cotisations sociales (34,1 % du coût du travail : 571,8 Md€ pour 1 674,7 Md€ de rémunérations et revenus mixtes en 2024) et impôt sur le revenu + CSG par quintile (4,0 / 5,0 / 7,0 / 9,5 / 18,8 % du revenu, <a href="https://www.insee.fr/fr/statistiques/8612544">Insee, France portrait social 2025</a>). TVA : 13,6 % (207,8 Md€ pour 1 527,5 Md€ de consommation) ; impôt sur les sociétés : 14 % de l'excédent brut d'exploitation (68,0 / 486,5 Md€) ; impôts de production des entreprises : 2,5 % du PIB (environ 72 Md€ en 2024, <a href="https://www.insee.fr/fr/statistiques/fichier/8540375/IR81_APU_2024.pdf">Insee, comptes des APU 2024</a>) ; le reste des recettes (accises, impôts sur le patrimoine, ventes des administrations…) est prélevé sur la consommation, à un taux calé sur le déficit de départ. <b>Prestations</b> : la part du revenu disponible faite de prestations familiales, d'aides au logement, de minima sociaux et de prime d'activité (5 600, 1 720, 820, 500 et 260 € par unité de consommation du premier au dernier quintile, <a href="https://www.insee.fr/fr/statistiques/8612544">Insee 2024</a>) est versée par l'État et non par l'employeur, et reste versée au chômeur. <b>Santé</b> : l'État achète aux entreprises les soins de ville, médicaments et cliniques qu'il rembourse, 6,4 % du PIB (186 Md€ de prestations en nature marchandes en 2024, <a href="https://www.insee.fr/fr/statistiques/fichier/8574492/IP2054.pdf">Insee Première n° 2054</a>). Retraite à 62 ans et 9 mois (<a href="https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/250731_PANORAMAS-retraites">Drees 2025</a>), pension de 64,5 % du revenu d'activité (<a href="https://www.cor-retraites.fr/sites/default/files/2026-06/RA_Part3_Chap2.pdf">COR 2026</a>), revalorisée sur les prix, y compris pour les retraités du départ (le reste de leur niveau de vie vient de leur patrimoine) : les pensions valent alors environ 13 % du PIB, comme les dépenses de vieillesse (13,4 %, Eurostat 2024). Avant cette règle, leur revenu entier était une pension (20 % du PIB) ; en disparaissant, ces retraités faisaient fondre le déficit et la demande, et la plupart des simulations finissaient en crise. Allocation chômage : 71 % du revenu net perdu (Unédic 2015), l'année de la perte d'emploi et la suivante (durée potentielle 486 à 564 jours, Unédic). Emplois par ménage actif : 1,4, pour retrouver les 46,3 milliards d'heures travaillées en 2024 (Eurostat).</li>
       <li><b>Démographie.</b> Décès selon une loi de Gompertz (risque doublé tous les 8,5 ans d'âge, Ined) calée sur une espérance de vie à 60 ans de 25,9 ans (Insee, bilan démographique 2025) ; espérance de vie à la naissance obtenue : 83,2 ans (Insee : 83,1). La table de mortalité glisse de 0,11 an d'âge par an : + 5 ans d'espérance de vie de 2025 à 2070, comme dans la projection centrale de l'Insee (83,1 → 88,1 ans en moyenne femmes-hommes, <a href="https://www.insee.fr/fr/statistiques/9004289">Insee Première n° 2108</a>). Les jeunes ménages entrent à 25 ans (choix de travail), sans patrimoine, au revenu tiré dans la même loi, au rythme des générations réelles : chaque année, les naissances d'il y a 25 ans (<a href="https://www.insee.fr/fr/statistiques/8614311">Insee</a> ; après 2025, projection centrale : 631 000 en 2026, 476 000 en 2070) plus 150 000 migrants (hypothèse Insee), rapportés aux 53,6 millions d'adultes de 2026, chaque place de ménage représentant une part fixe des adultes (0,59 ménage par adulte). Le nombre de ménages peut monter ou baisser ; les statistiques par ménage ne portent que sur les ménages présents. <b>Conjoint survivant</b> : 49 % des ménages sont des couples (Insee 2023), répartis selon la part des personnes en couple par âge (10,9 % avant 25 ans, 63 à 70 % de 25 à 79 ans, 41 % après 80 ans, <a href="https://insee.fr/fr/statistiques/2011101?geo=FE-1">Insee, recensement 2023</a>) ; le conjoint a 2,5 ans de moins (Insee Première n° 1613). Un ménage en couple ne disparaît qu'au décès du second conjoint ; au premier décès, revenu et pension sont ramenés aux deux tiers, ce qui maintient le niveau de vie (1,5 → 1 unité de consommation), comme en moyenne après un veuvage grâce à la pension de réversion (Bonnet et Hourriez 2008 : veuves −3 %, veufs +18 %), et le patrimoine reste au survivant sans droits de succession (exonération entre époux). Le patrimoine d'un ménage disparu va à un ménage de 25 à 35 ans plus jeune (âge des mères à la naissance : 31 ans ; héritiers : 50 ans en moyenne, <a href="https://cae-eco.fr/static/pdf/cae-note069.pdf">CAE 2021</a>), après 5 % de droits de succession (France Stratégie 2017). Épargne selon l'âge : 4 % avant 30 ans, 15 % à 50-64 ans, 8 % après 65 ans (Insee, travaux présentés au COR, février 2026), combinée au profil par quintile de revenu.</li>
       <li><b>Circulation de l'épargne.</b> La banque garde 1 % des dépôts en réserve (réserves obligatoires de la BCE) et prête le reste de sa caisse à l'État ; les fonds gardent 5 % de leur valeur en liquidités (choix de travail) et rendent le reste à leurs porteurs. Sans ces deux règles, une part croissante de la monnaie dort dans la banque et les fonds.</li>
       <li><b>Création monétaire par le crédit.</b> « Les crédits font les dépôts » (<a href="https://www.banque-france.fr/fr/publications-et-statistiques/publications/comment-est-creee-la-monnaie">Banque de France</a> ; McLeay, Radia et Thomas, Banque d'Angleterre, 2014) : un prêt crée de la monnaie, le remboursement du principal la détruit. Au départ, les entreprises doivent à la banque 47 % de leur capital (1 437 Md€ de crédits aux sociétés non financières, <a href="https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08">Banque de France, août 2026</a>, pour 3 033 Md€ de capital) ; elles renouvellent leurs prêts et ne remboursent que la dette au-delà de ce ratio. La banque prête tant que ses fonds propres couvrent 11,2 % de ses prêts (exigence moyenne de CET1 pour 2026, <a href="https://www.bankingsupervision.europa.eu/activities/srep/2025/html/ssm.srep202511_aggregatedresults2025.en.html">BCE, SREP 2025</a> ; pondération 100 % pour les entreprises, 0 % pour l'État) et 3 % de son bilan (levier, Bâle III) ; elle verse en dividendes, aux fonds, ce qui dépasse 16,1 % (ratio effectif des banques françaises fin 2024, ACPR, et de la zone euro mi-2025, BCE). Elle finance d'abord le déficit de l'État. Les déposants reçoivent 1,30 % (rémunération moyenne des dépôts des ménages, Banque de France) ; 67,9 % de la marge paie les frais de la banque, versés en salaires (coefficient d'exploitation 2024, ACPR). Sous l'exigence, les dépôts au-delà de 100 000 € (garantie FGDR) sont convertis en fonds propres (renflouement interne, directive BRRD 2014/59/UE). Avec gains interdits, la banque prête à l'inflation + ses pertes attendues + ses frais : elle ne s'enrichit pas, mais ses fonds propres gardent leur valeur réelle (choix de l'utilisateur).</li>
@@ -661,9 +661,9 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li>La population représente la société entière (tous âges) au départ ; mais personne ne vieillit, ne meurt ni n'hérite pendant les 40 ans simulés.</li>
       <li>Sans économie bouclée, les entreprises n'emploient personne et ne paient pas de salaires. Avec gains interdits, leurs profits non distribués n'appartiennent à personne et sont perdus si elles disparaissent.</li>
       <li>Dans le scénario « gains interdits », personne ne contourne la règle.</li>
-      <li>Revenus : tout le revenu disponible des ménages (salaires, mais aussi pensions et prestations) est versé comme un salaire par les entreprises et l'État, et tous les impôts portent sur les ventes ; la part des profits dans la valeur ajoutée en est sous-estimée (environ 15 % contre 32 % en France). À corriger avec la protection sociale et les prélèvements sur les revenus.</li>
+      <li>Dépenses publiques : environ 49 % du PIB contre 57 % ; il manque surtout les « autres transferts et subventions » (subventions aux entreprises, transferts à l'Union européenne et aux associations, environ 6,6 % du PIB) et le modèle n'a pas de recettes hors prélèvements obligatoires.</li>
       <li>Finances publiques : ni règle budgétaire ni réaction du solde à la dette, conformément aux estimations pour la France (coefficient non significatif : Checherita-Westphal et Žďárek 2017, Berti et coauteurs 2016, Bruegel 2025) ; la dette monte tant que le déficit primaire persiste.</li>
-      <li>Protection sociale : pas encore de dépenses de santé, de prestations familiales, d'aides au logement ni de minima sociaux ; pas de taux de remplacement différent selon le revenu ; un ménage = une personne de référence.</li>
+      <li>Protection sociale : les prestations familiales, logement et minima sont réparties par quintile de revenu, pas selon la composition du ménage ; pas de taux de remplacement différent selon le revenu.</li>
       <li>Démographie : hommes et femmes ont la même mortalité (le conjoint survivant n'est pas plus souvent une femme), la mise en couple et les séparations ne sont pas modélisées (un jeune ménage est en couple dès son entrée, avec la probabilité observée vers 30 ans), et le nombre d'emplois par ménage actif ne dépend pas du couple. Le vieillissement suit la projection de l'Insee pendant 30 ans (46 contre 46 pour 100 après 10 ans, 53 contre 52 après 20 ans), mais redescend à 51 en fin de période contre 60 : la loi de Gompertz fait sans doute mourir trop tôt les très âgés. Les veuvages sont un peu trop nombreux (environ 300 000 par an à l'échelle de la France, contre 235 000 à 250 000).</li>
       <li>Prix : un seul bien, pas d'importations ni d'énergie ; pas d'anticipations d'inflation ; la marge ne dépend pas de la concurrence ; les taux d'intérêt des gains libres restent fixes (pas de banque centrale).</li>
       <li>Chômage : sans allocation, ni inactivité, ni retraite ; un ménage = un emploi ; heures fixes par emploi ; productivité fixe ; les chômeurs ne vivent que de leur patrimoine. Pas de prix : la demande que la population active ne peut pas servir attend l'année suivante au lieu de faire monter les prix.</li>
@@ -857,6 +857,25 @@ const IR_BY_QUINTILE=[0.040,0.050,0.070,0.095,0.188];
 const TVA_RATE=207.8/1527.5;
 const IS_RATE=68.0/486.5;
 const RET_AGE=62.75, PENSION_REPL=0.645, UI_REPL=0.71, UI_YEARS=2;
+
+/* ---------- prestations sociales (hors retraites et chômage) et santé ----------
+   Le revenu disponible tiré pour chaque ménage contient des prestations non contributives : prestations familiales, aides au
+   logement, minima sociaux et prime d'activité. Montant moyen par unité de consommation en 2024, par quintile de niveau de vie :
+   5 600, 1 720, 820, 500 et 260 € (1 770 € pour l'ensemble, 5,8 % du niveau de vie ; niveau de vie moyen 30 900 €) (Insee, France
+   portrait social 2025, « Redistribution monétaire », figure 1). Pour un ménage d'âge actif, cette part de son revenu (rapportée au
+   niveau de vie moyen de son quintile dans le modèle) est versée par l'État et non par l'employeur ; elle reste versée s'il perd son
+   emploi (minima sociaux). Total France 2023 : 91,9 Md€, 3,1 % du PIB (Drees, Minima sociaux et prestations sociales, éd. 2025).
+   Santé et autres prestations en nature achetées au secteur marchand (soins de ville, médicaments, cliniques) : 186 Md€ en 2024,
+   6,4 % du PIB (Insee Première n° 2054) : des achats de l'État aux entreprises, en plus des consommations intermédiaires et de
+   l'investissement publics (l'hôpital public est déjà dans les salaires et les achats publics). */
+const BEN_UC=[5600,1720,820,500,260], NV_MEAN=30900, HEALTH_INKIND=186/2920;
+/* Autres impôts sur la production payés par les entreprises (D.29 : taxes foncières des entreprises, CFE, C3S, taxes sur les salaires…) :
+   en baisse de 1,8 Md€ (−2,5 %) en 2024, soit environ 72 Md€, 2,5 % du PIB (calcul d'après Insee Résultats n° 81, comptes des APU 2024).
+   Le reste des recettes publiques qui ne sont ni cotisations, ni impôt sur le revenu et CSG, ni TVA, ni impôt sur les sociétés (autres
+   impôts sur les produits comme les accises sur l'énergie, impôts sur le patrimoine des ménages, ventes des administrations, revenus
+   de la propriété…) est prélevé sur la consommation des ménages, à un taux calé pour que le déficit de départ soit celui observé.
+   Recettes publiques totales 2024 : 1 500,6 Md€, 51,4 % du PIB (même source). */
+const PROD_TAX_GDP=72/2920;
 // emplois par ménage actif : 46,27 milliards d'heures (Eurostat, 2024) / 1 586 h par emploi, pour 31,27 millions de ménages dont
 // ceux dont la personne de référence a moins de 62 ans et 9 mois (pyramide des ménages, Insee)
 const ACTIVE_HH_SHARE=(()=>{let a=0,t=0;for(const [lo,hi,n] of AGE_PYRAMID){t+=n;a+=n*Math.max(0,Math.min(1,(RET_AGE-lo)/(hi-lo)));}return a/t;})();
@@ -1327,12 +1346,19 @@ function run(world,seed,P){
      coût du travail = revenu disponible × lcF (cotisations, impôt sur le revenu et CSG), TVA, impôt sur les sociétés.
      démographie : décès, jeunes ménages, héritage (générateur propre) */
   const soc=stateOn&&!!P.social,dem=closed&&!!P.demo;
+  const gPe=P.gP+(soc?HEALTH_INKIND:0);   // achats publics aux entreprises, santé en nature comprise
   const retired=new Uint8Array(N),pens=new Float64Array(N),lcF=new Float64Array(N).fill(1);
   const act=new Uint8Array(N).fill(1);for(let i=N0;i<N;i++)act[i]=0;
-  if(soc)for(let i=0;i<N0;i++){lcF[i]=1/((1-IR_BY_QUINTILE[qi[i]])*(1-COT_RATE));if(age0[i]>=RET_AGE){retired[i]=1;act[i]=0;pens[i]=wage[i];}}
+  if(soc)for(let i=0;i<N0;i++){lcF[i]=1/((1-IR_BY_QUINTILE[qi[i]])*(1-COT_RATE));if(age0[i]>=RET_AGE){retired[i]=1;act[i]=0;pens[i]=PENSION_REPL*wage[i];}}   // même règle que pour les nouveaux retraités : pensions ≈ 13 % du PIB
   const lab=makeLabour({N,P,seed,qi,age0,T,on:closed&&!!P.unemp,act,jobs:soc?JOBS_PER_ACTIVE_HH:1},wage);const emp=lab.emp;
   let WB=0;for(let i=0;i<N;i++)if(emp[i])WB+=wage[i];
-  const uiOf=i=>act[i]&&!emp[i]&&lab.dur[i]<UI_YEARS?UI_REPL*wage[i]:0;   // allocation chômage (en unités du départ, avant wIdx)
+  /* prestations : bS = part du revenu d'un ménage d'âge actif versée par l'État (prestations familiales, logement, minima sociaux),
+     selon son quintile ; un chômeur garde ses prestations et reçoit l'allocation chômage (deux ans) sur la part de revenu d'activité */
+  const bS=new Float64Array(N),benQ=new Float64Array(5);
+  if(soc){const sw=new Float64Array(5),nw=new Float64Array(5);let s=0;for(let i=0;i<N0;i++){sw[qi[i]]+=wage[i];nw[qi[i]]++;s+=wage[i];}const m=s/N0;
+    for(let q=0;q<5;q++)benQ[q]=nw[q]>0?Math.min(0.9,BEN_UC[q]/(NV_MEAN*sw[q]/nw[q]/m)):0;
+    for(let i=0;i<N0;i++){bS[i]=benQ[qi[i]];lcF[i]*=1-bS[i];}}
+  const uiOf=i=>act[i]&&!emp[i]?(lab.dur[i]<UI_YEARS?UI_REPL*(1-bS[i])*wage[i]:0)+bS[i]*wage[i]:0;   // allocation chômage et prestations (unités du départ, avant wIdx)
   const sPub=new Float64Array(T),sPO=new Float64Array(T),dRet=new Float64Array(T),retSh=new Float64Array(T);let deaths=0;
   const kDef=new Float64Array(T),kEq=new Float64Array(T),kBail=new Float64Array(T),kCred=new Float64Array(T),kCET1=new Float64Array(T),kM=new Float64Array(T);let rhoS=1,LCsoc0=0;const kQ=new Float64Array(5),srQ=new Float64Array(5),srCell=new Float64Array(30),kCell=new Float64Array(30);
   const dR=rng(seed*15485863+11),dZ=normalFrom(dR);
@@ -1366,7 +1392,7 @@ function run(world,seed,P){
   let pool=0,poolNext=0,feePot=0;const cc={wagePriv:0,prodTax:0,wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
   const money=()=>{let m=F+pool+poolNext+feePot+back+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
   // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
-  const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,pubDebt=0,GDPprev=0;let rB=stateOn&&world==='L'?P.rB:0;
+  const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,tauC=0,pubDebt=0,GDPprev=0;let rB=stateOn&&world==='L'?P.rB:0;
   const sc={tax:0,gw:0,gp:0,int:0,cut:0,spend:0};
   // l'État emprunte aux ménages, au prorata de leurs liquidités
   const circ=stateOn&&!!P.circ;let Bb=0;   // obligations détenues par la banque
@@ -1408,20 +1434,24 @@ function run(world,seed,P){
     pool=C0+I0;let tva0=0;
     if(stateOn){// PIB = ventes + salaires publics, avec achats publics et salaires publics en part du PIB ; l'impôt laisse le déficit visé
       // (même taux dans les deux scénarios : il est calé avec le taux d'intérêt observé)
-      const gdp=(C0+I0)/Math.max(0.05,1-P.gW-P.gP);const GW=P.gW*gdp,T0=(P.gW+P.gP+P.rB*P.debt0-P.defT)*gdp;pool=gdp-GW;tau=T0/pool;
+      const gdp=(C0+I0)/Math.max(0.05,1-P.gW-gPe);const GW=P.gW*gdp,T0=(P.gW+gPe+P.rB*P.debt0-P.defT)*gdp;pool=gdp-GW;tau=T0/pool;
       if(soc){// recettes : cotisations et impôt sur le revenu (écart coût du travail / revenu disponible), TVA, impôt sur les sociétés,
         // et un impôt sur les ventes calé pour que le déficit de départ soit celui observé
         tva0=C0*TVA_RATE/(1+TVA_RATE);pool=gdp-GW-tva0;
         let LC0=0,Y0=0,TR0=0;for(let i=0;i<N;i++){if(emp[i]){LC0+=wage[i]*lcF[i];Y0+=wage[i];}else TR0+=retired[i]?pens[i]:uiOf(i);}
         LCsoc0=LC0;const LCp0=Math.max(0,LC0-GW),wedge0=LC0-Y0,R=T0+TR0;// T0 : dépenses hors transferts moins le déficit visé
-        tau=Math.max(0,(R-wedge0-tva0-IS_RATE*Math.max(0,pool-LCp0))/(pool*(1-IS_RATE)));}
+        /* impôts sur la production des entreprises : 2,5 % du PIB ; le reste (X) est un impôt sur la consommation, qui réduit aussi les
+           ventes des entreprises : X = R − cotisations et IR − TVA − impôts de production − IS(ventes − X − coût du travail − impôts de production) */
+        const P0=pool,D29=PROD_TAX_GDP*gdp;let X=(R-wedge0-tva0-D29-IS_RATE*Math.max(0,P0-D29-LCp0))/(1-IS_RATE);
+        if(P0-X-D29-LCp0<0)X=R-wedge0-tva0-D29;X=Math.max(0,X);
+        pool=P0-X;tau=pool>0?D29/pool:0;tauC=C0-tva0-X>0?X/(C0-tva0-X):0;tva0+=X;}   // tva0 : impôts sur les produits au départ
       GDPprev=gdp;
       // dette de départ : une partie des liquidités des ménages est en fait détenue en obligations publiques
       let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const b=Math.min(P.debt0*gdp,0.9*tw);
       if(tw>0)for(let i=0;i<N;i++){const x=b*Math.max(0,W[i])/tw;W[i]-=x;Bh[i]+=x;}pubDebt=b;
       // avec la protection sociale, une partie de cette dette est la trésorerie de l'État : il paie salaires et achats publics en début
       // d'année et n'encaisse cotisations, impôt sur le revenu, TVA et impôt sur les sociétés qu'au fil de l'année
-      if(soc)Sc=Math.min(b,(P.gW+P.gP+P.rB*P.debt0)*gdp-tau*pool);}
+      if(soc)Sc=Math.min(b,(P.gW+gPe+P.rB*P.debt0)*gdp-tau*pool);}
     if(credit){/* bilan de départ de la banque : les prêts aux entreprises ont créé des dépôts, détenus par les ménages (pris sur leur
         patrimoine liquide Insee) ; fonds propres = 16,1 % des prêts, réserves = 1 % des dépôts */
       let lo=0;for(const fm of firms)lo+=fm.debt;const E0=CET1_TARGET*lo,D0=Math.max(0,(lo-E0)/(1-BANK_RESERVE));
@@ -1449,7 +1479,7 @@ function run(world,seed,P){
     if(soc){// pensions revalorisées sur les prix ; départs à la retraite de l'année
       if(infl>0)for(let i=0;i<N;i++)if(retired[i])pens[i]*=1+infl;
       for(let i=0;i<N;i++)if(!retired[i]&&!vac[i]&&age0[i]+t>=RET_AGE){retired[i]=1;lab.retire(i);pens[i]=PENSION_REPL*wage[i]*wIdx;}}
-    let revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0;
+    let revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0,benE=0;
     if(dem&&t>0)for(let i=0;i<N;i++){const c=ageGroup(age0[i]+t)*5+qi[i];sr[i]=srCell[c];cA[i]=Math.max(0,1-sr[i]-P.mpcW*kCell[c]);}
 
     /* ---------- intérêts des dettes personnelles, reversés aux déposants ---------- */
@@ -1465,7 +1495,7 @@ function run(world,seed,P){
     if(closed){sales=pool;{let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;util[t]=cap0>0&&K>0&&K0>0?sales/(cap0*K/K0):0;}
       if(stateOn){// impôt sur les ventes, puis dépenses (fonctionnaires, achats, intérêts) ; le déficit est emprunté aux ménages
         const tax=tau*pool;pool-=tax;Sc+=tax;sc.tax+=tax;cc.prodTax+=tax;
-        GW=P.gW*GDPprev;let GP=P.gP*GDPprev,INT=rB*pubDebt;
+        GW=P.gW*GDPprev;let GP=gPe*GDPprev,INT=rB*pubDebt;
         const need=GW+GP+INT-Sc;
         if(need>0)borrow(need);
         const spend=GW+GP+INT,f=spend>Sc?Math.max(0,Sc)/spend:1;sc.cut+=spend*(1-f);sc.spend+=spend;GW*=f;GP*=f;INT*=f;Sc-=GW+GP+INT;
@@ -1484,6 +1514,7 @@ function run(world,seed,P){
       ratio=WB>0?(paid+GW)/WB:0;cc.wagePaid+=paid+GW;cc.wagePriv+=paid;cc.wageShort+=WB-paid-GW;
       if(soc){// cotisations et impôt sur le revenu (écart entre coût du travail et revenu disponible) ; puis pensions et allocations
         const wedge=ratio*(WB-WBd);Sc+=wedge;revY+=wedge;
+        {let b=0;for(let i=0;i<N;i++)if(emp[i])b+=bS[i]*wage[i];benE=ratio*b*wIdx;revY+=benE;}   // prestations des actifs occupés : versées en même temps que le salaire
         for(let i=0;i<N;i++)trY+=retired[i]?pens[i]:uiOf(i)*wIdx;
         if(Sc<trY)borrow(trY-Sc);if(Sc<trY){trF=trY>0?Math.max(0,Sc)/trY:1;sc.cut+=trY*(1-trF);trY*=trF;}sc.spend+=trY;Sc-=trY;}}
 
@@ -1493,7 +1524,7 @@ function run(world,seed,P){
         const c=Math.max(0,cA[i]*inc+P.mpcW*(t===0?init0[i]:net[i]));
         let pc=Math.min(c,Math.max(0,W[i]));W[i]-=pc;
         if(c-pc>eps&&bank){const x=Math.min(c-pc,D[i],credit?Infinity:Math.max(F,0));D[i]-=x;F-=x;pc+=x;}
-        if(soc){const v=pc*TVA_RATE/(1+TVA_RATE);Sc+=v;tvaY+=v;poolNext+=pc-v;}else poolNext+=pc;
+        if(soc){const v=pc*TVA_RATE/(1+TVA_RATE),vc=(pc-v)*tauC/(1+tauC);Sc+=v+vc;tvaY+=v+vc;poolNext+=pc-v-vc;}else poolNext+=pc;
         cc.cons+=pc;consH[i]=pc;cc.inc+=inc;cc.save+=inc-pc;capInc[i]=0;
         let s=y-pc;if(s<=eps)continue;
         if(L[i]>eps){const p=Math.min(s,L[i]);L[i]-=p;W[i]-=p;F+=p;s-=p;}
@@ -1676,14 +1707,14 @@ function run(world,seed,P){
         // jeune ménage : nouveau revenu (même loi), quintile, épargne et propension à consommer de son quintile
         age0[i]=NEW_HH_AGE-(t+1);retired[i]=0;pens[i]=0;sp[i]=gS()<pE?1:0;
         wage[i]=P.inc?P.incM*Math.exp(P.sigI*dZ()):P.incM;let q=0;while(q<4&&wage[i]>=wCut[q])q++;qi[i]=q;
-        {const c=ageGroup(NEW_HH_AGE)*5+q;sr[i]=srCell[c];cA[i]=Math.max(0,1-sr[i]-P.mpcW*kCell[c]);}if(soc)lcF[i]=1/((1-IR_BY_QUINTILE[q])*(1-COT_RATE));lab.enter(i);}
+        {const c=ageGroup(NEW_HH_AGE)*5+q;sr[i]=srCell[c];cA[i]=Math.max(0,1-sr[i]-P.mpcW*kCell[c]);}if(soc){bS[i]=benQ[q];lcF[i]=(1-bS[i])/((1-IR_BY_QUINTILE[q])*(1-COT_RATE));}lab.enter(i);}
       dRet[t]=deaths;dWid[t]=wid;}
     if(closed){// les coûts de la banque et des fonds sont les salaires de leurs employés (répartis comme les salaires) ; les dépenses de l'année font les ventes de la suivante
       let sw=0;for(let i=0;i<N;i++)sw+=wage[i]*emp[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]*emp[i]/sw;W[i]+=x;capInc[i]+=x;}
       feePot=0;pool+=poolNext;poolNext=0;
       if(stateOn){
         GDPprev=sales+GW+tvaY;debtR[t]=GDPprev>0?pubDebt/GDPprev:0;
-        if(soc){revY+=tvaY;const sp=GW+GPy+INTy+trY;defR[t]=GDPprev>0?(sp-revY)/GDPprev:0;sPub[t]=GDPprev>0?sp/GDPprev:0;sPO[t]=GDPprev>0?revY/GDPprev:0;}}
+        if(soc){revY+=tvaY;const sp=GW+GPy+INTy+trY+benE;defR[t]=GDPprev>0?(sp-revY)/GDPprev:0;sPub[t]=GDPprev>0?sp/GDPprev:0;sPO[t]=GDPprev>0?revY/GDPprev:0;}}
       // en euros du départ (divisés par l'indice des prix)
       {const y=liveOf(consH).sort();consMed[t]=y[Math.floor(y.length/2)]/Pidx;let sm=0;for(let i=0;i<N;i++)sm+=consH[i];consMean[t]=sm/nAlive/Pidx;
        ndp[t]=(sales+GW-wearY)/nAlive/Pidx;let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;kNet[t]=K/nAlive/Pidx;}
