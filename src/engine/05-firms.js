@@ -37,7 +37,9 @@ function seedExistingFirms(C){
   // économie bouclée : chaque entreprise détient au départ la trésorerie d'une année d'investissement (sa règle d'autofinancement),
   // payée par ses détenteurs comme le capital : la valeur d'une entreprise est K + R
   const r0=P.closed?P.invest:0,lam=C.creditOn?SNF_CREDIT_K:0;   // dette bancaire de départ (crédit)
-  for(const ls of landscape(n0,P.k0*N0,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho=drawRho(er,P);
+  /* une grande entreprise ou une ETI du modèle représente des centaines ou des milliers d'entreprises : sa rentabilité est la
+     rentabilité médiane, et non un tirage individuel (le tirage est fait quand même, pour ne pas décaler les suivants) */
+  for(const ls of landscape(n0,P.k0*N0,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho0=drawRho(er,P),rho=isBig&&P.vary?P.rho:rho0;
     const owner=isBig?-1:pick();const own=isBig?0:P.own;const V=K*(1+r0-lam);
     const fm=newHoldings({K,R:K*r0,debt:K*lam,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
     if(owner>=0){addHolder(fm,owner,V*own,V*own);init0[owner]+=V*own;}

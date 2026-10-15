@@ -48,9 +48,16 @@ const FIRM_CATS=[
   {n:'PME',n1:'PME',c:172520,k:0.1402,big:0},
   {n:'microentreprises',n1:'microentreprise',c:4831709-1900000,k:0.0975,big:0}];
 const FIRM_CATS_TOTAL=FIRM_CATS.reduce((a,c)=>a+c.c,0);
-// défaillances d'ETI et de grandes entreprises : 65 en 2024 (cumul 12 mois, Banque de France, Stat Info défaillances, décembre 2024)
-// pour 7 623 entreprises (7 296 ETI + 327 grandes entreprises, Insee) : 0,85 % par an
-const BIG_FAIL_RATE=65/(7296+327);
+/* défaillances d'ETI et de grandes entreprises : crédits des ETI-GE nouvellement défaillantes = 0,12 % des crédits aux ETI-GE par an
+   en moyenne 2010-2019 (0,16 % en mai 2024 ; Banque de France, calculs BNP Paribas, Eco Flash 24.09, juin 2024). En nombre, c'est
+   0,85 % des entreprises (65 défaillances en 2024 pour 7 623 ETI et grandes entreprises), mais ce sont surtout les plus petites :
+   pour la part du capital qui fait défaut, on retient la part des crédits.
+   Reprise des actifs : quand une entreprise disparaît, 40 % de la valeur comptable de son capital est repris par les autres
+   entreprises, avec la dette correspondante (taux de récupération des créanciers sur les crédits aux entreprises en France : 35 %
+   pour les PME, 49 % en moyenne pondérée pour les grandes entreprises, EBA/Rep/2020/29 ; environ un tiers des défaillances évitent
+   la liquidation directe, Altares 2025) ; le reste est perdu. Repère : crédits des entreprises nouvellement défaillantes = 0,45 %
+   des crédits aux entreprises par an en moyenne 2010-2019 (0,56 % au pic d'août 2009, mêmes sources). */
+const BIG_FAIL_RATE=0.0012, FIRM_RECOVERY=0.40, DEFAULT_CREDIT_SHARE=0.0045;
 const FIRM_SIZE_SIGMA=0.8;            // dispersion log-normale de la taille dans une catégorie
 const SHAREHOLDERS_SMALL=10;          // actionnaires d'une PME ou microentreprise existante (en plus du propriétaire)
 const SHAREHOLDERS_BIG=40;            // actionnaires d'une grande entreprise ou ETI existante (pas de propriétaire principal)
@@ -127,7 +134,7 @@ const REF_FR=[
   {k:'top10',l:'Part du patrimoine net détenue par les 10 % les plus dotés',v:0.50,y:'2021',tol:0.05,u:'pct',src:'Insee, RPM 2024, fiche 2.9 (HFCS)',url:'https://www.insee.fr/fr/statistiques/fichier/7941427/RPM2024-F29.pdf'},
   {k:'wmed',l:'Patrimoine net médian par ménage',v:148100,y:'2024',tol:0.15,rel:1,u:'eur',src:'Insee Focus n° 371 (enquête Histoire de vie et Patrimoine 2023-2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
   {k:'save',l:'Taux d\'épargne financière des ménages (hors logement)',v:0.090,y:'2025',tol:0.02,u:'pct',src:'Insee Première n° 2105 (taux d\'épargne total : 17,9 %, dont l\'investissement en logement, absent du modèle)',url:'https://www.insee.fr/fr/statistiques/8996855'},
-  {k:'margin',l:'Taux de marge des entreprises (profits bruts / valeur ajoutée)',v:0.322,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2105 (sociétés non financières)',url:'https://www.insee.fr/fr/statistiques/8996855'},
+  {k:'margin',l:'Taux de marge des entreprises (excédent brut / valeur ajoutée, hors administrations)',v:0.322,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2105 (sociétés non financières)',url:'https://www.insee.fr/fr/statistiques/8996855'},
   {k:'unemp',l:'Taux de chômage',v:0.077,y:'2025',tol:0.015,u:'pct',src:'Insee Première n° 2096 (enquête Emploi)',url:'https://www.insee.fr/fr/statistiques/8901327'},
   {k:'ulong',l:'Part des chômeurs depuis un an ou plus',v:0.231,y:'2025',tol:0.05,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
   {k:'hours',l:'Heures travaillées par ménage et par an',v:46.27e9/31.27e6,y:'2024',tol:0.05,rel:1,u:'h',src:'Eurostat nama_10_a10_e (46,27 Md d\'heures) ; Insee, 31,27 millions de ménages (2023)',url:'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_a10_e?geo=FR&na_item=EMP_DC&unit=THS_HW&nace_r2=TOTAL&lang=fr'},
@@ -139,6 +146,7 @@ const REF_FR=[
   {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',src:'Insee Première n° 2106 (modèle : sans dépenses de santé, de famille ni minima sociaux)',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'po',l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'dep',l:'Personnes de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
+  {k:'fail',l:'Crédits des entreprises défaillantes / crédits aux entreprises (par an, médiane sur 10 ans)',v:0.0045,y:'2010-2019',tol:0.003,u:'pct',src:'Banque de France, calculs BNP Paribas (Eco Flash 24.09, 2024) : moyenne 2010-2019 de 0,45 % ; pic d\'août 2009 : 0,56 %',url:'https://economic-research.bnpparibas.com/pdf/fr-FR/France-Poids-economique-defaillances-entreprises-niveaux-eleves-relativiser-20/06/2024,49702'},
   {k:'credit',l:'Crédits bancaires aux entreprises / PIB',v:1437.1/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, Financement des entreprises, août 2026 (1 437,1 Md€ de crédits aux sociétés non financières) ; PIB 2025 : 2 991,1 Md€ (Insee)',url:'https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08'},
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
