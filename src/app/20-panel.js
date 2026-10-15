@@ -41,6 +41,7 @@ function bindPanel(){
   $('broadmode').addEventListener('change',e=>{store.set('labo-broad',e.target.value);renderBroad();});
   {const v=store.get('labo-broad');if(v==='share'||v==='keur')$('broadmode').value=v;}
   $('sweepbtn').addEventListener('click',runSweep);
+  $('btbtn').addEventListener('click',runBacktest);
   // groupes repliables et aides : état mémorisé
   document.querySelectorAll('details.grp').forEach(d=>{const k='labo-open-'+d.dataset.k;const v=store.get(k);if(v!==null)d.open=v==='1';d.addEventListener('toggle',()=>store.set(k,d.open?'1':'0'));});
   const help=$('help'),panel=$('panel');help.checked=store.get('labo-help')==='1';panel.classList.toggle('help-off',!help.checked);

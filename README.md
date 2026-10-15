@@ -64,4 +64,5 @@ Le moteur (`src/engine/`) ne touche jamais au DOM : il est aussi exécuté dans 
 - `tests/regress.js` : 17 configurations × 2 scénarios × 2 graines, toutes les sorties comparées à 1e-8 près.
 - `tests/ui.py` : charge la page, lance 4 configurations, compare tout le texte affiché et les tracés SVG. `--shots` enregistre des captures des onglets, `--nospace` ignore les espaces.
 - `tests/score.js` : tableau de bord de représentativité en ligne de commande (informatif, lancé par `check.sh`).
+- `tests/backtest.js` : test de validation 2010 → 2024 (le modèle part des conditions de 2010, comparé aux données de 2024 ; informatif, lancé par `check.sh`).
 - `tests/perf.js` : temps par simulation selon le nombre de ménages.

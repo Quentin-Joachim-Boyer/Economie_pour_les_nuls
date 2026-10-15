@@ -8,3 +8,5 @@ node tests/regress.js dist/labo-capital.html $1
 python3 tests/ui.py dist/labo-capital.html $1 2>&1 | grep -v 'agent-proxy\|fonts.google\|For details\|While this' || true
 # tableau de bord de représentativité (informatif)
 node tests/score.js dist/labo-capital.html 2000 8 | tail -1
+# test de validation 2010 → 2024 (informatif)
+node tests/backtest.js dist/labo-capital.html 2000 8 | tail -1

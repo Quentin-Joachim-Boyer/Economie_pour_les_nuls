@@ -539,6 +539,18 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
     <p class="note" style="margin-top:2px">Ces valeurs ne sont pas des résultats : ce sont des réglages ou des absences du modèle (pas encore de prestations sociales ni de crédit immobilier ; productivité fixée par réglage).</p>
     <div class="score" id="scoreset"></div>
   </section>
+
+  <section class="card keep" id="btcard">
+    <div class="card-head">
+      <div><h2>Test : partir de 2010, arriver en 2024</h2></div>
+      <div class="card-tools"><button id="btbtn" type="button">Lancer le test</button></div>
+    </div>
+    <p>Le modèle (gains libres) part des conditions de 2010 (chômage 9,3 %, dette 82,3 % du PIB, déficit 7,2 %, épargne financière 6,9 %, patrimoine rapporté au revenu de 2010, productivité de 0,4 % par an), avance de 14 ans et est comparé aux données de 2024. Les autres réglages restent ceux du panneau. Ni la crise des dettes souveraines, ni le Covid, ni l'inflation de 2022 ne sont reproduits : on teste les tendances, pas les chocs.</p>
+    <div class="slegend"><span><i style="width:10px;height:10px;border-radius:50%;border:2px solid var(--muted)"></i>France 2010</span><span><i style="width:2px;height:12px;background:var(--fg)"></i>France 2024</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--ok)"></i>modèle en 2024, proche</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--warn)"></i>modèle en 2024, éloigné</span></div>
+    <p class="ssum" id="btsum">Pas encore lancé.</p>
+    <div class="score" id="btrows"></div>
+    <p class="note">« Proche » : l'écart à 2024 est plus petit que le chemin parcouru par la France entre 2010 et 2024 (ou 5 % de la valeur). Le départ du modèle reprend la forme de la distribution du patrimoine de 2021, remise à l'échelle de 2010 : le rapport 9e décile / médiane part donc de 5,07 et non de 4,42.</p>
+  </section>
   </div>
 
   <div class="tabpane" data-pane="hyp">
@@ -842,6 +854,26 @@ const SAVE_BY_AGE=[4,7.7,11.3,15,11.5,8];
    caisse en obligations d'État : l'État emprunte d'abord à la banque. Les fonds gardent une poche de liquidités de 5 % de leur
    valeur (choix de travail : les fonds actions sont presque entièrement investis) et rendent le reste à leurs porteurs. */
 const BANK_RESERVE=0.01, FUND_CASH=0.05;
+
+/* ---------- test de validation : partir de 2010, comparer en 2024 ----------
+   Conditions de départ 2010 (Insee ; comptes nationaux en base 2005 sauf mention) : chômage 9,3 % ; dette 82,3 % du PIB ; déficit 7,2 %
+   (base 2020) ; taux d'épargne financière 6,9 % ; taux apparent de la dette ≈ 3,2 % (intérêts 50,5 Md€ pour une dette de 82,3 % d'un PIB
+   de 1 923 Md€, calcul) ; patrimoine net médian 113 500 € pour un niveau de vie médian de 19 270 € (5,89 années, contre 5,39 en 2021 :
+   la distribution 2021 est remise à cette échelle) ; productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026).
+   Non repris : la crise des dettes souveraines, le Covid (−7,4 % de PIB en 2020), l'inflation de 2022-2023 ; salaires et achats publics
+   en part du PIB gardés à leur niveau 2025. */
+const BACKTEST={from:2010,to:2024,P:{T:14,u0:0.093,debt0:0.823,defT:0.072,save:0.069,rB:0.032,m0:(113500/19270)/(124800/23160),prodG:0.004},
+  refs:[
+    {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
+    {k:'ulong',l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},
+    {k:'debt',l:'Dette publique / PIB',a:0.823,b:1.126,u:'pct',src:'Insee Première n° 1348 (2010) et n° 2106 (2024)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+    {k:'deficit',l:'Déficit public / PIB',a:0.072,b:0.058,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+    {k:'spend',l:'Dépenses publiques / PIB',a:0.577,b:0.570,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+    {k:'po',l:'Prélèvements obligatoires / PIB',a:0.425,b:0.427,u:'pct',src:'Insee Première n° 1348 et n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+    {k:'margin',l:'Taux de marge des entreprises (moyenne de la période)',a:0.302,b:0.327,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
+    {k:'save',l:'Taux d\'épargne financière (moyenne de la période)',a:0.069,b:0.097,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
+    {k:'wmed',l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
+    {k:'wd9',l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
 /* ==== fichier : engine/01-math.js ==== */
 /* =====================================================================
    Outils mathématiques
@@ -1088,19 +1120,19 @@ function makeParticipation(C){
    Générateur propre : les tirages existants ne changent pas.
    ===================================================================== */
 function makeLabour(C,wage){
-  const {N,P,seed,qi,age0}=C;const on=!!C.on;const g=rng(seed*104729+7);
+  const {N,P,seed,qi,age0}=C;const on=!!C.on;const g=rng(seed*104729+7);const U0=P.u0!=null?P.u0:UNEMP_RATE;
   const act=C.act||new Uint8Array(N).fill(1),jobs=C.jobs||1;
   const emp=Uint8Array.from(act),dur=new Int32Array(N),fresh=new Uint8Array(N);
   const uT=new Float64Array(C.T),longT=new Float64Array(C.T),hoursT=new Float64Array(C.T);
   // risque relatif par âge × quintile, ajusté (calage sur marges) pour que la population de départ reproduise les taux Insee
   const fa=UNEMP_BY_AGE.slice(),fq=UNEMP_BY_QUINTILE.slice();
-  const u=(i,t)=>Math.min(0.9,fa[ageGroup(age0[i]+t)]*fq[qi[i]]/UNEMP_RATE);
+  const u=(i,t)=>Math.min(0.9,fa[ageGroup(age0[i]+t)]*fq[qi[i]]/U0);
   if(on){const ga=new Int8Array(N);const na=new Float64Array(6),nq=new Float64Array(5);
     for(let i=0;i<N;i++){ga[i]=ageGroup(age0[i]);if(act[i]){na[ga[i]]++;nq[qi[i]]++;}}
     // cibles : taux par groupe remis à l'échelle du taux d'ensemble
     let sa=0,sq=0;for(let k=0;k<6;k++)sa+=na[k]*UNEMP_BY_AGE[k];for(let k=0;k<5;k++)sq+=nq[k]*UNEMP_BY_QUINTILE[k];
     let NA=0;for(let i=0;i<N;i++)NA+=act[i];
-    const tA=UNEMP_BY_AGE.map(v=>v*UNEMP_RATE*NA/sa),tQ=UNEMP_BY_QUINTILE.map(v=>v*UNEMP_RATE*NA/sq);
+    const tA=UNEMP_BY_AGE.map(v=>v*U0*NA/sa),tQ=UNEMP_BY_QUINTILE.map(v=>v*U0*NA/sq);
     for(let it=0;it<60;it++){
       const pa=new Float64Array(6),pq=new Float64Array(5);for(let i=0;i<N;i++)if(act[i])pa[ga[i]]+=u(i,0);
       for(let k=0;k<6;k++)if(na[k]>0&&pa[k]>0)fa[k]*=tA[k]*na[k]/pa[k];
@@ -1631,6 +1663,18 @@ function scoreCard(w,P){
     const ok=v=>{const g=gap(v);return g==null?null:Math.abs(g)<=r.tol;};
     return {...r,start:s,end:e,gapEnd:gap(e),okStart:ok(s),okEnd:ok(e)};});
 }
+
+/* Test de validation : valeur du modèle à la fin (année BACKTEST.to) pour chaque indicateur de BACKTEST.refs */
+function backtestCard(w,P){
+  const L=P.T-1,net=w.eq&&w.eq.net,wr=w.pWr?w.pWr[L]:1;
+  const med=net&&net.length?net[Math.floor(net.length/2)]:null,d9=net&&net.length?net[Math.floor(net.length*0.9)]:null;
+  const M={unemp:w.lU[L],ulong:w.lLong[L],debt:w.sDebt[L],deficit:w.sDef[L],spend:w.sPub[L],po:w.sPO[L],margin:1-w.cWageShare,save:w.cSaveRate,
+    wmed:med!=null&&wr>0?med/wr:null,wd9:med>0?d9/med:null};
+  const S0={unemp:w.lU[0],ulong:w.lLong[Math.min(2,L)],debt:w.sDebt[0],deficit:w.sDef[0],spend:w.sPub[0],po:w.sPO[0],margin:null,save:null,
+    wmed:WEALTH_Q[5][1]*(P.m0||1),wd9:WEALTH_Q[9][1]/WEALTH_Q[5][1]};
+  return BACKTEST.refs.map(r=>{const m=M[r.k],m0=S0[r.k];const dirOK=m==null?null:Math.sign(m-r.a)===Math.sign(r.b-r.a)||Math.abs(r.b-r.a)<1e-9;
+    const err=m==null?null:Math.abs(m-r.b)/Math.max(Math.abs(r.b-r.a),Math.abs(r.b)*0.05);return {...r,m,m0,dirOK,close:err!=null&&err<=1};});
+}
 </script>
 <script>
 /* ==== fichier : app/00-format.js ==== */
@@ -2094,6 +2138,23 @@ function renderScore(W){
   setText('scoresum',done.length?`${ok} indicateur${ok>1?'s':''} sur ${done.length} dans l'écart acceptable à la fin de la simulation.`:'Activer l\'économie bouclée pour comparer le modèle à la France.');
   setHTML('scorerows',meas.map(row).join(''));setHTML('scoreset',S.filter(r=>r.set).map(row).join(''));
 }
+
+// test de validation 2010 → 2024 (lancé à la demande)
+async function runBacktest(){const btn=$('btbtn');btn.disabled=true;btn.textContent='Calcul…';
+  try{const Q={...P,...BACKTEST.P};const [Lw]=await simulate(Q,(d,n)=>{btn.textContent=`Calcul… ${d} / ${n}`;});renderBacktest(backtestCard(Lw,Q));}
+  catch(e){setText('btsum','Erreur de calcul : '+e);}
+  finally{btn.disabled=false;btn.textContent='Lancer le test';}}
+function renderBacktest(S){
+  const fv=(r,v)=>v==null||!isFinite(v)?'—':r.u==='pct'?pct1(v):fr(v,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const row=r=>{const vals=[r.a,r.b,r.m].filter(v=>v!=null&&isFinite(v));let lo=Math.min(0,...vals),hi=Math.max(...vals)*1.1;if(hi<=lo)hi=lo+1;
+    const x=v=>((v-lo)/(hi-lo)*100).toFixed(2)+'%';
+    return `<div class="srow"><div class="slabel">${r.l}<small><a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small></div>
+      <div class="strack" role="img" aria-label="${r.l} : France ${BACKTEST.from} ${fv(r,r.a)}, ${BACKTEST.to} ${fv(r,r.b)}, modèle ${fv(r,r.m)}"><span class="axis"></span><span class="ref" style="left:${x(r.b)}"></span><span class="dot start" style="left:${x(r.a)}"></span>${r.m!=null&&isFinite(r.m)?`<span class="dot end${r.close?' ok':''}" style="left:${x(r.m)}"></span>`:''}</div>
+      <div class="sval">${BACKTEST.from} ${fv(r,r.a)}<br>${BACKTEST.to} <b>${fv(r,r.b)}</b><br>modèle <b>${fv(r,r.m)}</b></div></div>`;};
+  const d=S.filter(r=>r.dirOK).length,c=S.filter(r=>r.close).length;
+  setText('btsum',`Évolution dans le bon sens : ${d} indicateurs sur ${S.length} ; proches de la valeur ${BACKTEST.to} : ${c} sur ${S.length}.`);
+  setHTML('btrows',S.map(row).join(''));
+}
 /* ==== fichier : app/11-verdict.js ==== */
 /* =====================================================================
    Synthèse : ce qui change quand on interdit les gains
@@ -2301,6 +2362,7 @@ function bindPanel(){
   $('broadmode').addEventListener('change',e=>{store.set('labo-broad',e.target.value);renderBroad();});
   {const v=store.get('labo-broad');if(v==='share'||v==='keur')$('broadmode').value=v;}
   $('sweepbtn').addEventListener('click',runSweep);
+  $('btbtn').addEventListener('click',runBacktest);
   // groupes repliables et aides : état mémorisé
   document.querySelectorAll('details.grp').forEach(d=>{const k='labo-open-'+d.dataset.k;const v=store.get(k);if(v!==null)d.open=v==='1';d.addEventListener('toggle',()=>store.set(k,d.open?'1':'0'));});
   const help=$('help'),panel=$('panel');help.checked=store.get('labo-help')==='1';panel.classList.toggle('help-off',!help.checked);

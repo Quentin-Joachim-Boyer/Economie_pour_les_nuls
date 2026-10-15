@@ -256,3 +256,20 @@ function renderScore(W){
   setText('scoresum',done.length?`${ok} indicateur${ok>1?'s':''} sur ${done.length} dans l'écart acceptable à la fin de la simulation.`:'Activer l\'économie bouclée pour comparer le modèle à la France.');
   setHTML('scorerows',meas.map(row).join(''));setHTML('scoreset',S.filter(r=>r.set).map(row).join(''));
 }
+
+// test de validation 2010 → 2024 (lancé à la demande)
+async function runBacktest(){const btn=$('btbtn');btn.disabled=true;btn.textContent='Calcul…';
+  try{const Q={...P,...BACKTEST.P};const [Lw]=await simulate(Q,(d,n)=>{btn.textContent=`Calcul… ${d} / ${n}`;});renderBacktest(backtestCard(Lw,Q));}
+  catch(e){setText('btsum','Erreur de calcul : '+e);}
+  finally{btn.disabled=false;btn.textContent='Lancer le test';}}
+function renderBacktest(S){
+  const fv=(r,v)=>v==null||!isFinite(v)?'—':r.u==='pct'?pct1(v):fr(v,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const row=r=>{const vals=[r.a,r.b,r.m].filter(v=>v!=null&&isFinite(v));let lo=Math.min(0,...vals),hi=Math.max(...vals)*1.1;if(hi<=lo)hi=lo+1;
+    const x=v=>((v-lo)/(hi-lo)*100).toFixed(2)+'%';
+    return `<div class="srow"><div class="slabel">${r.l}<small><a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small></div>
+      <div class="strack" role="img" aria-label="${r.l} : France ${BACKTEST.from} ${fv(r,r.a)}, ${BACKTEST.to} ${fv(r,r.b)}, modèle ${fv(r,r.m)}"><span class="axis"></span><span class="ref" style="left:${x(r.b)}"></span><span class="dot start" style="left:${x(r.a)}"></span>${r.m!=null&&isFinite(r.m)?`<span class="dot end${r.close?' ok':''}" style="left:${x(r.m)}"></span>`:''}</div>
+      <div class="sval">${BACKTEST.from} ${fv(r,r.a)}<br>${BACKTEST.to} <b>${fv(r,r.b)}</b><br>modèle <b>${fv(r,r.m)}</b></div></div>`;};
+  const d=S.filter(r=>r.dirOK).length,c=S.filter(r=>r.close).length;
+  setText('btsum',`Évolution dans le bon sens : ${d} indicateurs sur ${S.length} ; proches de la valeur ${BACKTEST.to} : ${c} sur ${S.length}.`);
+  setHTML('btrows',S.map(row).join(''));
+}

@@ -9,19 +9,19 @@
    Générateur propre : les tirages existants ne changent pas.
    ===================================================================== */
 function makeLabour(C,wage){
-  const {N,P,seed,qi,age0}=C;const on=!!C.on;const g=rng(seed*104729+7);
+  const {N,P,seed,qi,age0}=C;const on=!!C.on;const g=rng(seed*104729+7);const U0=P.u0!=null?P.u0:UNEMP_RATE;
   const act=C.act||new Uint8Array(N).fill(1),jobs=C.jobs||1;
   const emp=Uint8Array.from(act),dur=new Int32Array(N),fresh=new Uint8Array(N);
   const uT=new Float64Array(C.T),longT=new Float64Array(C.T),hoursT=new Float64Array(C.T);
   // risque relatif par âge × quintile, ajusté (calage sur marges) pour que la population de départ reproduise les taux Insee
   const fa=UNEMP_BY_AGE.slice(),fq=UNEMP_BY_QUINTILE.slice();
-  const u=(i,t)=>Math.min(0.9,fa[ageGroup(age0[i]+t)]*fq[qi[i]]/UNEMP_RATE);
+  const u=(i,t)=>Math.min(0.9,fa[ageGroup(age0[i]+t)]*fq[qi[i]]/U0);
   if(on){const ga=new Int8Array(N);const na=new Float64Array(6),nq=new Float64Array(5);
     for(let i=0;i<N;i++){ga[i]=ageGroup(age0[i]);if(act[i]){na[ga[i]]++;nq[qi[i]]++;}}
     // cibles : taux par groupe remis à l'échelle du taux d'ensemble
     let sa=0,sq=0;for(let k=0;k<6;k++)sa+=na[k]*UNEMP_BY_AGE[k];for(let k=0;k<5;k++)sq+=nq[k]*UNEMP_BY_QUINTILE[k];
     let NA=0;for(let i=0;i<N;i++)NA+=act[i];
-    const tA=UNEMP_BY_AGE.map(v=>v*UNEMP_RATE*NA/sa),tQ=UNEMP_BY_QUINTILE.map(v=>v*UNEMP_RATE*NA/sq);
+    const tA=UNEMP_BY_AGE.map(v=>v*U0*NA/sa),tQ=UNEMP_BY_QUINTILE.map(v=>v*U0*NA/sq);
     for(let it=0;it<60;it++){
       const pa=new Float64Array(6),pq=new Float64Array(5);for(let i=0;i<N;i++)if(act[i])pa[ga[i]]+=u(i,0);
       for(let k=0;k<6;k++)if(na[k]>0&&pa[k]>0)fa[k]*=tA[k]*na[k]/pa[k];

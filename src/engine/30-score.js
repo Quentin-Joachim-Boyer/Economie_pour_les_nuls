@@ -26,3 +26,15 @@ function scoreCard(w,P){
     const ok=v=>{const g=gap(v);return g==null?null:Math.abs(g)<=r.tol;};
     return {...r,start:s,end:e,gapEnd:gap(e),okStart:ok(s),okEnd:ok(e)};});
 }
+
+/* Test de validation : valeur du modèle à la fin (année BACKTEST.to) pour chaque indicateur de BACKTEST.refs */
+function backtestCard(w,P){
+  const L=P.T-1,net=w.eq&&w.eq.net,wr=w.pWr?w.pWr[L]:1;
+  const med=net&&net.length?net[Math.floor(net.length/2)]:null,d9=net&&net.length?net[Math.floor(net.length*0.9)]:null;
+  const M={unemp:w.lU[L],ulong:w.lLong[L],debt:w.sDebt[L],deficit:w.sDef[L],spend:w.sPub[L],po:w.sPO[L],margin:1-w.cWageShare,save:w.cSaveRate,
+    wmed:med!=null&&wr>0?med/wr:null,wd9:med>0?d9/med:null};
+  const S0={unemp:w.lU[0],ulong:w.lLong[Math.min(2,L)],debt:w.sDebt[0],deficit:w.sDef[0],spend:w.sPub[0],po:w.sPO[0],margin:null,save:null,
+    wmed:WEALTH_Q[5][1]*(P.m0||1),wd9:WEALTH_Q[9][1]/WEALTH_Q[5][1]};
+  return BACKTEST.refs.map(r=>{const m=M[r.k],m0=S0[r.k];const dirOK=m==null?null:Math.sign(m-r.a)===Math.sign(r.b-r.a)||Math.abs(r.b-r.a)<1e-9;
+    const err=m==null?null:Math.abs(m-r.b)/Math.max(Math.abs(r.b-r.a),Math.abs(r.b)*0.05);return {...r,m,m0,dirOK,close:err!=null&&err<=1};});
+}

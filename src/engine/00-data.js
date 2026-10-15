@@ -194,3 +194,23 @@ const SAVE_BY_AGE=[4,7.7,11.3,15,11.5,8];
    caisse en obligations d'État : l'État emprunte d'abord à la banque. Les fonds gardent une poche de liquidités de 5 % de leur
    valeur (choix de travail : les fonds actions sont presque entièrement investis) et rendent le reste à leurs porteurs. */
 const BANK_RESERVE=0.01, FUND_CASH=0.05;
+
+/* ---------- test de validation : partir de 2010, comparer en 2024 ----------
+   Conditions de départ 2010 (Insee ; comptes nationaux en base 2005 sauf mention) : chômage 9,3 % ; dette 82,3 % du PIB ; déficit 7,2 %
+   (base 2020) ; taux d'épargne financière 6,9 % ; taux apparent de la dette ≈ 3,2 % (intérêts 50,5 Md€ pour une dette de 82,3 % d'un PIB
+   de 1 923 Md€, calcul) ; patrimoine net médian 113 500 € pour un niveau de vie médian de 19 270 € (5,89 années, contre 5,39 en 2021 :
+   la distribution 2021 est remise à cette échelle) ; productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026).
+   Non repris : la crise des dettes souveraines, le Covid (−7,4 % de PIB en 2020), l'inflation de 2022-2023 ; salaires et achats publics
+   en part du PIB gardés à leur niveau 2025. */
+const BACKTEST={from:2010,to:2024,P:{T:14,u0:0.093,debt0:0.823,defT:0.072,save:0.069,rB:0.032,m0:(113500/19270)/(124800/23160),prodG:0.004},
+  refs:[
+    {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
+    {k:'ulong',l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},
+    {k:'debt',l:'Dette publique / PIB',a:0.823,b:1.126,u:'pct',src:'Insee Première n° 1348 (2010) et n° 2106 (2024)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+    {k:'deficit',l:'Déficit public / PIB',a:0.072,b:0.058,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+    {k:'spend',l:'Dépenses publiques / PIB',a:0.577,b:0.570,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+    {k:'po',l:'Prélèvements obligatoires / PIB',a:0.425,b:0.427,u:'pct',src:'Insee Première n° 1348 et n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+    {k:'margin',l:'Taux de marge des entreprises (moyenne de la période)',a:0.302,b:0.327,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
+    {k:'save',l:'Taux d\'épargne financière (moyenne de la période)',a:0.069,b:0.097,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
+    {k:'wmed',l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
+    {k:'wd9',l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
