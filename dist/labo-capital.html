@@ -272,6 +272,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
             <label class="switch" for="social"><input type="checkbox" id="social"><span><b>Protection sociale et prélèvements</b><span class="hint">Avec l'État. Retraite à 62 ans et 9 mois (pension : 64,5 % du revenu d'activité, revalorisée sur les prix), allocation chômage (71 % du revenu perdu, deux ans), cotisations et impôt sur le revenu par quintile, TVA, impôt sur les sociétés (Insee, Drees, COR, Unédic).</span></span></label>
             <label class="switch" for="demo"><input type="checkbox" id="demo"><span><b>Démographie</b><span class="hint">Décès selon l'âge (espérance de vie Insee), remplacés par de jeunes ménages ; le patrimoine passe à un ménage d'une génération plus jeune, après 5 % de droits de succession. Épargne selon l'âge (Insee, COR).</span></span></label>
             <label class="switch" for="circ"><input type="checkbox" id="circ"><span><b>Circulation de l'épargne</b><span class="hint">Avec l'État. La banque place en obligations publiques sa caisse au-delà de 1 % des dépôts (réserves obligatoires de la BCE) ; les fonds rendent à leurs porteurs leur trésorerie au-delà de 5 % de leur valeur.</span></span></label>
+            <label class="switch" for="credit"><input type="checkbox" id="credit"><span><b>Création monétaire par le crédit</b><span class="hint">Avec la banque. Un prêt crée de la monnaie, son remboursement la détruit (Banque de France). La banque prête aux entreprises, et à l'État d'abord, tant que ses fonds propres dépassent 11,2 % de ses prêts (exigence de la BCE) et 3 % de son bilan ; elle verse en dividendes ce qui dépasse 16,1 % (ratio effectif, ACPR). Au départ, les entreprises lui doivent 47 % de leur capital.</span></span></label>
             <label class="switch" for="state"><input type="checkbox" id="state"><span><b>État minimal</b><span class="hint">Il prélève un impôt sur les ventes, paie des fonctionnaires, achète aux entreprises et emprunte aux ménages pour couvrir son déficit.</span></span></label>
             <div class="inner" id="in_state">
             <div class="ctl"><div class="top"><label for="gW">Salaires publics</label><output id="gW_o"></output></div><input type="range" id="gW" min="0" max="0.3" step="0.001"><small>En part du PIB de l'année précédente. France 2025 : 370 Md€, 12,3 % du PIB (Insee). Ils font partie du revenu des ménages.</small></div>
@@ -401,7 +402,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
 
   <section class="card" id="moneycard">
     <h2>Où est la monnaie ?</h2>
-    <p>La quantité de monnaie ne change pas : elle ne fait que passer de main en main. Chaque bande montre la part qu'en détient un groupe à la fin de chaque année. Les ménages sont classés par patrimoine net. Leurs dépôts sont dans la caisse de la banque, qui en prête une partie : cette monnaie prêtée apparaît chez l'emprunteur. Ce que l'État emprunte n'apparaît pas ici : il le dépense aussitôt, et les obligations reçues en échange sont un titre, pas de la monnaie.</p>
+    <p>Sans le crédit, la quantité de monnaie ne change pas : elle ne fait que passer de main en main. Avec le crédit, chaque prêt de la banque en crée et chaque remboursement en détruit ; on compte alors la monnaie que détient le public (liquidités et dépôts, comme les agrégats de la BCE), sans les réserves de la banque. Chaque bande montre la part qu'en détient un groupe à la fin de chaque année. Les ménages sont classés par patrimoine net. Leurs dépôts sont dans la caisse de la banque, qui en prête une partie : cette monnaie prêtée apparaît chez l'emprunteur. Ce que l'État emprunte n'apparaît pas ici : il le dépense aussitôt, et les obligations reçues en échange sont un titre, pas de la monnaie.</p>
     <div class="charts2">
       <div><h3 class="sub">Gains libres</h3><div class="chartwrap"><svg id="ch_monL" viewBox="0 0 380 260" role="img" aria-label="Répartition de la monnaie, gains libres"></svg></div></div>
       <div><h3 class="sub">Gains interdits</h3><div class="chartwrap"><svg id="ch_monI" viewBox="0 0 380 260" role="img" aria-label="Répartition de la monnaie, gains interdits"></svg></div></div>
@@ -416,7 +417,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
         <select id="broadmode"><option value="keur">en k€ par ménage</option><option value="share">en part du total</option></select></div>
     </div>
     <p>Tout ce que détiennent les acteurs de l'économie, classé de ce qui s'accepte le plus facilement en paiement à ce qui s'accepte le moins : liquidités des ménages (moins leurs dettes), dépôts, obligations d'État, parts d'entreprises et de fonds ; puis ce qui n'appartient à aucun ménage : la valeur des entreprises que personne n'a le droit de réclamer, les ventes de l'année que les entreprises encaisseront l'an prochain, les fonds propres de la banque et la trésorerie de l'État. C'est l'échelle des agrégats de la BCE (M1, M2, M3), prolongée jusqu'aux titres longs.</p>
-    <p>Rien n'est compté deux fois : la trésorerie d'une entreprise est dans la valeur de ses parts, les dépôts sont retirés de la caisse de la banque, les prêts s'annulent avec les dettes. Le total est alors exactement <b>la monnaie (fixe) + les obligations d'État + le capital des entreprises</b> (Godley et Lavoie : une fois les créances et les dettes privées annulées, il reste les biens réels et ce que doit l'État). C'est pourquoi il varie : le déficit crée des obligations, l'investissement et l'usure font varier le capital.</p>
+    <p>Rien n'est compté deux fois : la trésorerie d'une entreprise est dans la valeur de ses parts, les dépôts sont retirés de la caisse de la banque, les prêts s'annulent avec les dettes. Le total est alors exactement <b>la monnaie de base + les obligations d'État + le capital des entreprises</b> (la monnaie de base est fixe sans le crédit ; avec lui, elle grandit de ce que la banque a prêté net des remboursements) (Godley et Lavoie : une fois les créances et les dettes privées annulées, il reste les biens réels et ce que doit l'État). C'est pourquoi il varie : le déficit crée des obligations, l'investissement et l'usure font varier le capital.</p>
     <div class="charts2">
       <div><h3 class="sub">Gains libres</h3><div class="chartwrap"><svg id="ch_brL" viewBox="0 0 380 260" role="img" aria-label="Monnaie au sens large, gains libres"></svg></div></div>
       <div><h3 class="sub">Gains interdits</h3><div class="chartwrap"><svg id="ch_brI" viewBox="0 0 380 260" role="img" aria-label="Monnaie au sens large, gains interdits"></svg></div></div>
@@ -484,9 +485,21 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
 
   <section class="card" id="statecard">
     <h2>L'État</h2>
-    <p>Dette publique rapportée au PIB, année par année. Le déficit est emprunté aux ménages, au prorata de leurs liquidités.</p>
+    <p>Dette publique rapportée au PIB, année par année. Le déficit est emprunté aux ménages, au prorata de leurs liquidités ; avec le crédit, d'abord à la banque, qui crée la monnaie prêtée.</p>
     <div class="chartwrap"><svg id="ch_debt" viewBox="0 0 760 260" role="img" aria-label="Dette publique en pourcentage du PIB, année par année"></svg></div>
     <div class="crows" id="staterows"></div>
+  </section>
+
+  <section class="card" id="creditcard">
+    <h2>Le crédit et la banque</h2>
+    <p>La banque crée la monnaie qu'elle prête : en accordant un prêt, elle inscrit un dépôt sur le compte de l'emprunteur (Banque de France, « Comment est créée la monnaie »). Ce qui la limite : ses fonds propres, qui doivent couvrir au moins 11,2 % de ses prêts, et la solvabilité des emprunteurs.</p>
+    <div class="charts2">
+      <div><h3 class="sub">Crédits aux entreprises / PIB</h3><div class="chartwrap"><svg id="ch_cred" viewBox="0 0 380 260" role="img" aria-label="Crédits bancaires aux entreprises en part du PIB"></svg></div><p class="note">France, août 2026 : 1 437 Md€ de crédits aux sociétés non financières, 48 % du PIB (Banque de France).</p></div>
+      <div><h3 class="sub">Fonds propres de la banque</h3><div class="chartwrap"><svg id="ch_cet1" viewBox="0 0 380 260" role="img" aria-label="Fonds propres de la banque en part de ses prêts aux entreprises"></svg></div><p class="note">En part de ses prêts aux entreprises. Pointillés : exigence de 11,2 % (BCE, 2026) et ratio effectif de 16,1 % (ACPR, fin 2024). Sous l'exigence, les dépôts de plus de 100 000 € sont convertis en fonds propres (renflouement interne). À 0, la banque ne prête presque plus (crédits sous 1 % du PIB).</p></div>
+    </div>
+    <h3 class="sub">Monnaie détenue par le public</h3>
+    <div class="chartwrap"><svg id="ch_mpub" viewBox="0 0 760 260" role="img" aria-label="Monnaie détenue par le public, en k€ de 2023 par ménage"></svg></div>
+    <p class="note">Liquidités et dépôts des ménages, trésorerie des entreprises, des fonds et de l'État, en milliers d'euros de 2023 par ménage (corrigés de l'inflation). Composante française de M3 en août 2026 : 3 362 Md€, environ 107 k€ par ménage (Banque de France). Le modèle en compte plus du double : faute de logement et d'assurance-vie, tout le patrimoine des ménages qui n'est pas en parts d'entreprises y est tenu en monnaie.</p>
   </section>
 
   <section class="card" id="firmcard">
@@ -621,6 +634,8 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li><b>Protection sociale et prélèvements.</b> Le revenu tiré pour chaque ménage est son revenu disponible (Insee) ; l'employeur paie le coût du travail, plus élevé : cotisations sociales (34,1 % du coût du travail : 571,8 Md€ pour 1 674,7 Md€ de rémunérations et revenus mixtes en 2024) et impôt sur le revenu + CSG par quintile (4,0 / 5,0 / 7,0 / 9,5 / 18,8 % du revenu, <a href="https://www.insee.fr/fr/statistiques/8612544">Insee, France portrait social 2025</a>). TVA : 13,6 % (207,8 Md€ pour 1 527,5 Md€ de consommation) ; impôt sur les sociétés : 14 % de l'excédent brut d'exploitation (68,0 / 486,5 Md€) ; le reste des recettes est un impôt sur les ventes calé sur le déficit de départ. Retraite à 62 ans et 9 mois (<a href="https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/250731_PANORAMAS-retraites">Drees 2025</a>), pension de 64,5 % du revenu d'activité (<a href="https://www.cor-retraites.fr/sites/default/files/2026-06/RA_Part3_Chap2.pdf">COR 2026</a>), revalorisée sur les prix. Allocation chômage : 71 % du revenu net perdu (Unédic 2015), l'année de la perte d'emploi et la suivante (durée potentielle 486 à 564 jours, Unédic). Emplois par ménage actif : 1,4, pour retrouver les 46,3 milliards d'heures travaillées en 2024 (Eurostat).</li>
       <li><b>Démographie.</b> Décès selon une loi de Gompertz (risque doublé tous les 8,5 ans d'âge, Ined) calée sur une espérance de vie à 60 ans de 25,9 ans (Insee, bilan démographique 2025) ; espérance de vie à la naissance obtenue : 83,2 ans (Insee : 83,1). Chaque ménage disparu est remplacé par un ménage de 25 ans (choix de travail), sans patrimoine, au revenu tiré dans la même loi ; son patrimoine va à un ménage de 25 à 35 ans plus jeune (âge des mères à la naissance : 31 ans ; héritiers : 50 ans en moyenne, <a href="https://cae-eco.fr/static/pdf/cae-note069.pdf">CAE 2021</a>), après 5 % de droits de succession (France Stratégie 2017). Épargne selon l'âge : 4 % avant 30 ans, 15 % à 50-64 ans, 8 % après 65 ans (Insee, travaux présentés au COR, février 2026), combinée au profil par quintile de revenu.</li>
       <li><b>Circulation de l'épargne.</b> La banque garde 1 % des dépôts en réserve (réserves obligatoires de la BCE) et prête le reste de sa caisse à l'État ; les fonds gardent 5 % de leur valeur en liquidités (choix de travail) et rendent le reste à leurs porteurs. Sans ces deux règles, une part croissante de la monnaie dort dans la banque et les fonds.</li>
+      <li><b>Création monétaire par le crédit.</b> « Les crédits font les dépôts » (<a href="https://www.banque-france.fr/fr/publications-et-statistiques/publications/comment-est-creee-la-monnaie">Banque de France</a> ; McLeay, Radia et Thomas, Banque d'Angleterre, 2014) : un prêt crée de la monnaie, le remboursement du principal la détruit. Au départ, les entreprises doivent à la banque 47 % de leur capital (1 437 Md€ de crédits aux sociétés non financières, <a href="https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08">Banque de France, août 2026</a>, pour 3 033 Md€ de capital) ; elles renouvellent leurs prêts et ne remboursent que la dette au-delà de ce ratio. La banque prête tant que ses fonds propres couvrent 11,2 % de ses prêts (exigence moyenne de CET1 pour 2026, <a href="https://www.bankingsupervision.europa.eu/activities/srep/2025/html/ssm.srep202511_aggregatedresults2025.en.html">BCE, SREP 2025</a> ; pondération 100 % pour les entreprises, 0 % pour l'État) et 3 % de son bilan (levier, Bâle III) ; elle verse en dividendes, aux fonds, ce qui dépasse 16,1 % (ratio effectif des banques françaises fin 2024, ACPR, et de la zone euro mi-2025, BCE). Elle finance d'abord le déficit de l'État. Les déposants reçoivent 1,30 % (rémunération moyenne des dépôts des ménages, Banque de France) ; 67,9 % de la marge paie les frais de la banque, versés en salaires (coefficient d'exploitation 2024, ACPR). Sous l'exigence, les dépôts au-delà de 100 000 € (garantie FGDR) sont convertis en fonds propres (renflouement interne, directive BRRD 2014/59/UE). Avec gains interdits, la banque prête à l'inflation + ses pertes attendues + ses frais : elle ne s'enrichit pas, mais ses fonds propres gardent leur valeur réelle (choix de l'utilisateur).</li>
+      <li><b>Grandes entreprises et ETI.</b> Avec 2 000 ménages, une seule entreprise du modèle représente les 327 grandes entreprises françaises (près de la moitié du capital). Plutôt que de disparaître d'un coup, elle perd chaque année une part de son capital et de sa dette : le taux de défaillance des ETI et grandes entreprises, 0,85 % (65 défaillances en 2024 pour 7 623 entreprises, <a href="https://www.banque-france.fr/system/files/webstats/Defaillances_dentreprises_en_France_202412_20250115/FR_Stat_Info_Defaillances_d_Entreprises_202412.pdf">Banque de France</a>), multiplié par le risque relatif de sa marge par rapport à sa marge de départ.</li>
       <li><b>Rentabilité notionnelle.</b> Sa distribution suit l'Insee (médiane 10,7 %), mais son niveau est ramené au départ au profit que l'économie du modèle dégage vraiment ; le risque de disparition est calé sur ces rentabilités pour que la survie à 5 ans reste celle observée (69 %).</li>
       <li><b>Coûts de fonctionnement de la banque et de la bourse.</b> Choix de travail, sans source.</li>
     </ul>
@@ -633,7 +648,8 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li>Le revenu de chacun est fixe sur toute la vie, et sans lien avec sa chance d'avoir des idées.</li>
       <li>La qualité des créations n'est connue de personne à l'avance, et personne ne trie les bonnes des mauvaises.</li>
       <li>La part déposée à la banque ne dépend pas du taux d'intérêt.</li>
-      <li>La banque prête au premier qui demande tant qu'elle a des fonds. Il n'y a ni assurance contre l'échec, ni retrait des dépôts, ni faillite personnelle.</li>
+      <li>La banque prête au premier qui demande tant que ses fonds propres le permettent, sans examiner les projets ni faire varier ses taux selon le risque (sauf avec gains interdits, où le taux couvre les pertes moyennes). Il n'y a ni assurance contre l'échec, ni panique bancaire, ni faillite personnelle, ni crédit aux ménages (immobilier). Sans banque centrale, les taux ne bougent pas et la banque se refinance sans coût quand sa caisse est vide.</li>
+      <li>Crédit : en dehors des grandes entreprises, un endettement qui monte n'empêche pas d'emprunter davantage ; au départ, le crédit vaut 66 % du PIB contre 48 % en France, parce que le capital du modèle vaut 1,4 an de PIB contre environ 1 an (comptes nationaux).</li>
       <li>La bourse ne fait que financer : pas de revente des parts, pas de prix, pas de spéculation. Une part d'entreprise est comptée à sa valeur comptable.</li>
       <li>Les ménages vieillissent sans mourir : au bout de 40 ans, la moitié a plus de 90 ans. Le revenu ne dépend pas de l'âge (pas de retraite), et l'âge ne joue que sur le patrimoine de départ et l'épargne en actions.</li>
       <li>Épargner en actions ne dépend pas de l'expérience : un ménage qui a perdu n'en devient pas plus prudent. Les fonds n'ont pas de frais de gestion ni de stratégie : ils suivent les levées au prorata de leur trésorerie.</li>
@@ -644,7 +660,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li>Revenus : tout le revenu disponible des ménages (salaires, mais aussi pensions et prestations) est versé comme un salaire par les entreprises et l'État, et tous les impôts portent sur les ventes ; la part des profits dans la valeur ajoutée en est sous-estimée (environ 15 % contre 32 % en France). À corriger avec la protection sociale et les prélèvements sur les revenus.</li>
       <li>Finances publiques : ni règle budgétaire ni réaction du solde à la dette, conformément aux estimations pour la France (coefficient non significatif : Checherita-Westphal et Žďárek 2017, Berti et coauteurs 2016, Bruegel 2025) ; la dette monte tant que le déficit primaire persiste.</li>
       <li>Protection sociale : pas encore de dépenses de santé, de prestations familiales, d'aides au logement ni de minima sociaux ; pas de taux de remplacement différent selon le revenu ; un ménage = une personne de référence.</li>
-      <li>Avec des gains de productivité et une quantité de monnaie fixe, la production qui augmente doit faire baisser les prix ; comme les salaires ne baissent pas, l'ajustement passe par le chômage en fin de période. Dans la réalité, le crédit bancaire crée de la monnaie : brique à venir.</li>
+      <li>Démographie : chaque décès est remplacé par un ménage de 25 ans. Quand les générations nombreuses du baby-boom disparaissent (après 20 à 30 ans de simulation), il arrive autant de jeunes actifs que de décès, et la part des retraités baisse au lieu de monter comme le prévoit le COR. Ce surcroît d'actifs, que la demande ne suit pas, fait monter le chômage en fin de période, avec ou sans crédit : il faudra des entrées fondées sur les générations réelles.</li>
       <li>Prix : un seul bien, pas d'importations ni d'énergie ; pas d'anticipations d'inflation ; la marge ne dépend pas de la concurrence ; les taux d'intérêt des gains libres restent fixes (pas de banque centrale).</li>
       <li>Chômage : sans allocation, ni inactivité, ni retraite ; un ménage = un emploi ; heures fixes par emploi ; productivité fixe ; les chômeurs ne vivent que de leur patrimoine. Pas de prix : la demande que la population active ne peut pas servir attend l'année suivante au lieu de faire monter les prix.</li>
       <li>État minimal : ni prestations sociales ni redistribution (le revenu des ménages reste calé sur le niveau de vie, déjà après impôts et prestations), ni impôt sur les ménages ou les profits ; les obligations publiques ne se revendent pas et ne sont jamais remboursées. Sans croissance ni inflation, un déficit durable fait monter la dette rapportée au PIB.</li>
@@ -708,6 +724,9 @@ const FIRM_CATS=[
   {n:'PME',n1:'PME',c:172520,k:0.1402,big:0},
   {n:'microentreprises',n1:'microentreprise',c:4831709-1900000,k:0.0975,big:0}];
 const FIRM_CATS_TOTAL=FIRM_CATS.reduce((a,c)=>a+c.c,0);
+// défaillances d'ETI et de grandes entreprises : 65 en 2024 (cumul 12 mois, Banque de France, Stat Info défaillances, décembre 2024)
+// pour 7 623 entreprises (7 296 ETI + 327 grandes entreprises, Insee) : 0,85 % par an
+const BIG_FAIL_RATE=65/(7296+327);
 const FIRM_SIZE_SIGMA=0.8;            // dispersion log-normale de la taille dans une catégorie
 const SHAREHOLDERS_SMALL=10;          // actionnaires d'une PME ou microentreprise existante (en plus du propriétaire)
 const SHAREHOLDERS_BIG=40;            // actionnaires d'une grande entreprise ou ETI existante (pas de propriétaire principal)
@@ -795,6 +814,7 @@ const REF_FR=[
   {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
   {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',src:'Insee Première n° 2106 (modèle : sans dépenses de santé, de famille ni minima sociaux)',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'po',l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'credit',l:'Crédits bancaires aux entreprises / PIB',v:1437.1/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, Financement des entreprises, août 2026 (1 437,1 Md€ de crédits aux sociétés non financières) ; PIB 2025 : 2 991,1 Md€ (Insee)',url:'https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08'},
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
   {k:'hhdebt',l:'Dette des ménages / PIB',v:0.591,y:'2025',tol:0.10,u:'pct',set:1,src:'Banque de France, taux d\'endettement des agents non financiers, T4 2025 (modèle : pas de crédit immobilier)',url:'https://www.banque-france.fr/fr/statistiques/comptes-nationaux-financiers/taux-dendettement-des-agents-non-financiers-comparaisons-internationales-2025-q4'}];
@@ -874,6 +894,22 @@ const BACKTEST={from:2010,to:2024,P:{T:14,u0:0.093,debt0:0.823,defT:0.072,save:0
     {k:'save',l:'Taux d\'épargne financière (moyenne de la période)',a:0.069,b:0.097,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
     {k:'wmed',l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
     {k:'wd9',l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
+
+/* ---------- création monétaire par le crédit ----------
+   « Les crédits font les dépôts » (Banque de France, « Comment est créée la monnaie ») : un prêt crée de la monnaie,
+   son remboursement la détruit. La banque prête aux entreprises et achète des obligations publiques tant que ses fonds propres
+   couvrent 11,2 % de ses prêts (exigence moyenne de CET1 de la BCE pour 2026, Pilier 2 et coussins compris, SREP 2025 ;
+   pondération 100 % pour les entreprises, 0 % pour l'État en approche standard) et 3 % de son bilan (levier minimal, Bâle III).
+   Elle verse en dividendes ce qui dépasse 16,1 % de ses prêts (ratio CET1 effectif : 16,1 % fin 2024 pour les banques
+   françaises, ACPR ; 16,1 % au 2e trimestre 2025 dans la zone euro, BCE) : l'écart entre les deux ratios est sa marge de prêt.
+   Au départ, les entreprises doivent à la banque 47 % de leur capital (crédits aux sociétés non financières 1 437 Md€, août 2026,
+   Banque de France, pour 3 033 Md€ de capital) ; elles renouvellent leurs prêts et ne remboursent que ce qui dépasse ce ratio.
+   Les déposants reçoivent 1,30 % (rémunération moyenne des dépôts des ménages, Banque de France) sur les intérêts perçus ;
+   le reste est la marge de la banque, dont 67,9 % paie ses frais (coefficient d'exploitation 2024, ACPR).
+   Si les pertes font passer les fonds propres sous l'exigence, les dépôts au-delà de 100 000 € (garantie des dépôts, FGDR)
+   sont convertis en fonds propres (renflouement interne, directive BRRD 2014/59/UE). */
+const DEPOSIT_GUARANTEE=100000/UNIT_EUR;
+const CET1_TARGET=0.161, CET1_MIN=0.112, LEVERAGE_MIN=0.03, SNF_CREDIT_K=1437/3033, DEPOSIT_RATE=0.013, BANK_COST_RATIO=0.679;
 /* ==== fichier : engine/01-math.js ==== */
 /* =====================================================================
    Outils mathématiques
@@ -1053,10 +1089,10 @@ function seedExistingFirms(C){
   const pick=()=>{const x=er()*cdf[nH-1];let lo=0,hi=nH-1;while(lo<hi){const m=(lo+hi)>>1;if(cdf[m]<x)lo=m+1;else hi=m;}return H[lo];};
   // économie bouclée : chaque entreprise détient au départ la trésorerie d'une année d'investissement (sa règle d'autofinancement),
   // payée par ses détenteurs comme le capital : la valeur d'une entreprise est K + R
-  const r0=P.closed?P.invest:0;
+  const r0=P.closed?P.invest:0,lam=C.creditOn?SNF_CREDIT_K:0;   // dette bancaire de départ (crédit)
   for(const ls of landscape(n0,P.k0*N,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho=drawRho(er,P);
-    const owner=isBig?-1:pick();const own=isBig?0:P.own;const V=K*(1+r0);
-    const fm=newHoldings({K,R:K*r0,debt:0,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
+    const owner=isBig?-1:pick();const own=isBig?0:P.own;const V=K*(1+r0-lam);
+    const fm=newHoldings({K,R:K*r0,debt:K*lam,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
     if(owner>=0){addHolder(fm,owner,V*own,V*own);init0[owner]+=V*own;}
     const ns=isBig?SHAREHOLDERS_BIG:SHAREHOLDERS_SMALL,part=V*(1-own)/ns;if(part>0)for(let a=0;a<ns;a++){const j=pick();addHolder(fm,j,part,part);init0[j]+=part;}
     firms.push(fm);}
@@ -1197,6 +1233,11 @@ function run(world,seed,P){
   const pop=makePopulation(P,N,C.prng);const {wage,sr,qi,age0}=pop;
   Object.assign(C,{W0:pop.W0,qi,age0});
   const funds=C.funds=makeFunds(C);
+  // crédit : la banque crée la monnaie qu'elle prête (Mc = monnaie créée nette : prêts − remboursements de principal)
+  const credit=C.creditOn=closed&&bank&&!!P.credit;let Mc=0;
+  /* gains interdits : la banque ne s'enrichit pas, mais couvre ses pertes attendues (moyenne lissée des pertes passées) et ses frais
+     (les mêmes, par euro prêté, qu'avec gains libres) : taux des prêts = inflation + pertes + frais ; ses fonds propres gardent leur valeur réelle */
+  const costRate=BANK_COST_RATIO*Math.max(0,(P.rl||0)-DEPOSIT_RATE);let lossEst=0,bailY=0;
   for(let i=0;i<N;i++)W[i]=pop.W0[i];
   const init0=C.init0=Float64Array.from(pop.W0);
   const hazard=hazardModel(P);
@@ -1227,7 +1268,7 @@ function run(world,seed,P){
   let WB=0;for(let i=0;i<N;i++)if(emp[i])WB+=wage[i];
   const uiOf=i=>act[i]&&!emp[i]&&lab.dur[i]<UI_YEARS?UI_REPL*wage[i]:0;   // allocation chômage (en unités du départ, avant wIdx)
   const sPub=new Float64Array(T),sPO=new Float64Array(T),dRet=new Float64Array(T),retSh=new Float64Array(T);let deaths=0;
-  let rhoS=1,LCsoc0=0;const kQ=new Float64Array(5),srQ=new Float64Array(5),srCell=new Float64Array(30),kCell=new Float64Array(30);
+  const kEq=new Float64Array(T),kBail=new Float64Array(T),kCred=new Float64Array(T),kCET1=new Float64Array(T),kM=new Float64Array(T);let rhoS=1,LCsoc0=0;const kQ=new Float64Array(5),srQ=new Float64Array(5),srCell=new Float64Array(30),kCell=new Float64Array(30);
   const dR=rng(seed*15485863+11),dZ=normalFrom(dR);
   const wCut=(()=>{const y=Float64Array.from(wage).sort();return [1,2,3,4].map(k=>y[Math.floor(k*N/5)]);})();
   let wageSum=0,back=0,GDP0=0,GDPr0=0,capGDP=0;const WB0=WB;const unmet=new Float64Array(T);
@@ -1255,7 +1296,14 @@ function run(world,seed,P){
   const sc={tax:0,gw:0,gp:0,int:0,cut:0,spend:0};
   // l'État emprunte aux ménages, au prorata de leurs liquidités
   const circ=stateOn&&!!P.circ;let Bb=0;   // obligations détenues par la banque
-  const borrow=need=>{if(circ&&need>0){let sd=0;for(let i=0;i<N;i++)sd+=D[i];const x=Math.min(need,Math.max(0,F-BANK_RESERVE*sd));if(x>0){F-=x;Bb+=x;Sc+=x;pubDebt+=x;need-=x;}}
+  // bilan de la banque : fonds propres = caisse + prêts + obligations − dépôts ; capacités de prêt (fonds propres, levier)
+  const loansTot=()=>{let s=0;for(const fm of firms)if(!fm.dead)s+=fm.debt;for(let i=0;i<N;i++)s+=L[i];return s;};
+  const sumDep=()=>{let s=0;for(let i=0;i<N;i++)s+=D[i];return s;};
+  const bankEq=()=>F+loansTot()+Bb-sumDep();
+  const capLev=()=>{const e=bankEq();return Math.max(0,e/LEVERAGE_MIN-(loansTot()+Bb+Math.max(0,F)));};
+  const capFirm=()=>{const e=bankEq(),l=loansTot();return Math.max(0,Math.min(e/CET1_MIN-l,e/LEVERAGE_MIN-(l+Bb+Math.max(0,F))));};
+  const borrow=need=>{if(credit&&need>0){const x=Math.min(need,capLev());if(x>0){Bb+=x;Sc+=x;Mc+=x;pubDebt+=x;need-=x;}}
+    if(circ&&!credit&&need>0){let sd=0;for(let i=0;i<N;i++)sd+=D[i];const x=Math.min(need,Math.max(0,F-BANK_RESERVE*sd));if(x>0){F-=x;Bb+=x;Sc+=x;pubDebt+=x;need-=x;}}
     let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const x=Math.min(need,tw);
     if(x>0){for(let i=0;i<N;i++){const b=x*Math.max(0,W[i])/tw;W[i]-=b;Bh[i]+=b;}Sc+=x;pubDebt+=x;}return x;};
   let M0=0;
@@ -1300,6 +1348,11 @@ function run(world,seed,P){
       // avec la protection sociale, une partie de cette dette est la trésorerie de l'État : il paie salaires et achats publics en début
       // d'année et n'encaisse cotisations, impôt sur le revenu, TVA et impôt sur les sociétés qu'au fil de l'année
       if(soc)Sc=Math.min(b,(P.gW+P.gP+P.rB*P.debt0)*gdp-tau*pool);}
+    if(credit){/* bilan de départ de la banque : les prêts aux entreprises ont créé des dépôts, détenus par les ménages (pris sur leur
+        patrimoine liquide Insee) ; fonds propres = 16,1 % des prêts, réserves = 1 % des dépôts */
+      let lo=0;for(const fm of firms)lo+=fm.debt;const E0=CET1_TARGET*lo,D0=Math.max(0,(lo-E0)/(1-BANK_RESERVE));
+      let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const x=Math.min(D0,0.9*tw);
+      if(tw>0)for(let i=0;i<N;i++){const d=x*Math.max(0,W[i])/tw;W[i]-=d;D[i]+=d;}F+=BANK_RESERVE*x+(D0-x);}
     cap0=pool;for(const fm of firms)if(!fm.dead)K0+=fm.K;
     // production possible au plein emploi (productivité proportionnelle au salaire)
     GDP0=stateOn?GDPprev:pool;GDPr0=GDP0-tva0;{let wa=0;for(let i=0;i<N;i++)if(act[i])wa+=wage[i];capGDP=WB0>0?GDPr0*wa/WB0:0;}
@@ -1343,7 +1396,8 @@ function run(world,seed,P){
         if(need>0)borrow(need);
         const spend=GW+GP+INT,f=spend>Sc?Math.max(0,Sc)/spend:1;sc.cut+=spend*(1-f);sc.spend+=spend;GW*=f;GP*=f;INT*=f;Sc-=GW+GP+INT;
         if(INT>0&&pubDebt>0){for(let i=0;i<N;i++){const x=INT*Bh[i]/pubDebt;W[i]+=x;capInc[i]+=x;}
-          if(Bb>0){const xb=INT*Bb/pubDebt;F+=xb;let sd=0;for(let i=0;i<N;i++)sd+=D[i];if(sd>0)for(let i=0;i<N;i++)D[i]+=xb*D[i]/sd;}}
+          if(Bb>0){const xb=INT*Bb/pubDebt;F+=xb;let sd=0;for(let i=0;i<N;i++)sd+=D[i];const pass=credit&&!capped?Math.min(1,DEPOSIT_RATE/Math.max(rate,1e-9)):1;
+            if(sd>0)for(let i=0;i<N;i++)D[i]+=pass*xb*D[i]/sd;if(credit){const cost=BANK_COST_RATIO*(1-pass)*xb;F-=cost;feePot+=cost;}}}
         poolNext+=GP;GPy=GP;INTy=INT;sc.gw+=GW;sc.gp+=GP;sc.int+=INT;defR[t]=GDPprev>0?(GW+GP+INT-tax)/GDPprev:0;revY+=tax;}
       // salaires privés : sur les ventes, puis sur la trésorerie des entreprises
       if(lab.on){lab.adjust(GDPr0>0?WB0*(sales+GW)/Pidx/(GDPr0*Aprod):0,t);WB=lab.effEmp()*wIdx;}else if(soc||dem)WB=lab.effEmp()*wIdx;else if(pricesOn||gA)WB=WB0*wIdx;
@@ -1364,7 +1418,7 @@ function run(world,seed,P){
       for(let i=0;i<N;i++){const y=wage[i]*wIdx*ratio*emp[i]+(soc?trF*(retired[i]?pens[i]:uiOf(i)*wIdx):0);W[i]+=y;const inc=y+capInc[i];
         const c=Math.max(0,cA[i]*inc+P.mpcW*(t===0?init0[i]:net[i]));
         let pc=Math.min(c,Math.max(0,W[i]));W[i]-=pc;
-        if(c-pc>eps&&bank){const x=Math.min(c-pc,D[i],Math.max(F,0));D[i]-=x;F-=x;pc+=x;}
+        if(c-pc>eps&&bank){const x=Math.min(c-pc,D[i],credit?Infinity:Math.max(F,0));D[i]-=x;F-=x;pc+=x;}
         if(soc){const v=pc*TVA_RATE/(1+TVA_RATE);Sc+=v;tvaY+=v;poolNext+=pc-v;}else poolNext+=pc;
         cc.cons+=pc;consH[i]=pc;cc.inc+=inc;cc.save+=inc-pc;capInc[i]=0;
         let s=y-pc;if(s<=eps)continue;
@@ -1389,24 +1443,35 @@ function run(world,seed,P){
       else if(E>=notional)kappa=(notional-E)/totK;
       else{let lo=0,hi=maxR;for(let it=0;it<60;it++){const m=(lo+hi)/2;let sm=0;for(const fm of firms)if(!fm.dead&&fm.rho>m)sm+=(fm.rho-m)*fm.K;if(sm>E)lo=m;else hi=m;}kappa=hi;}}
     if(firmOn&&firms.length){let sumD=0;for(let j=0;j<N;j++)sumD+=D[j];let dInt=0,dLoss=0;
+      const spr=credit&&capped?lossEst+costRate:0,rF=rate+spr;let lossY=0,lo0=0;if(credit)for(const fm of firms)if(!fm.dead)lo0+=fm.debt;
       for(const fm of firms){if(fm.dead)continue;fm.age++;
-        let pi=closed?Math.max(0,fm.rho-kappa)*fm.K:fm.rho*fm.K,due=0;
+        let pi=closed?Math.max(0,fm.rho-kappa)*fm.K:fm.rho*fm.K,due=0,intrY=0;
         if(fm.debt>eps){// intérêts (gains libres seulement), reversés aux déposants ; échéance : intérêts + 10 % de la dette
-          const intr=fm.debt*rate;if(intr>0){fm.debt+=intr;dInt+=intr;st.interest+=intr;}
-          due=Math.min(intr+fm.debt*DEBT_AMORT,fm.debt);}
+          const intr=fm.debt*rF;intrY=intr;if(intr>0){fm.debt+=intr;dInt+=intr;st.interest+=intr;}
+          /* crédit : les entreprises renouvellent leurs prêts ; elles ne remboursent le principal que pour la part de dette au-delà
+             de 47 % de leur capital (endettement bancaire moyen des sociétés non financières) */
+          due=Math.min(intr+(credit?Math.max(0,fm.debt-SNF_CREDIT_K*fm.K):fm.debt)*DEBT_AMORT,fm.debt);}
         // plus la marge est faible, plus la disparition est probable ; le capital est perdu, la banque perd ce qui lui reste dû
         const margin=(pi-due)/Math.max(fm.K,eps);
-        if(rnd()<hazard(margin/rhoS,fm.age)){if(margin<=0)fs.bankrupt++;
+        /* grandes entreprises et ETI existantes : chacune représente des centaines d'entreprises réelles (une seule pour les 327 grandes
+           entreprises françaises) ; au lieu de disparaître d'un coup, elle perd chaque année la part h de son capital et de sa dette
+           (les entreprises représentées qui font faillite) : h = taux de défaillance des ETI et grandes entreprises (0,85 %) × risque
+           relatif de sa marge par rapport à sa marge de la première année ; la banque perd cette part de ce qui lui est dû */
+        const uH=rnd(),hz=hazard(margin/rhoS,fm.age);
+        if(fm.old&&FIRM_CATS[fm.cat].big){if(fm.m0==null)fm.m0=Math.max(margin,1e-3);
+          const h=Math.min(HAZARD_MAX,BIG_FAIL_RATE*hz/Math.max(hazard(fm.m0/rhoS,fm.age),1e-12));
+          if(h>0){fm.K-=h*fm.K;const ld=h*fm.debt;if(ld>eps){fm.debt-=ld;due=Math.min(due,fm.debt);fs.bankLoss+=ld;lossY+=ld;if(!credit)dLoss+=ld;}}}
+        else if(uH<hz){if(margin<=0)fs.bankrupt++;
           fm.dead=true;fs.died++;if(fm.f>=0){if(fm.age<5)fail[fm.f]++;else succ[fm.f]++;}
           // économie bouclée : la trésorerie rembourse d'abord la banque ; ce qui n'appartient à personne lui revient aussi
-          if(closed&&fm.debt>eps&&fm.R>0){const p=Math.min(fm.R,fm.debt);fm.R-=p;fm.debt-=p;F+=p;}
-          if(fm.debt>eps){fs.bankLoss+=fm.debt;dLoss+=fm.debt;fm.debt=0;}
+          if(closed&&fm.debt>eps&&fm.R>0){const p=Math.min(fm.R,fm.debt);fm.R-=p;fm.debt-=p;if(credit)Mc-=p;else F+=p;}
+          if(fm.debt>eps){fs.bankLoss+=fm.debt;lossY+=fm.debt;if(!credit)dLoss+=fm.debt;fm.debt=0;}
           const lost=distribute(fm,fm.R,capped,W,funds.income,fs,capInc);if(closed)F+=lost;else fs.lostR+=lost;fm.R=0;freeHoldings(fm);continue;}
         piPaid+=pi;
         if(soc&&pi>0){const x=IS_RATE*pi;pi-=x;Sc+=x;revY+=x;}
         if(due>0){// l'échéance est payée sur le profit, puis sur les réserves ; ce qui manque reste dû
           let pay=Math.min(pi,due);pi-=pay;if(pay<due){const take=Math.min(fm.R,due-pay);fm.R-=take;pay+=take;}
-          fm.debt-=pay;F+=pay;}
+          fm.debt-=pay;if(credit){const ip=Math.min(pay,intrY);F+=ip;Mc-=pay-ip;}else F+=pay;}
         // usure : le capital perd une part P.depr de sa valeur ; seul le profit net d'usure peut être versé
         const wear=P.depr*fm.K;fm.K-=wear;fs.wear+=wear;wearY+=wear;const net=Math.max(0,pi-wear);
         // gains libres : une part P.payout du profit net est versée ; gains interdits : tout est versé, dans la limite des mises
@@ -1417,20 +1482,25 @@ function run(world,seed,P){
         const I=P.invest*fm.K;const fromR=Math.min(fm.R,I);fm.R-=fromR;
         if(capped){const fromW=Math.min(fm.Rw||0,fromR);fm.Rw=Math.min((fm.Rw||0)-fromW,fm.R);fm.selfC+=fromR-fromW;}
         let rem=I-fromR,got=0;
-        if(rem>eps&&(bank||stock)){const capE=stock?funds.capacity():0,capB=bank?Math.max(0,F):0;
+        if(rem>eps&&(bank||stock)){const capE=stock?funds.capacity():0,capB=bank?(credit?capFirm():Math.max(0,F)):0;
           let nE=rem*phi,nB=rem-nE;
           if(nE>capE){nB+=nE-capE;nE=capE;}if(nB>capB){nE=Math.min(capE,nE+nB-capB);nB=capB;}
           if(nE>eps){// gains libres : les mises sont réévaluées à la valeur de l'entreprise avant l'entrée des nouveaux actionnaires
             if(world==='L'){const totC=totalStake(fm);const V=Math.max(eps,fm.K+fm.R-fm.debt);const f=V/Math.max(totC,eps);const hc=fm.hc;for(let k=0;k<fm.n;k++)hc[k]*=f;fm.selfC*=f;}
             const res=funds.raise(nE);for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);got+=res.got;fs.extE+=res.got;}
-          if(nB>eps){F-=nB;fm.debt+=nB;got+=nB;fs.extB+=nB;}}
+          if(nB>eps){if(credit)Mc+=nB;else F-=nB;fm.debt+=nB;got+=nB;fs.extB+=nB;}}
         fm.K+=fromR+got;fs.invested+=fromR+got;
         if(closed){poolNext+=fromR+got;
           // trésorerie : l'entreprise garde ce qu'il lui faut pour investir l'année suivante et verse le reste à ses propriétaires
           // (sociétés non financières 2023 : épargne brute 320 Md€ pour 336 Md€ d'investissement, autofinancement ≈ 95 %) ;
           // avec gains interdits, ce qui dépasse les mises des propriétaires reste dans l'entreprise
           const target=P.invest*fm.K;if(fm.R>target){const ex=fm.R-target;fm.R=target+distribute(fm,ex,capped,W,funds.income,fs,capInc);if(capped)fm.Rw=Math.min(fm.Rw||0,fm.R);}}}
-      if(sumD>0&&(dInt>0||dLoss>0)){const f=(dInt-dLoss)/sumD;for(let j=0;j<N;j++)D[j]+=D[j]*f;}}
+      if(credit){// les déposants reçoivent leur taux ; la banque garde la marge, dont une partie paie ses frais (salaires)
+        // gains interdits : les déposants reçoivent l'inflation, les frais sont payés, la couverture des pertes reste en fonds propres
+        const pass=capped?(rF>0?rate/rF:1):Math.min(1,DEPOSIT_RATE/Math.max(rate,1e-9));if(sumD>0&&dInt>0)for(let j=0;j<N;j++)D[j]+=D[j]*pass*dInt/sumD;
+        const cost=(capped?(rF>0?costRate/rF:0):BANK_COST_RATIO*(1-pass))*dInt;if(cost>0){F-=cost;feePot+=cost;}
+        if(capped&&lo0>eps)lossEst=0.5*lossEst+0.5*lossY/lo0;}
+      else if(sumD>0&&(dInt>0||dLoss>0)){const f=(dInt-dLoss)/sumD;for(let j=0;j<N;j++)D[j]+=D[j]*f;}}
     if(closed){poolNext+=E-piPaid;cc.profit+=piPaid;}
 
     /* ---------- idées de création ---------- */
@@ -1440,7 +1510,7 @@ function run(world,seed,P){
       // le projet est tiré dès l'idée : réussite, coût et gain, inconnus de tous à l'avance
       const ok=rnd()<P.pok;const pj=drawProject(rnd,P);const ci=pj.cost*Pidx,gain0=pj.gain*Pidx;
       // apport personnel : liquidités, parts de fonds, puis dépôt (dans la limite de ce que la banque a en caisse)
-      const depAvail=bank?Math.min(D[i],Math.max(F,0)):0;
+      const depAvail=bank?(credit?D[i]:Math.min(D[i],Math.max(F,0))):0;
       const fAv=stock?funds.available(i):0;const avail=W[i]+fAv+depAvail;
       const own=Math.min(avail,ci);const need=ci-own;
       const fromCash=Math.min(W[i],own),fromFund=Math.min(fAv,own-fromCash),fromDep=own-fromCash-fromFund;
@@ -1455,14 +1525,14 @@ function run(world,seed,P){
         }else{// capacités : la bourse (trésorerie des fonds) et la banque (caisse, si pas déjà endetté)
           let capE=0;if(stock)capE=Math.max(0,funds.capacity()-fromFund/funds.M-feeQ);
           const debtBlock=bank&&L[i]>eps;
-          const capB=(bank&&!debtBlock)?Math.max(0,F-fromDep-feeB):0;
+          const capB=(bank&&!debtBlock)?(credit?Math.max(0,capFirm()-feeB):Math.max(0,F-fromDep-feeB)):0;
           needE=need*phi;needB=need-needE;
           if(needE>capE){needB+=needE-capE;needE=capE;}
           if(needB>capB){needE+=needB-capB;needB=capB;}
           if(needE>capE+eps||needB>capB+eps){st.refused++;refI[i]++;if(debtBlock)st.refusedDebt++;else st.refusedFund++;continue;}
           if(needE<eps)needE=0;if(needB<eps)needB=0;}}
       W[i]-=fromCash;funds.redeem(i,fromFund);if(fromDep>eps){D[i]-=fromDep;F-=fromDep;}
-      if(needB>0){F-=needB+feeB;if(!firmOn)L[i]+=needB+feeB;st.loans++;}
+      if(needB>0){if(credit)Mc+=needB+feeB;else F-=needB+feeB;if(!firmOn)L[i]+=needB+feeB;st.loans++;}
       let raised=0,res=null;
       if(needE>0){// levée auprès des fonds, coût d'introduction compris
         const totalE=needE+feeQ;res=funds.raise(totalE);
@@ -1488,6 +1558,14 @@ function run(world,seed,P){
     }
 
     /* ---------- versements des fonds, puis bilan de l'année ---------- */
+    if(credit){/* renflouement interne (directive BRRD 2014/59/UE) : si les pertes font passer les fonds propres sous l'exigence, les dépôts
+        au-delà de la garantie de 100 000 € (FGDR, directive 2014/49/UE) sont convertis en fonds propres, au prorata, jusqu'à la retrouver */
+      const l=loansTot(),need=CET1_MIN*l-bankEq();if(need>eps){const g=DEPOSIT_GUARANTEE*Pidx;let ex=0;for(let i=0;i<N;i++)ex+=Math.max(0,D[i]-g);
+        if(ex>eps){const h=Math.min(1,need/ex);for(let i=0;i<N;i++)if(D[i]>g)D[i]-=h*(D[i]-g);bailY+=Math.min(need,ex);}}}
+    if(credit){// dividendes de la banque : ce qui dépasse le ratio de fonds propres effectif, versé aux fonds (actionnaires) au prorata de leurs participations
+      const l=loansTot(),ex=bankEq()-Math.max(CET1_TARGET*l,LEVERAGE_MIN*(l+Bb+Math.max(0,F)));
+      if(ex>eps){const FS=funds.stake,FI=funds.income;let s=0;for(let f=0;f<FS.length;f++)s+=Math.max(0,FS[f]);
+        for(let f=0;f<FS.length;f++)FI[f]+=ex*(s>eps?Math.max(0,FS[f])/s:1/FS.length);F-=ex;}}
     funds.payout();if(circ)funds.release(FUND_CASH);
     if(dem){/* démographie : décès (loi de Gompertz), héritage à un ménage d'une génération plus jeune (même fonds, pour lui transmettre
         ses parts), droits de succession à l'État ; le ménage disparu est remplacé par un jeune ménage sans patrimoine */
@@ -1516,7 +1594,8 @@ function run(world,seed,P){
        ndp[t]=(sales+GW-wearY)/N/Pidx;let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;kNet[t]=K/N/Pidx;}
       pP[t]=Pidx;pInfl[t]=infl;pWr[t]=wIdx/Pidx;
       lab.close(t);{let r=0;for(let i=0;i<N;i++)r+=retired[i];retSh[t]=r/N;}
-      cc.drift=Math.max(cc.drift,Math.abs(money()-M0)/M0);}
+      cc.drift=Math.max(cc.drift,Math.abs(money()-M0-Mc)/M0);
+      if(credit){let lo=0;for(const fm of firms)if(!fm.dead)lo+=fm.debt;kCred[t]=GDPprev>0?lo/GDPprev:0;kCET1[t]=lo>1e-3*N?bankEq()/lo:0;kEq[t]=GDPprev>0?bankEq()/GDPprev:0;let sd=0;for(let i=0;i<N;i++)sd+=D[i];kM[t]=(money()-F+sd)/N/Pidx;kBail[t]=GDPprev>0?bailY/GDPprev:0;bailY=0;}}
     const eqv=new Float64Array(N);let unowned=0,firmV=0;funds.stake.fill(0);
     if(firmOn)for(const fm of firms){if(fm.dead)continue;const V=Math.max(0,fm.K+fm.R-fm.debt);firmV+=V;unowned+=V-valueHoldings(fm,V,capped,eqv,funds.stake);}
     {const fv=funds.value(eqv);fs.fundV=fv.total;fs.fundUn=fv.unclaimed;unowned+=fv.unclaimed;}
@@ -1526,9 +1605,12 @@ function run(world,seed,P){
     {let a=0,d=0,o=0,e=0;for(let i=0;i<N;i++){a+=W[i]+eqSave[i]-L[i];d+=D[i];o+=Bh[i];e+=eqv[i];}bCash[t]=a/N/Pidx;bDep[t]=d/N/Pidx;bBond[t]=o/N/Pidx;bEq[t]=e/N/Pidx;
      let l=0,fd=0;for(let i=0;i<N;i++)l+=L[i];for(const fm of firms)if(!fm.dead)fd+=fm.debt;bSale[t]=(pool+poolNext+feePot+back)/N/Pidx;bBank[t]=(F-d+l+fd+Sc+Bb)/N/Pidx;}
     if(closed&&M0>0){const y=Float64Array.from(net).sort(),c5=y[Math.floor(0.5*N)],c9=y[Math.floor(0.9*N)];let h0=0,h1=0,h2=0,R=0;
-      for(let i=0;i<N;i++){const h=W[i]+eqSave[i];if(net[i]>=c9)h2+=h;else if(net[i]>=c5)h1+=h;else h0+=h;}
+      /* avec le crédit, la monnaie est celle que détient le public (liquidités et dépôts, comme M1-M3) : les réserves de la banque
+         n'en font pas partie, et le total grandit avec les prêts */
+      for(let i=0;i<N;i++){const h=W[i]+eqSave[i]+(credit?D[i]:0);if(net[i]>=c9)h2+=h;else if(net[i]>=c5)h1+=h;else h0+=h;}
       for(const fm of firms)if(!fm.dead)R+=fm.R;
-      mPoor[t]=h0/M0;mMid[t]=h1/M0;mTop[t]=h2/M0;mFirm[t]=R/M0;mSale[t]=(pool+poolNext+feePot+back)/M0;mOther[t]=(F+funds.cash()+Sc)/M0;}
+      const Mt=credit?h0+h1+h2+R+pool+poolNext+feePot+back+funds.cash()+Sc:M0;
+      mPoor[t]=h0/Mt;mMid[t]=h1/Mt;mTop[t]=h2/Mt;mFirm[t]=R/Mt;mSale[t]=(pool+poolNext+feePot+back)/Mt;mOther[t]=((credit?0:F)+funds.cash()+Sc)/Mt;}
   }
 
   /* ---------- résultats ---------- */
@@ -1543,7 +1625,7 @@ function run(world,seed,P){
   return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned/Pidx,fValue:fs.firmV/Pidx,
-    cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,lU:lab.out.uT,sPub,sPO,dDeaths:dRet,dRet:retSh,lLong:lab.out.longT,lHours:lab.out.hoursT,lUnmet:unmet,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
+    cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,lU:lab.out.uT,kEq,kBail,kCred,kCET1,kM,sPub,sPO,dDeaths:dRet,dRet:retSh,lLong:lab.out.longT,lHours:lab.out.hoursT,lUnmet:unmet,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
     sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(net).sort();const c9=y[Math.floor(0.9*N)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&wageSum>0?cc.wageShort/wageSum:0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     fFundPaid:fs.fundPaid,fFundV:fs.fundV/Pidx,fFundUn:fs.fundUn/Pidx,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
     net:Float64Array.from(net,v=>v/Pidx),pP,pInfl,pWr,pGap,pInflAvg:Pidx>0?Math.pow(Pidx,1/Math.max(1,T-1))-1:0,grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
@@ -1561,7 +1643,7 @@ function endDiagnostics(C,dg,part){dg.pQ1=groupMean(C.N,5,i=>C.qi[i],i=>part[i])
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
 // répartition de la monnaie, au sens strict puis au sens large (séries, moyennées sur les simulations)
-const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet'];
+const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
@@ -1655,7 +1737,7 @@ function scoreCard(w,P){
     infl:P.prices&&closed?[avg(w.pInfl,1,10),avg(w.pInfl,L-9,L)]:[null,null],
     growth:closed?[growth(w.rNdp,0,Math.min(10,L)),growth(w.rNdp,Math.max(0,L-10),L)]:[null,null],
     debt:P.state&&closed?[w.sDebt[0],w.sDebt[L]]:[null,null],deficit:P.state&&closed?[w.sDef[0],w.sDef[L]]:[null,null],
-    stock:P.stock?[w.fPart0,w.fPart1]:[null,null],
+    stock:P.stock?[w.fPart0,w.fPart1]:[null,null],credit:closed&&P.bank&&P.credit&&w.kCred?[w.kCred[0],w.kCred[L]]:[null,null],
     spend:P.state&&closed?(P.social?[avg(w.sPub,0,2),avg(w.sPub,L-2,L)]:[P.gW+P.gP+P.rB*P.debt0,null]):[null,null],
     po:P.state&&closed&&P.social?[avg(w.sPO,0,2),avg(w.sPO,L-2,L)]:[null,null],prod:closed?[P.prodG||0,P.prodG||0]:[0,0],surv5:P.firm?[P.pok,null]:[null,null],hhdebt:[0,null]};
   return REF_FR.map(r=>{const [s,e]=M[r.k]||[null,null];
@@ -1701,8 +1783,8 @@ const fmtN=v=>{if(Math.abs(v)>=10000)return Math.round(v/1000)+' k';if(Math.abs(
    Pour ajouter un paramètre : une entrée dans DEF, un format dans FMT, un curseur (id = clé, sortie = clé_o) dans page.html,
    puis augmenter PARAMS_KEY si l'ancienne valeur mémorisée ne doit pas être reprise.
    ===================================================================== */
-const DEF={N:2000,T:40,save:0.09,incM:1.48,inc:1,sigI:0.595,sprof:1,ini:1,m0:1,alW:1.85,pidea:0.012,cost:4.3,pok:0.69,payoff:11,vary:1,firm:1,rho:0.107,payout:0.5,invest:0.11,depr:0.093,closed:1,mpcW:0.011,prodG:0.007,social:1,demo:1,circ:1,unemp:1,prices:1,state:1,gW:0.123,gP:0.099,defT:0.051,debt0:1.156,rB:0.019,exist:1,k0:3.75,nf:10,own:0.5,hold:0.16,rhoIW:0.25,ageb:1.2,sig:2.4,alpha:1.5,bank:1,stock:1,r:0.8,dep:0.5,fee:0.05,rl:0.035,inv:0.25,phi:0.5,m:10,nfd:10,part:0.2,feeE:0.05,runs:30};
-const SWITCHES=['inc','sprof','ini','vary','firm','exist','closed','unemp','prices','state','social','demo','circ','bank','stock'];   // cases à cocher (0 ou 1)
+const DEF={N:2000,T:40,save:0.09,incM:1.48,inc:1,sigI:0.595,sprof:1,ini:1,m0:1,alW:1.85,pidea:0.012,cost:4.3,pok:0.69,payoff:11,vary:1,firm:1,rho:0.107,payout:0.5,invest:0.11,depr:0.093,closed:1,mpcW:0.011,prodG:0.007,social:1,demo:1,circ:1,credit:1,unemp:1,prices:1,state:1,gW:0.123,gP:0.099,defT:0.051,debt0:1.156,rB:0.019,exist:1,k0:3.75,nf:10,own:0.5,hold:0.16,rhoIW:0.25,ageb:1.2,sig:2.4,alpha:1.5,bank:1,stock:1,r:0.8,dep:0.5,fee:0.05,rl:0.035,inv:0.25,phi:0.5,m:10,nfd:10,part:0.2,feeE:0.05,runs:30};
+const SWITCHES=['inc','sprof','ini','vary','firm','exist','closed','unemp','prices','state','social','demo','circ','credit','bank','stock'];   // cases à cocher (0 ou 1)
 const ids=Object.keys(DEF);
 const none=()=>'',dec=n=>v=>fr(v,{maximumFractionDigits:n});
 const FMT={N:v=>fr(v),T:v=>v,save:v=>v.toFixed(2),runs:v=>v,incM:v=>fr(v,{maximumFractionDigits:2})+' × '+fr(UNIT_EUR)+' €',
@@ -1716,7 +1798,7 @@ const SCALE={N:{from:s=>{const v=100*Math.pow(500,s/100);const p=Math.pow(10,Mat
 
 // mémoire du navigateur (peut être indisponible : toutes les lectures et écritures sont protégées)
 const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
-const PARAMS_KEY='labo-params-v32';
+const PARAMS_KEY='labo-params-v33';
 let P={...DEF};
 try{const s=JSON.parse(store.get(PARAMS_KEY)||'null');if(s)for(const k of ids)if(typeof s[k]==='number')P[k]=s[k];}catch(e){}
 const saveParams=()=>store.set(PARAMS_KEY,JSON.stringify(P));
@@ -1890,7 +1972,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
   renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderPrices(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
-  renderBank(W);renderCircuit(W);renderSocial(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
+  renderBank(W);renderCircuit(W);renderSocial(W);renderState(W);renderCredit(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);renderScore(W);
   const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
@@ -2046,6 +2128,20 @@ function renderState(W){
     crow('Intérêts versés aux porteurs d\'obligations','Total sur la vie. Avec gains interdits, les obligations ne rapportent rien.',at(W,w=>w.sInt),int)+
     crow('Dette détenue par les 10 % les plus riches','À la fin. Le déficit est emprunté à ceux qui ont des liquidités.',at(W,w=>w.sBond10),pct)+
     crow('Dépenses publiques non financées','Part des dépenses que l\'État n\'a pas pu payer, faute d\'impôt et de prêteurs.',at(W,w=>w.sCut),pct1,{domain:[0,1]}));
+}
+function renderCredit(W){
+  const on=!!(P.firm&&P.closed&&P.bank&&P.credit);show('creditcard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),year={xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,xTicks:P.T%4===0?4:2};
+  const p=a=>Array.from(a,v=>v*100),pf=v=>fr(Math.round(v))+' %';
+  const cL=p(W[0].kCred),cI=p(W[1].kCred);
+  lineChart($('ch_cred'),{...year,W:380,H:260,xs,yMax:niceMax(Math.max(60,...cL,...cI)),yTicks:4,yFmt:pf,
+    series:[{ys:xs.map(()=>48),color:'var(--muted)',dash:true,name:'France'},...seriesLI(cL,cI)]});
+  // ratio des moyennes (fonds propres / PIB) / (crédits / PIB) ; 0 quand la banque ne prête presque plus
+  const k=w=>Array.from(w.kEq,(e,t)=>w.kCred[t]>0.01?Math.max(0,Math.min(40,100*e/w.kCred[t])):0);const eL=k(W[0]),eI=k(W[1]);
+  lineChart($('ch_cet1'),{...year,W:380,H:260,xs,yMax:40,yTicks:4,yFmt:pf,
+    series:[{ys:xs.map(()=>11.2),color:'var(--muted)',dash:true,name:'Exigence'},{ys:xs.map(()=>16.1),color:'var(--muted)',dash:true,name:'Effectif'},...seriesLI(eL,eI)]});
+  const m=a=>Array.from(a,v=>v*UNIT_EUR/1000),mL=m(W[0].kM),mI=m(W[1].kM);
+  lineChart($('ch_mpub'),{...year,W:760,H:260,xs,xTicks:P.T%5===0?5:2,yMax:niceMax(Math.max(...mL,...mI)),yTicks:4,yFmt:v=>fr(Math.round(v))+' k€',series:seriesLI(mL,mI)});
 }
 
 function renderFirms(W){

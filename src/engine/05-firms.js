@@ -35,10 +35,10 @@ function seedExistingFirms(C){
   const pick=()=>{const x=er()*cdf[nH-1];let lo=0,hi=nH-1;while(lo<hi){const m=(lo+hi)>>1;if(cdf[m]<x)lo=m+1;else hi=m;}return H[lo];};
   // économie bouclée : chaque entreprise détient au départ la trésorerie d'une année d'investissement (sa règle d'autofinancement),
   // payée par ses détenteurs comme le capital : la valeur d'une entreprise est K + R
-  const r0=P.closed?P.invest:0;
+  const r0=P.closed?P.invest:0,lam=C.creditOn?SNF_CREDIT_K:0;   // dette bancaire de départ (crédit)
   for(const ls of landscape(n0,P.k0*N,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho=drawRho(er,P);
-    const owner=isBig?-1:pick();const own=isBig?0:P.own;const V=K*(1+r0);
-    const fm=newHoldings({K,R:K*r0,debt:0,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
+    const owner=isBig?-1:pick();const own=isBig?0:P.own;const V=K*(1+r0-lam);
+    const fm=newHoldings({K,R:K*r0,debt:K*lam,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
     if(owner>=0){addHolder(fm,owner,V*own,V*own);init0[owner]+=V*own;}
     const ns=isBig?SHAREHOLDERS_BIG:SHAREHOLDERS_SMALL,part=V*(1-own)/ns;if(part>0)for(let a=0;a<ns;a++){const j=pick();addHolder(fm,j,part,part);init0[j]+=part;}
     firms.push(fm);}

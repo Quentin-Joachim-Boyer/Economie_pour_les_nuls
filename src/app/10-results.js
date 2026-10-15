@@ -8,7 +8,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
   renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderPrices(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
-  renderBank(W);renderCircuit(W);renderSocial(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
+  renderBank(W);renderCircuit(W);renderSocial(W);renderState(W);renderCredit(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);renderScore(W);
   const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
@@ -164,6 +164,20 @@ function renderState(W){
     crow('Intérêts versés aux porteurs d\'obligations','Total sur la vie. Avec gains interdits, les obligations ne rapportent rien.',at(W,w=>w.sInt),int)+
     crow('Dette détenue par les 10 % les plus riches','À la fin. Le déficit est emprunté à ceux qui ont des liquidités.',at(W,w=>w.sBond10),pct)+
     crow('Dépenses publiques non financées','Part des dépenses que l\'État n\'a pas pu payer, faute d\'impôt et de prêteurs.',at(W,w=>w.sCut),pct1,{domain:[0,1]}));
+}
+function renderCredit(W){
+  const on=!!(P.firm&&P.closed&&P.bank&&P.credit);show('creditcard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),year={xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,xTicks:P.T%4===0?4:2};
+  const p=a=>Array.from(a,v=>v*100),pf=v=>fr(Math.round(v))+' %';
+  const cL=p(W[0].kCred),cI=p(W[1].kCred);
+  lineChart($('ch_cred'),{...year,W:380,H:260,xs,yMax:niceMax(Math.max(60,...cL,...cI)),yTicks:4,yFmt:pf,
+    series:[{ys:xs.map(()=>48),color:'var(--muted)',dash:true,name:'France'},...seriesLI(cL,cI)]});
+  // ratio des moyennes (fonds propres / PIB) / (crédits / PIB) ; 0 quand la banque ne prête presque plus
+  const k=w=>Array.from(w.kEq,(e,t)=>w.kCred[t]>0.01?Math.max(0,Math.min(40,100*e/w.kCred[t])):0);const eL=k(W[0]),eI=k(W[1]);
+  lineChart($('ch_cet1'),{...year,W:380,H:260,xs,yMax:40,yTicks:4,yFmt:pf,
+    series:[{ys:xs.map(()=>11.2),color:'var(--muted)',dash:true,name:'Exigence'},{ys:xs.map(()=>16.1),color:'var(--muted)',dash:true,name:'Effectif'},...seriesLI(eL,eI)]});
+  const m=a=>Array.from(a,v=>v*UNIT_EUR/1000),mL=m(W[0].kM),mI=m(W[1].kM);
+  lineChart($('ch_mpub'),{...year,W:760,H:260,xs,xTicks:P.T%5===0?5:2,yMax:niceMax(Math.max(...mL,...mI)),yTicks:4,yFmt:v=>fr(Math.round(v))+' k€',series:seriesLI(mL,mI)});
 }
 
 function renderFirms(W){

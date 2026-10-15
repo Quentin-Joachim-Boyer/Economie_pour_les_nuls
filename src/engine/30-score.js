@@ -18,7 +18,7 @@ function scoreCard(w,P){
     infl:P.prices&&closed?[avg(w.pInfl,1,10),avg(w.pInfl,L-9,L)]:[null,null],
     growth:closed?[growth(w.rNdp,0,Math.min(10,L)),growth(w.rNdp,Math.max(0,L-10),L)]:[null,null],
     debt:P.state&&closed?[w.sDebt[0],w.sDebt[L]]:[null,null],deficit:P.state&&closed?[w.sDef[0],w.sDef[L]]:[null,null],
-    stock:P.stock?[w.fPart0,w.fPart1]:[null,null],
+    stock:P.stock?[w.fPart0,w.fPart1]:[null,null],credit:closed&&P.bank&&P.credit&&w.kCred?[w.kCred[0],w.kCred[L]]:[null,null],
     spend:P.state&&closed?(P.social?[avg(w.sPub,0,2),avg(w.sPub,L-2,L)]:[P.gW+P.gP+P.rB*P.debt0,null]):[null,null],
     po:P.state&&closed&&P.social?[avg(w.sPO,0,2),avg(w.sPO,L-2,L)]:[null,null],prod:closed?[P.prodG||0,P.prodG||0]:[0,0],surv5:P.firm?[P.pok,null]:[null,null],hhdebt:[0,null]};
   return REF_FR.map(r=>{const [s,e]=M[r.k]||[null,null];

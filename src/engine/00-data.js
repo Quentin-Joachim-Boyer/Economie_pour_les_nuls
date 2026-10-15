@@ -48,6 +48,9 @@ const FIRM_CATS=[
   {n:'PME',n1:'PME',c:172520,k:0.1402,big:0},
   {n:'microentreprises',n1:'microentreprise',c:4831709-1900000,k:0.0975,big:0}];
 const FIRM_CATS_TOTAL=FIRM_CATS.reduce((a,c)=>a+c.c,0);
+// défaillances d'ETI et de grandes entreprises : 65 en 2024 (cumul 12 mois, Banque de France, Stat Info défaillances, décembre 2024)
+// pour 7 623 entreprises (7 296 ETI + 327 grandes entreprises, Insee) : 0,85 % par an
+const BIG_FAIL_RATE=65/(7296+327);
 const FIRM_SIZE_SIGMA=0.8;            // dispersion log-normale de la taille dans une catégorie
 const SHAREHOLDERS_SMALL=10;          // actionnaires d'une PME ou microentreprise existante (en plus du propriétaire)
 const SHAREHOLDERS_BIG=40;            // actionnaires d'une grande entreprise ou ETI existante (pas de propriétaire principal)
@@ -135,6 +138,7 @@ const REF_FR=[
   {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
   {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',src:'Insee Première n° 2106 (modèle : sans dépenses de santé, de famille ni minima sociaux)',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'po',l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'credit',l:'Crédits bancaires aux entreprises / PIB',v:1437.1/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, Financement des entreprises, août 2026 (1 437,1 Md€ de crédits aux sociétés non financières) ; PIB 2025 : 2 991,1 Md€ (Insee)',url:'https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08'},
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
   {k:'hhdebt',l:'Dette des ménages / PIB',v:0.591,y:'2025',tol:0.10,u:'pct',set:1,src:'Banque de France, taux d\'endettement des agents non financiers, T4 2025 (modèle : pas de crédit immobilier)',url:'https://www.banque-france.fr/fr/statistiques/comptes-nationaux-financiers/taux-dendettement-des-agents-non-financiers-comparaisons-internationales-2025-q4'}];
@@ -214,3 +218,19 @@ const BACKTEST={from:2010,to:2024,P:{T:14,u0:0.093,debt0:0.823,defT:0.072,save:0
     {k:'save',l:'Taux d\'épargne financière (moyenne de la période)',a:0.069,b:0.097,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
     {k:'wmed',l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
     {k:'wd9',l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
+
+/* ---------- création monétaire par le crédit ----------
+   « Les crédits font les dépôts » (Banque de France, « Comment est créée la monnaie ») : un prêt crée de la monnaie,
+   son remboursement la détruit. La banque prête aux entreprises et achète des obligations publiques tant que ses fonds propres
+   couvrent 11,2 % de ses prêts (exigence moyenne de CET1 de la BCE pour 2026, Pilier 2 et coussins compris, SREP 2025 ;
+   pondération 100 % pour les entreprises, 0 % pour l'État en approche standard) et 3 % de son bilan (levier minimal, Bâle III).
+   Elle verse en dividendes ce qui dépasse 16,1 % de ses prêts (ratio CET1 effectif : 16,1 % fin 2024 pour les banques
+   françaises, ACPR ; 16,1 % au 2e trimestre 2025 dans la zone euro, BCE) : l'écart entre les deux ratios est sa marge de prêt.
+   Au départ, les entreprises doivent à la banque 47 % de leur capital (crédits aux sociétés non financières 1 437 Md€, août 2026,
+   Banque de France, pour 3 033 Md€ de capital) ; elles renouvellent leurs prêts et ne remboursent que ce qui dépasse ce ratio.
+   Les déposants reçoivent 1,30 % (rémunération moyenne des dépôts des ménages, Banque de France) sur les intérêts perçus ;
+   le reste est la marge de la banque, dont 67,9 % paie ses frais (coefficient d'exploitation 2024, ACPR).
+   Si les pertes font passer les fonds propres sous l'exigence, les dépôts au-delà de 100 000 € (garantie des dépôts, FGDR)
+   sont convertis en fonds propres (renflouement interne, directive BRRD 2014/59/UE). */
+const DEPOSIT_GUARANTEE=100000/UNIT_EUR;
+const CET1_TARGET=0.161, CET1_MIN=0.112, LEVERAGE_MIN=0.03, SNF_CREDIT_K=1437/3033, DEPOSIT_RATE=0.013, BANK_COST_RATIO=0.679;
