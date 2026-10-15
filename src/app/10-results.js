@@ -151,6 +151,9 @@ function renderSocial(W){
     series:[{ys:oI,color:'var(--i)',dash:true,name:'Prélèv. I'},{ys:oL,color:'var(--l)',dash:true,name:'Prélèv. L'},{ys:dI,color:'var(--i)',name:'Dépenses I'},{ys:dL,color:'var(--l)',name:'Dépenses L'}]});
   const rL=p(W[0].dRet),rI=p(W[1].dRet);
   lineChart($('ch_ret'),{...year,W:380,H:260,xs,yMax:100,yTicks:4,yFmt:pf,series:seriesLI(rL,rI)});
+  show('ch_dep',!!P.demo);if(P.demo){const y0=P.y0||START_YEAR,dm=p(W[0].depR),pr=xs.map(x=>DEP_PROJ(y0+x-1)*100);
+    lineChart($('ch_dep'),{W:760,H:260,xs,xMin:1,xMax:P.T,xFmt:v=>Math.round(y0+v-1),xLabel:'année',tipX:v=>'Année '+Math.round(y0+v-1),xTicks:P.T%5===0?5:2,yMax:niceMax(Math.max(70,...dm)),yTicks:4,yFmt:v=>fr(Math.round(v)),
+      series:[{ys:pr,color:'var(--muted)',dash:true,name:'Insee'},{ys:dm,color:'var(--l)',name:'Modèle'}]});}
 }
 function renderState(W){
   const on=!!(P.firm&&P.closed&&P.state);show('statecard',on);if(!on)return;
@@ -258,14 +261,14 @@ function renderCharts([Lw,Iw]){
 function renderScore(W){
   const S=scoreCard(W[0],P);
   const fv=(r,v)=>v==null||!isFinite(v)?'—':r.u==='eur'?fr(Math.round(v/100)*100)+' €':r.u==='h'?fr(Math.round(v))+' h':r.u==='idx'?fr(v,{minimumFractionDigits:2,maximumFractionDigits:2}):pct1(v);
-  const row=r=>{const vals=[r.v,r.start,r.end].filter(v=>v!=null&&isFinite(v));
+  const row=r=>{const vals=[r.v,r.vEnd,r.start,r.end].filter(v=>v!=null&&isFinite(v));
     const lo0=r.rel?r.v*(1-r.tol):r.v-r.tol,hi0=r.rel?r.v*(1+r.tol):r.v+r.tol;
     let lo=Math.min(0,...vals,lo0),hi=Math.max(...vals,hi0)*1.08;if(hi<=lo)hi=lo+1;
     const x=v=>((v-lo)/(hi-lo)*100).toFixed(2)+'%';
     const dot=(v,cls)=>v==null||!isFinite(v)?'':`<span class="dot ${cls}" style="left:${x(v)}" title="${cls==='start'?'départ':'fin'} : ${fv(r,v)}"></span>`;
     return `<div class="srow${r.set?' set':''}"><div class="slabel">${r.l}<small>France ${r.y} : <a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small></div>
       <div class="strack" role="img" aria-label="${r.l} : France ${fv(r,r.v)}, modèle au départ ${fv(r,r.start)}, à la fin ${fv(r,r.end)}"><span class="axis"></span><span class="band" style="left:${x(lo0)};width:calc(${x(hi0)} - ${x(lo0)})"></span><span class="ref" style="left:${x(r.v)}"></span>${dot(r.start,'start')}${dot(r.end,'end'+(r.okEnd?' ok':''))}</div>
-      <div class="sval">France <b>${fv(r,r.v)}</b><br>départ ${fv(r,r.start)}<br>fin <b>${fv(r,r.end)}</b></div></div>`;};
+      <div class="sval">France <b>${fv(r,r.v)}</b><br>départ ${fv(r,r.start)}<br>fin <b>${fv(r,r.end)}</b>${r.vEnd!==r.v?`<br>projection ${fv(r,r.vEnd)}`:''}</div></div>`;};
   const meas=S.filter(r=>!r.set),done=meas.filter(r=>r.okEnd!=null),ok=done.filter(r=>r.okEnd).length;
   setText('scoresum',done.length?`${ok} indicateur${ok>1?'s':''} sur ${done.length} dans l'écart acceptable à la fin de la simulation.`:'Activer l\'économie bouclée pour comparer le modèle à la France.');
   setHTML('scorerows',meas.map(row).join(''));setHTML('scoreset',S.filter(r=>r.set).map(row).join(''));

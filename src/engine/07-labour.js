@@ -47,7 +47,7 @@ function makeLabour(C,wage){
       else if(e<need){const c=[];for(let i=0;i<N;i++)if(act[i]&&!emp[i]&&!fresh[i])c.push(i);
         for(const i of order(c,()=>1)){if(e>=need)break;emp[i]=1;e+=wage[i];}}},
     // bilan de fin d'année : taux de chômage, part au chômage depuis plus d'un an, heures travaillées par ménage
-    close(t){let n=0,lg=0,na=0;for(let i=0;i<N;i++){if(!act[i])continue;na++;if(!emp[i]){n++;if(dur[i]>=1)lg++;dur[i]++;}}
-      uT[t]=na?n/na:0;longT[t]=n?lg/n:0;hoursT[t]=(na-n)*jobs*HOURS_PER_JOB/N;},
+    close(t,nh=N){let n=0,lg=0,na=0;for(let i=0;i<N;i++){if(!act[i])continue;na++;if(!emp[i]){n++;if(dur[i]>=1)lg++;dur[i]++;}}
+      uT[t]=na?n/na:0;longT[t]=n?lg/n:0;hoursT[t]=(na-n)*jobs*HOURS_PER_JOB/nh;},
     out:{uT,longT,hoursT}};
 }

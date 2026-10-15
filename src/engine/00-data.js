@@ -138,6 +138,7 @@ const REF_FR=[
   {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
   {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',src:'Insee Première n° 2106 (modèle : sans dépenses de santé, de famille ni minima sociaux)',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'po',l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'dep',l:'Ménages de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
   {k:'credit',l:'Crédits bancaires aux entreprises / PIB',v:1437.1/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, Financement des entreprises, août 2026 (1 437,1 Md€ de crédits aux sociétés non financières) ; PIB 2025 : 2 991,1 Md€ (Insee)',url:'https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08'},
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
@@ -176,8 +177,9 @@ const JOBS_PER_ACTIVE_HH=(46.27e9/HOURS_PER_JOB)/(31.27e6*ACTIVE_HH_SHARE);
 /* ---------- démographie (ménages) ----------
    Décès : loi de Gompertz (risque × 2 tous les 8,5 ans d'âge : « +8 à 10 % par an d'âge », Ined) calée pour une espérance de vie
    à 60 ans de 25,9 ans (moyenne femmes 27,9 / hommes 23,9, Insee, bilan démographique 2025).
-   Un ménage qui disparaît est remplacé par un jeune ménage de 25 ans (choix de travail : le départ du domicile parental se fait
-   vers 19-20 ans, la formation d'un ménage plus tard) ; son patrimoine va à un ménage d'une génération plus jeune (25 à 35 ans de
+   Les jeunes ménages entrent à 25 ans (choix de travail : le départ du domicile parental se fait vers 19-20 ans, la formation d'un
+   ménage plus tard), selon les générations réelles (voir ENTRY_RATE plus bas) ; le patrimoine d'un ménage disparu va à un ménage
+   d'une génération plus jeune (25 à 35 ans de
    moins : âge moyen des mères à la naissance 31 ans ; âge moyen des héritiers ≈ 50 ans, CAE 2021), après des droits de
    succession effectifs de 5 % (France Stratégie 2017). */
 const GOMPERTZ_B=Math.log(2)/8.5;
@@ -185,6 +187,32 @@ const GOMPERTZ_A=(()=>{const e60=a=>{let s=0,S=1;for(let x=60;x<130;x+=0.1){S*=M
   let lo=1e-9,hi=1e-2;for(let k=0;k<80;k++){const m=Math.sqrt(lo*hi);if(e60(m)>25.9)lo=m;else hi=m;}return Math.sqrt(lo*hi);})();
 const deathProb=age=>1-Math.exp(-GOMPERTZ_A*Math.exp(GOMPERTZ_B*(age+0.5))*1);
 const NEW_HH_AGE=25, HEIR_GAP=[25,35], ESTATE_TAX=0.05;
+
+/* ---------- entrées selon les générations réelles, et allongement de la vie ----------
+   Chaque année, il entre autant de jeunes ménages que le permet la génération qui atteint 25 ans, plus les migrants :
+   naissances de l'année (né − 25 ans) + solde migratoire de 150 000 personnes par an (hypothèse centrale Insee, projections 2026),
+   rapportées à la population de 20 ans ou plus de l'année de départ (53,555 millions au 1er janvier 2026 ; 48,603 millions
+   au 1er janvier 2010 : Insee Première n° 2108, figure 5). Une place de ménage représente en effet une part fixe des adultes :
+   31,27 millions de ménages pour 53,2 millions d'adultes, soit 0,59 ménage par adulte, ce qui donne aussi 0,59 ménage par jeune
+   qui entre ; au départ, 1,8 % de nouveaux ménages par an, autant que de ménages qui disparaissent.
+   Naissances vivantes : Insee Focus n° 357, figure 1a (France hors Mayotte, 1985-2013) et Insee, « Naissances et taux de natalité »
+   (France, 2014-2025) ; à partir de 2026, projection centrale de l'Insee : 630 843 en 2026, 476 424 en 2070 (interpolation
+   linéaire entre les deux, Insee Première n° 2108).
+   Quand les décès dépassent les entrées, des places restent vides : le nombre de ménages baisse, comme la population projetée
+   après 2037. Les statistiques par ménage ne portent que sur les ménages présents.
+   Allongement de la vie : espérance de vie à la naissance de 83,1 ans en 2025 (moyenne femmes 85,9 / hommes 80,3) et 88,1 ans
+   en 2070 (89,5 / 86,7, projection centrale Insee) : + 5 ans en 45 ans ; la table de mortalité glisse de 0,11 an d'âge par an. */
+const BIRTHS={1985:796138,1986:805543,1987:795790,1988:800560,1989:796101,1990:793071,1991:790078,1992:774755,1993:741306,1994:740774,
+  1995:759058,1996:764028,1997:757384,1998:767906,1999:775796,2000:807405,2001:803234,2002:792745,2003:793044,2004:799361,
+  2005:806822,2006:829352,2007:818705,2008:828404,2009:824641,2010:832799,2011:823394,2012:821047,2013:811510,
+  2014:818565,2015:798948,2016:783640,2017:769553,2018:758590,2019:753383,2020:735196,2021:742052,2022:725997,2023:677803,2024:660787,2025:645000};
+const births=y=>BIRTHS[y]!=null?BIRTHS[y]:y<1985?BIRTHS[1985]:630843+(476424-630843)*Math.min(1,(y-2026)/(2070-2026));
+const NET_MIGRATION=150000, POP20={2010:48.603e6,2026:53.555e6}, START_YEAR=2026;
+const ENTRY_RATE=(y0,t)=>(births(y0+t-NEW_HH_AGE)+NET_MIGRATION)/(POP20[y0]||POP20[START_YEAR]);
+const MORT_SHIFT=5.0/45;
+// personnes de 65 ans ou plus pour 100 personnes de 20 à 64 ans : 40 en 2026, 49 en 2040, 62 en 2070 (projection centrale Insee,
+// Insee Première n° 2108) ; 28,3 en 2010 et 38,8 en 2024 (calculés sur la figure 5)
+const DEP_PROJ=y=>y<=2026?0.401:y<=2040?0.401+(0.49-0.401)*(y-2026)/14:0.49+(0.62-0.49)*Math.min(1,(y-2040)/30);
 
 /* ---------- épargne selon l'âge ----------
    taux d'épargne net : 4 % pour les 18-29 ans, 15 % pour les 50-64 ans, 8 % pour les 65 ans et plus (Insee, travaux présentés au
@@ -206,7 +234,7 @@ const BANK_RESERVE=0.01, FUND_CASH=0.05;
    la distribution 2021 est remise à cette échelle) ; productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026).
    Non repris : la crise des dettes souveraines, le Covid (−7,4 % de PIB en 2020), l'inflation de 2022-2023 ; salaires et achats publics
    en part du PIB gardés à leur niveau 2025. */
-const BACKTEST={from:2010,to:2024,P:{T:14,u0:0.093,debt0:0.823,defT:0.072,save:0.069,rB:0.032,m0:(113500/19270)/(124800/23160),prodG:0.004},
+const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,u0:0.093,debt0:0.823,defT:0.072,save:0.069,rB:0.032,m0:(113500/19270)/(124800/23160),prodG:0.004},
   refs:[
     {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
     {k:'ulong',l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},

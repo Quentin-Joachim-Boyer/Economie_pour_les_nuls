@@ -18,13 +18,14 @@ function scoreCard(w,P){
     infl:P.prices&&closed?[avg(w.pInfl,1,10),avg(w.pInfl,L-9,L)]:[null,null],
     growth:closed?[growth(w.rNdp,0,Math.min(10,L)),growth(w.rNdp,Math.max(0,L-10),L)]:[null,null],
     debt:P.state&&closed?[w.sDebt[0],w.sDebt[L]]:[null,null],deficit:P.state&&closed?[w.sDef[0],w.sDef[L]]:[null,null],
-    stock:P.stock?[w.fPart0,w.fPart1]:[null,null],credit:closed&&P.bank&&P.credit&&w.kCred?[w.kCred[0],w.kCred[L]]:[null,null],
+    stock:P.stock?[w.fPart0,w.fPart1]:[null,null],dep:closed&&P.demo&&w.depR?[w.depR[0],w.depR[L]]:[null,null],credit:closed&&P.bank&&P.credit&&w.kCred?[w.kCred[0],w.kCred[L]]:[null,null],
     spend:P.state&&closed?(P.social?[avg(w.sPub,0,2),avg(w.sPub,L-2,L)]:[P.gW+P.gP+P.rB*P.debt0,null]):[null,null],
     po:P.state&&closed&&P.social?[avg(w.sPO,0,2),avg(w.sPO,L-2,L)]:[null,null],prod:closed?[P.prodG||0,P.prodG||0]:[0,0],surv5:P.firm?[P.pok,null]:[null,null],hhdebt:[0,null]};
-  return REF_FR.map(r=>{const [s,e]=M[r.k]||[null,null];
-    const gap=v=>v==null||!isFinite(v)?null:(r.rel?(v-r.v)/r.v:v-r.v);
-    const ok=v=>{const g=gap(v);return g==null?null:Math.abs(g)<=r.tol;};
-    return {...r,start:s,end:e,gapEnd:gap(e),okStart:ok(s),okEnd:ok(e)};});
+  // vEnd : référence pour la fin (projection Insee pour la démographie, sinon la valeur actuelle)
+  return REF_FR.map(r=>{const [s,e]=M[r.k]||[null,null];const vEnd=r.endProj?DEP_PROJ((P.y0||START_YEAR)+L):r.v;
+    const gap=(v,ref)=>v==null||!isFinite(v)?null:(r.rel?(v-ref)/ref:v-ref);
+    const ok=(v,ref)=>{const g=gap(v,ref);return g==null?null:Math.abs(g)<=r.tol;};
+    return {...r,vEnd,start:s,end:e,gapEnd:gap(e,vEnd),okStart:ok(s,r.v),okEnd:ok(e,vEnd)};});
 }
 
 /* Test de validation : valeur du modèle à la fin (année BACKTEST.to) pour chaque indicateur de BACKTEST.refs */

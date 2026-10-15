@@ -13,5 +13,5 @@ const mark=o=>o==null?' ':o?'✓':'✗';
 console.log('Représentativité (gains libres, '+P.N+' ménages, '+P.runs+' simulations, '+((Date.now()-t0)/1000).toFixed(1)+' s)');
 let ok=0,n=0;
 for(const r of S){if(!r.set&&r.okEnd!=null){n++;if(r.okEnd)ok++;}
-  console.log((r.set?'  [réglage] ':'  ')+r.l.padEnd(62)+' France '+f(r,r.v).padStart(10)+' | départ '+f(r,r.start).padStart(10)+' '+mark(r.okStart)+' | fin '+f(r,r.end).padStart(10)+' '+mark(r.okEnd));}
+  console.log((r.set?'  [réglage] ':'  ')+r.l.padEnd(62)+' France '+f(r,r.v).padStart(10)+' | départ '+f(r,r.start).padStart(10)+' '+mark(r.okStart)+' | fin '+f(r,r.end).padStart(10)+' '+mark(r.okEnd)+(r.vEnd!==r.v?' (projection '+f(r,r.vEnd)+')':''));}
 console.log(`Dans la tolérance à la fin : ${ok} / ${n} indicateurs mesurés`);

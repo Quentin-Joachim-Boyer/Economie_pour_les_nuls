@@ -69,6 +69,9 @@ function run(world,seed,P){
   const sPub=new Float64Array(T),sPO=new Float64Array(T),dRet=new Float64Array(T),retSh=new Float64Array(T);let deaths=0;
   const kEq=new Float64Array(T),kBail=new Float64Array(T),kCred=new Float64Array(T),kCET1=new Float64Array(T),kM=new Float64Array(T);let rhoS=1,LCsoc0=0;const kQ=new Float64Array(5),srQ=new Float64Array(5),srCell=new Float64Array(30),kCell=new Float64Array(30);
   const dR=rng(seed*15485863+11),dZ=normalFrom(dR);
+  // démographie : places de ménage vides (décès non remplacés) ; y0 = année de départ
+  const vac=new Uint8Array(N),y0=P.y0||START_YEAR;let entAcc=0,nAlive=N;
+  const liveOf=a=>{if(nAlive===N)return Float64Array.from(a);const o=new Float64Array(nAlive);let k=0;for(let i=0;i<N;i++)if(!vac[i])o[k++]=a[i];return o;};const depR=new Float64Array(T),hhN=new Float64Array(T);
   const wCut=(()=>{const y=Float64Array.from(wage).sort();return [1,2,3,4].map(k=>y[Math.floor(k*N/5)]);})();
   let wageSum=0,back=0,GDP0=0,GDPr0=0,capGDP=0;const WB0=WB;const unmet=new Float64Array(T);
   // prix (un seul bien) : indice des prix Pidx, des salaires wIdx, marge ; écart de demande de l'année précédente
@@ -173,7 +176,7 @@ function run(world,seed,P){
     const feeB=P.fee*Pidx,feeQ=P.feeE*Pidx;
     if(soc){// pensions revalorisées sur les prix ; départs à la retraite de l'année
       if(infl>0)for(let i=0;i<N;i++)if(retired[i])pens[i]*=1+infl;
-      for(let i=0;i<N;i++)if(!retired[i]&&age0[i]+t>=RET_AGE){retired[i]=1;lab.retire(i);pens[i]=PENSION_REPL*wage[i]*wIdx;}}
+      for(let i=0;i<N;i++)if(!retired[i]&&!vac[i]&&age0[i]+t>=RET_AGE){retired[i]=1;lab.retire(i);pens[i]=PENSION_REPL*wage[i]*wIdx;}}
     let revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0;
     if(dem&&t>0)for(let i=0;i<N;i++){const c=ageGroup(age0[i]+t)*5+qi[i];sr[i]=srCell[c];cA[i]=Math.max(0,1-sr[i]-P.mpcW*kCell[c]);}
 
@@ -304,7 +307,7 @@ function run(world,seed,P){
 
     /* ---------- idées de création ---------- */
     for(let i=0;i<N;i++){
-      if(rnd()>=P.pidea)continue;
+      if(rnd()>=P.pidea||vac[i])continue;
       ideas[i]++;
       // le projet est tiré dès l'idée : réussite, coût et gain, inconnus de tous à l'avance
       const ok=rnd()<P.pok;const pj=drawProject(rnd,P);const ci=pj.cost*Pidx,gain0=pj.gain*Pidx;
@@ -368,15 +371,21 @@ function run(world,seed,P){
     funds.payout();if(circ)funds.release(FUND_CASH);
     if(dem){/* démographie : décès (loi de Gompertz), héritage à un ménage d'une génération plus jeune (même fonds, pour lui transmettre
         ses parts), droits de succession à l'État ; le ménage disparu est remplacé par un jeune ménage sans patrimoine */
-      for(let i=0;i<N;i++){const a=age0[i]+t;if(dR()>=deathProb(a))continue;deaths++;
-        let j=-1;for(let k=0;k<60&&j<0;k++){const c=Math.floor(dR()*N);if(c!==i&&funds.fundOf[c]===funds.fundOf[i]){const ac=age0[c]+t;if(ac>=a-HEIR_GAP[1]&&ac<=a-HEIR_GAP[0])j=c;}}
-        for(let k=0;k<200&&j<0;k++){const c=Math.floor(dR()*N);if(c!==i&&funds.fundOf[c]===funds.fundOf[i])j=c;}
-        if(j<0)j=(i+1)%N;
+      for(let i=0;i<N;i++){const a=age0[i]+t,u=dR();if(vac[i]||u>=deathProb(a-MORT_SHIFT*t))continue;deaths++;
+        let j=-1;for(let k=0;k<60&&j<0;k++){const c=Math.floor(dR()*N);if(c!==i&&!vac[c]&&funds.fundOf[c]===funds.fundOf[i]){const ac=age0[c]+t;if(ac>=a-HEIR_GAP[1]&&ac<=a-HEIR_GAP[0])j=c;}}
+        for(let k=0;k<200&&j<0;k++){const c=Math.floor(dR()*N);if(c!==i&&!vac[c]&&funds.fundOf[c]===funds.fundOf[i])j=c;}
+        if(j<0){j=(i+1)%N;while(vac[j]&&j!==i)j=(j+1)%N;}
         const tx=stateOn?Math.min(Math.max(0,W[i]),ESTATE_TAX*Math.max(0,net[i])):0;if(tx>0){Sc+=tx;revY+=tx;}
         W[j]+=W[i]-tx;D[j]+=D[i];L[j]+=L[i];eqSave[j]+=eqSave[i];Bh[j]+=Bh[i];if(capInc)capInc[j]+=capInc[i];
         W[i]=D[i]=L[i]=eqSave[i]=Bh[i]=0;if(capInc)capInc[i]=0;
         funds.move(i,j);
         for(const fm of firms){if(fm.dead)continue;const n=fm.n;for(let k=0;k<n;k++)if(fm.hi[k]===i&&(fm.hc[k]>0||fm.hr[k]>0)){const x=fm.hc[k],r=fm.hr[k];fm.hc[k]=0;fm.hr[k]=0;addHolder(fm,j,x,r);}}
+        // la place reste vide jusqu'à l'entrée d'un jeune ménage
+        vac[i]=1;nAlive--;retired[i]=0;pens[i]=0;consH[i]=0;lab.retire(i);}
+      /* entrées : la génération qui atteint 25 ans et les migrants, dans les places vides (une génération plus nombreuse que les places
+         libres attend l'année suivante, au plus une année de retard) */
+      entAcc=Math.min(entAcc+N*ENTRY_RATE(y0,t),N*ENTRY_RATE(y0,t)*2);
+      for(let i=0;i<N&&entAcc>=1;i++){if(!vac[i])continue;entAcc--;vac[i]=0;nAlive++;
         // jeune ménage : nouveau revenu (même loi), quintile, épargne et propension à consommer de son quintile
         age0[i]=NEW_HH_AGE-(t+1);retired[i]=0;pens[i]=0;
         wage[i]=P.inc?P.incM*Math.exp(P.sigI*dZ()):P.incM;let q=0;while(q<4&&wage[i]>=wCut[q])q++;qi[i]=q;
@@ -389,24 +398,25 @@ function run(world,seed,P){
         GDPprev=sales+GW+tvaY;debtR[t]=GDPprev>0?pubDebt/GDPprev:0;
         if(soc){revY+=tvaY;const sp=GW+GPy+INTy+trY;defR[t]=GDPprev>0?(sp-revY)/GDPprev:0;sPub[t]=GDPprev>0?sp/GDPprev:0;sPO[t]=GDPprev>0?revY/GDPprev:0;}}
       // en euros du départ (divisés par l'indice des prix)
-      {const y=Float64Array.from(consH).sort();consMed[t]=y[Math.floor(N/2)]/Pidx;let sm=0;for(let i=0;i<N;i++)sm+=consH[i];consMean[t]=sm/N/Pidx;
-       ndp[t]=(sales+GW-wearY)/N/Pidx;let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;kNet[t]=K/N/Pidx;}
+      {const y=liveOf(consH).sort();consMed[t]=y[Math.floor(y.length/2)]/Pidx;let sm=0;for(let i=0;i<N;i++)sm+=consH[i];consMean[t]=sm/nAlive/Pidx;
+       ndp[t]=(sales+GW-wearY)/nAlive/Pidx;let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;kNet[t]=K/nAlive/Pidx;}
       pP[t]=Pidx;pInfl[t]=infl;pWr[t]=wIdx/Pidx;
-      lab.close(t);{let r=0;for(let i=0;i<N;i++)r+=retired[i];retSh[t]=r/N;}
+      lab.close(t,nAlive);{let r=0,o=0,w=0;for(let i=0;i<N;i++){if(vac[i])continue;r+=retired[i];const a=age0[i]+t;if(a>=65)o++;else if(a>=20)w++;}
+        retSh[t]=r/nAlive;depR[t]=w>0?o/w:0;hhN[t]=nAlive/N;}
       cc.drift=Math.max(cc.drift,Math.abs(money()-M0-Mc)/M0);
-      if(credit){let lo=0;for(const fm of firms)if(!fm.dead)lo+=fm.debt;kCred[t]=GDPprev>0?lo/GDPprev:0;kCET1[t]=lo>1e-3*N?bankEq()/lo:0;kEq[t]=GDPprev>0?bankEq()/GDPprev:0;let sd=0;for(let i=0;i<N;i++)sd+=D[i];kM[t]=(money()-F+sd)/N/Pidx;kBail[t]=GDPprev>0?bailY/GDPprev:0;bailY=0;}}
+      if(credit){let lo=0;for(const fm of firms)if(!fm.dead)lo+=fm.debt;kCred[t]=GDPprev>0?lo/GDPprev:0;kCET1[t]=lo>1e-3*N?bankEq()/lo:0;kEq[t]=GDPprev>0?bankEq()/GDPprev:0;let sd=0;for(let i=0;i<N;i++)sd+=D[i];kM[t]=(money()-F+sd)/nAlive/Pidx;kBail[t]=GDPprev>0?bailY/GDPprev:0;bailY=0;}}
     const eqv=new Float64Array(N);let unowned=0,firmV=0;funds.stake.fill(0);
     if(firmOn)for(const fm of firms){if(fm.dead)continue;const V=Math.max(0,fm.K+fm.R-fm.debt);firmV+=V;unowned+=V-valueHoldings(fm,V,capped,eqv,funds.stake);}
     {const fv=funds.value(eqv);fs.fundV=fv.total;fs.fundUn=fv.unclaimed;unowned+=fv.unclaimed;}
     fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned/Pidx;Pnet=Pidx;
     wearY=0;
-    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i];s+=net[i];}tot[t]=s/Pidx;gi[t]=gini(net);
-    {let a=0,d=0,o=0,e=0;for(let i=0;i<N;i++){a+=W[i]+eqSave[i]-L[i];d+=D[i];o+=Bh[i];e+=eqv[i];}bCash[t]=a/N/Pidx;bDep[t]=d/N/Pidx;bBond[t]=o/N/Pidx;bEq[t]=e/N/Pidx;
-     let l=0,fd=0;for(let i=0;i<N;i++)l+=L[i];for(const fm of firms)if(!fm.dead)fd+=fm.debt;bSale[t]=(pool+poolNext+feePot+back)/N/Pidx;bBank[t]=(F-d+l+fd+Sc+Bb)/N/Pidx;}
-    if(closed&&M0>0){const y=Float64Array.from(net).sort(),c5=y[Math.floor(0.5*N)],c9=y[Math.floor(0.9*N)];let h0=0,h1=0,h2=0,R=0;
+    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i];s+=net[i];}tot[t]=s/Pidx;gi[t]=gini(nAlive<N?liveOf(net):net);
+    {let a=0,d=0,o=0,e=0;for(let i=0;i<N;i++){a+=W[i]+eqSave[i]-L[i];d+=D[i];o+=Bh[i];e+=eqv[i];}bCash[t]=a/nAlive/Pidx;bDep[t]=d/nAlive/Pidx;bBond[t]=o/nAlive/Pidx;bEq[t]=e/nAlive/Pidx;
+     let l=0,fd=0;for(let i=0;i<N;i++)l+=L[i];for(const fm of firms)if(!fm.dead)fd+=fm.debt;bSale[t]=(pool+poolNext+feePot+back)/nAlive/Pidx;bBank[t]=(F-d+l+fd+Sc+Bb)/nAlive/Pidx;}
+    if(closed&&M0>0){const y=liveOf(net).sort(),c5=y[Math.floor(0.5*y.length)],c9=y[Math.floor(0.9*y.length)];let h0=0,h1=0,h2=0,R=0;
       /* avec le crédit, la monnaie est celle que détient le public (liquidités et dépôts, comme M1-M3) : les réserves de la banque
          n'en font pas partie, et le total grandit avec les prêts */
-      for(let i=0;i<N;i++){const h=W[i]+eqSave[i]+(credit?D[i]:0);if(net[i]>=c9)h2+=h;else if(net[i]>=c5)h1+=h;else h0+=h;}
+      for(let i=0;i<N;i++){if(vac[i])continue;const h=W[i]+eqSave[i]+(credit?D[i]:0);if(net[i]>=c9)h2+=h;else if(net[i]>=c5)h1+=h;else h0+=h;}
       for(const fm of firms)if(!fm.dead)R+=fm.R;
       const Mt=credit?h0+h1+h2+R+pool+poolNext+feePot+back+funds.cash()+Sc:M0;
       mPoor[t]=h0/Mt;mMid[t]=h1/Mt;mTop[t]=h2/Mt;mFirm[t]=R/Mt;mSale[t]=(pool+poolNext+feePot+back)/Mt;mOther[t]=((credit?0:F)+funds.cash()+Sc)/Mt;}
@@ -414,20 +424,23 @@ function run(world,seed,P){
 
   /* ---------- résultats ---------- */
   for(const fm of firms)if(!fm.dead&&fm.f>=0)succ[fm.f]++;
-  partic.update(net,T);const part1=partic.stat(net);endDiagnostics(C,dg,part);
+  partic.update(net,T);const part1=partic.stat(net,vac);endDiagnostics(C,dg,part);
   let alive=0,oldAlive=0;for(const fm of firms)if(!fm.dead){alive++;if(fm.old)oldAlive++;}
   let debt=0,indebted=0;for(let i=0;i<N;i++){debt+=L[i];if(L[i]>eps)indebted++;}
+  // résultats par ménage : seulement les ménages présents à la fin
+  const keep=[];for(let i=0;i<N;i++)if(!vac[i])keep.push(i);const pick=a=>a.constructor.from(keep,i=>a[i]);
   // parcours : 0 aucune idée, 1 idée(s) jamais financée(s), 2 réussites ≥ échecs, 3 plus d'échecs que de réussites
   const grp=new Int8Array(N),owes=new Int8Array(N);
   for(let i=0;i<N;i++){const p=succ[i]+fail[i];grp[i]=ideas[i]===0?0:p===0?1:succ[i]>=fail[i]?2:3;owes[i]=L[i]>eps?1:0;}
   const hasStart=P.ini||(firmOn&&P.exist);
-  return {tot,gi,uT,...st,lor:lorenz(net,40),debt,indebted:indebted/N,fund:F,
+  const netL=pick(net);
+  return {tot,gi,uT,...st,lor:lorenz(netL,40),debt,indebted:indebted/nAlive,fund:F,depR,hhN,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned/Pidx,fValue:fs.firmV/Pidx,
     cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,lU:lab.out.uT,kEq,kBail,kCred,kCET1,kM,sPub,sPO,dDeaths:dRet,dRet:retSh,lLong:lab.out.longT,lHours:lab.out.hoursT,lUnmet:unmet,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
-    sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(net).sort();const c9=y[Math.floor(0.9*N)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&wageSum>0?cc.wageShort/wageSum:0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
+    sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(netL).sort();const c9=y[Math.floor(0.9*y.length)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&wageSum>0?cc.wageShort/wageSum:0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     fFundPaid:fs.fundPaid,fFundV:fs.fundV/Pidx,fFundUn:fs.fundUn/Pidx,fPart0:part0.all,fPart1:part1.all,fPart1T:part1.top,dg,
-    net:Float64Array.from(net,v=>v/Pidx),pP,pInfl,pWr,pGap,pInflAvg:Pidx>0?Math.pow(Pidx,1/Math.max(1,T-1))-1:0,grp,owes,qi,refI:Int32Array.from(refI),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
+    net:Float64Array.from(netL,v=>v/Pidx),pP,pInfl,pWr,pGap,pInflAvg:Pidx>0?Math.pow(Pidx,1/Math.max(1,T-1))-1:0,grp:pick(grp),owes:pick(owes),qi:pick(qi),refI:Int32Array.from(keep,i=>refI[i]),lor0:hasStart?lorenz(init0,40):null,gini0:hasStart?gini(init0):null};
 }
 
 /* ---------- diagnostics par âge et par revenu (comparés à l'Insee dans l'onglet Hypothèses) ---------- */

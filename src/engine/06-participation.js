@@ -30,5 +30,8 @@ function makeParticipation(C){
     // met à jour qui épargne en actions, selon le patrimoine de chacun l'année t
     update(wealth,t){if(target<=0){part.fill(0);return;}for(let i=0;i<N;i++)part[i]=uP[i]<prob(i,wealth[i],t)?1:0;},
     // part d'ensemble, et chez les 10 % les plus riches
-    stat(wealth){let a=0,top=0,nt=0;const c9=Float64Array.from(wealth).sort()[Math.floor(0.9*N)];for(let i=0;i<N;i++){a+=part[i];if(wealth[i]>=c9){nt++;top+=part[i];}}return {all:a/N,top:nt?top/nt:0};}};
+    // vac (facultatif) : places de ménage vides, exclues
+    stat(wealth,vac){const live=[];for(let i=0;i<N;i++)if(!vac||!vac[i])live.push(i);const n=live.length;
+      const c9=Float64Array.from(live,i=>wealth[i]).sort()[Math.floor(0.9*n)];let a=0,top=0,nt=0;
+      for(const i of live){a+=part[i];if(wealth[i]>=c9){nt++;top+=part[i];}}return {all:n?a/n:0,top:nt?top/nt:0};}};
 }
