@@ -150,6 +150,7 @@
     <button type="button" role="tab" data-t="syn" aria-selected="true">Synthèse</button>
     <button type="button" role="tab" data-t="ineq" aria-selected="false">Inégalités</button>
     <button type="button" role="tab" data-t="fin" aria-selected="false">Entreprises et finance</button>
+    <button type="button" role="tab" data-t="fr" aria-selected="false">Comparaison France</button>
     <button type="button" role="tab" data-t="hyp" aria-selected="false">Hypothèses</button>
   </nav>
 
@@ -321,6 +322,19 @@
     <p>Le scénario « gains libres » recalculé pour 13 taux, de 0 à 15 % par an, tous les autres réglages restant ceux du panneau. Le scénario « gains interdits » correspond toujours à un taux nul : il est tracé en pointillé.</p>
     <div class="chartwrap" id="sweepwrap"><svg id="ch_sweep" viewBox="0 0 760 280" role="img" aria-label="Indicateur selon le taux d'intérêt"></svg></div>
     <p class="note" id="sweepnote">Cliquez sur « Calculer » pour lancer les 13 simulations (quelques secondes).</p>
+  </section>
+  </div>
+
+  <div class="tabpane" data-pane="fr">
+  <section class="card" id="scorecard">
+    <h2>Le modèle ressemble-t-il à la France ?</h2>
+    <p>Le scénario « gains libres » comparé aux statistiques françaises les plus récentes. Objectif à long terme du projet : que chaque brique rapproche le modèle de la France. Le trait noir est la valeur française, la bande verte l'écart jugé acceptable ; le cercle montre le modèle au départ (premières années), le point à la fin de la simulation, vert s'il est dans la bande.</p>
+    <div class="slegend"><span><i style="width:2px;height:12px;background:var(--fg)"></i>France</span><span><i style="width:14px;height:10px;background:var(--ok-soft)"></i>écart acceptable</span><span><i style="width:10px;height:10px;border-radius:50%;border:2px solid var(--muted)"></i>modèle, départ</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--ok)"></i>modèle, fin (dans la bande)</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--warn)"></i>modèle, fin (hors de la bande)</span></div>
+    <p class="ssum" id="scoresum"></p>
+    <div class="score" id="scorerows"></div>
+    <h3 class="sub" style="margin-top:18px">Réglages, pour mémoire</h3>
+    <p class="note" style="margin-top:2px">Ces valeurs ne sont pas des résultats : ce sont des réglages ou des absences du modèle (pas encore de prestations sociales, de gains de productivité, de crédit immobilier).</p>
+    <div class="score" id="scoreset"></div>
   </section>
   </div>
 

@@ -9,17 +9,17 @@
   --warn:#a14a07; --bg:#f3f5f7; --panel:#ffffff; --fg:#1b2430; --muted:#5d6977; --line:#d9dfe6; --grid:#e9edf1;
   --l:#2257a8; --l-soft:rgba(34,87,168,.10);
   --i:#b36a12; --i-soft:rgba(179,106,18,.10);
-  --focus:#2257a8;
+  --focus:#2257a8; --ok:#1e7a46; --ok-soft:rgba(30,122,70,.12);
   --f-display:"Literata", Georgia, "Times New Roman", serif;
   --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --warn:#f0a35c; --bg:#12171d; --panel:#1a2129; --fg:#e4e9ef; --muted:#93a0ae; --line:#2c3642; --grid:#252e38;
-  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; color-scheme:dark}}
+  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; --ok:#4cc27e; --ok-soft:rgba(76,194,126,.16); color-scheme:dark}}
 :root[data-theme="dark"]{
   --warn:#f0a35c; --bg:#12171d; --panel:#1a2129; --fg:#e4e9ef; --muted:#93a0ae; --line:#2c3642; --grid:#252e38;
-  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; color-scheme:dark}
+  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; --ok:#4cc27e; --ok-soft:rgba(76,194,126,.16); color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;padding:0 16px}
@@ -170,6 +170,29 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
 .vhead i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
 @media (max-width:640px){.vlist li{grid-template-columns:minmax(0,1fr)}.vlist .vv{text-align:left}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Tableau de bord de représentativité : une ligne par indicateur, France (trait), tolérance (bande), modèle au départ (cercle) et à la fin (point) */
+.score{display:grid}
+.srow{display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr) minmax(0,9.5rem);gap:6px 18px;padding:11px 0;border-top:1px solid var(--line);align-items:center}
+.srow:first-child{border-top:0}
+.srow .slabel{font-size:.92rem}
+.srow .slabel small{display:block;color:var(--muted);font-size:.76rem;line-height:1.35;margin-top:2px}
+.srow .slabel small a{color:inherit}
+.strack{position:relative;height:26px}
+.strack .axis{position:absolute;left:0;right:0;top:12px;height:2px;background:var(--grid)}
+.strack .band{position:absolute;top:6px;height:14px;background:var(--ok-soft);border-radius:3px}
+.strack .ref{position:absolute;top:2px;width:2px;height:22px;background:var(--fg)}
+.strack .dot{position:absolute;top:7px;width:12px;height:12px;margin-left:-6px;border-radius:50%}
+.strack .dot.start{border:2px solid var(--muted);background:var(--panel)}
+.strack .dot.end{background:var(--warn)}
+.strack .dot.end.ok{background:var(--ok)}
+.srow .sval{font-family:var(--f-mono);font-size:.8rem;line-height:1.45;text-align:right}
+.srow .sval b{font-weight:600}
+.srow.set{opacity:.75}
+.slegend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8rem;color:var(--muted);margin:4px 0 8px}
+.slegend i{display:inline-block;vertical-align:-1px;margin-right:5px}
+.ssum{font-size:1.05rem;margin:6px 0 2px}
+@media (max-width:720px){.srow{grid-template-columns:minmax(0,1fr)}.srow .sval{text-align:left}}
 </style>
 
 <div class="wrap">
@@ -317,6 +340,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
     <button type="button" role="tab" data-t="syn" aria-selected="true">Synthèse</button>
     <button type="button" role="tab" data-t="ineq" aria-selected="false">Inégalités</button>
     <button type="button" role="tab" data-t="fin" aria-selected="false">Entreprises et finance</button>
+    <button type="button" role="tab" data-t="fr" aria-selected="false">Comparaison France</button>
     <button type="button" role="tab" data-t="hyp" aria-selected="false">Hypothèses</button>
   </nav>
 
@@ -488,6 +512,19 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
     <p>Le scénario « gains libres » recalculé pour 13 taux, de 0 à 15 % par an, tous les autres réglages restant ceux du panneau. Le scénario « gains interdits » correspond toujours à un taux nul : il est tracé en pointillé.</p>
     <div class="chartwrap" id="sweepwrap"><svg id="ch_sweep" viewBox="0 0 760 280" role="img" aria-label="Indicateur selon le taux d'intérêt"></svg></div>
     <p class="note" id="sweepnote">Cliquez sur « Calculer » pour lancer les 13 simulations (quelques secondes).</p>
+  </section>
+  </div>
+
+  <div class="tabpane" data-pane="fr">
+  <section class="card" id="scorecard">
+    <h2>Le modèle ressemble-t-il à la France ?</h2>
+    <p>Le scénario « gains libres » comparé aux statistiques françaises les plus récentes. Objectif à long terme du projet : que chaque brique rapproche le modèle de la France. Le trait noir est la valeur française, la bande verte l'écart jugé acceptable ; le cercle montre le modèle au départ (premières années), le point à la fin de la simulation, vert s'il est dans la bande.</p>
+    <div class="slegend"><span><i style="width:2px;height:12px;background:var(--fg)"></i>France</span><span><i style="width:14px;height:10px;background:var(--ok-soft)"></i>écart acceptable</span><span><i style="width:10px;height:10px;border-radius:50%;border:2px solid var(--muted)"></i>modèle, départ</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--ok)"></i>modèle, fin (dans la bande)</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--warn)"></i>modèle, fin (hors de la bande)</span></div>
+    <p class="ssum" id="scoresum"></p>
+    <div class="score" id="scorerows"></div>
+    <h3 class="sub" style="margin-top:18px">Réglages, pour mémoire</h3>
+    <p class="note" style="margin-top:2px">Ces valeurs ne sont pas des résultats : ce sont des réglages ou des absences du modèle (pas encore de prestations sociales, de gains de productivité, de crédit immobilier).</p>
+    <div class="score" id="scoreset"></div>
   </section>
   </div>
 
@@ -696,6 +733,28 @@ const WAGE_SHARE0=0.65;
 const MARKUP0=1/WAGE_SHARE0-1;
 const PHILLIPS_THETA=0.30*0.0048*100;
 const WAGE_INDEXATION=4.4/5.2;
+
+/* ---------- tableau de bord de représentativité : statistiques de référence de la France ----------
+   Chaque entrée : valeur de référence, année, source (lien), tolérance (écart jugé acceptable), et nature :
+   « mesure » (résultat du modèle) ou « réglage » (paramètre fixé, montré pour mémoire). Relevé du 15/10/2026. */
+const REF_FR=[
+  {k:'gini',l:'Gini du patrimoine net',v:0.676,y:'2021',tol:0.03,u:'idx',src:'Insee, RPM 2024, fiche 2.9 (enquête européenne HFCS)',url:'https://www.insee.fr/fr/statistiques/fichier/7941427/RPM2024-F29.pdf'},
+  {k:'top10',l:'Part du patrimoine net détenue par les 10 % les plus dotés',v:0.50,y:'2021',tol:0.05,u:'pct',src:'Insee, RPM 2024, fiche 2.9 (HFCS)',url:'https://www.insee.fr/fr/statistiques/fichier/7941427/RPM2024-F29.pdf'},
+  {k:'wmed',l:'Patrimoine net médian par ménage',v:148100,y:'2024',tol:0.15,rel:1,u:'eur',src:'Insee Focus n° 371 (enquête Histoire de vie et Patrimoine 2023-2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
+  {k:'save',l:'Taux d\'épargne des ménages',v:0.179,y:'2025',tol:0.02,u:'pct',src:'Insee Première n° 2105 (comptes de la Nation 2025)',url:'https://www.insee.fr/fr/statistiques/8996855'},
+  {k:'margin',l:'Taux de marge des entreprises (profits bruts / valeur ajoutée)',v:0.322,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2105 (sociétés non financières)',url:'https://www.insee.fr/fr/statistiques/8996855'},
+  {k:'unemp',l:'Taux de chômage',v:0.077,y:'2025',tol:0.015,u:'pct',src:'Insee Première n° 2096 (enquête Emploi)',url:'https://www.insee.fr/fr/statistiques/8901327'},
+  {k:'ulong',l:'Part des chômeurs depuis un an ou plus',v:0.231,y:'2025',tol:0.05,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
+  {k:'hours',l:'Heures travaillées par ménage et par an',v:46.27e9/31.27e6,y:'2024',tol:0.05,rel:1,u:'h',src:'Eurostat nama_10_a10_e (46,27 Md d\'heures) ; Insee, 31,27 millions de ménages (2023)',url:'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_a10_e?geo=FR&na_item=EMP_DC&unit=THS_HW&nace_r2=TOTAL&lang=fr'},
+  {k:'infl',l:'Inflation annuelle',v:0.02,y:'cible',tol:0.01,u:'pct',src:'Cible de la BCE (observé : 5,2 % en 2022, 4,9 % en 2023, 2,0 % en 2024, 0,9 % en 2025, Insee)',url:'https://www.insee.fr/fr/statistiques/8726461'},
+  {k:'growth',l:'Croissance annuelle du PIB réel',v:0.0124,y:'2014-2024',tol:0.005,u:'pct',src:'Eurostat tec00115, moyenne géométrique des taux annuels (calcul)',url:'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/tec00115?geo=FR&unit=CLV_PCH_PRE&na_item=B1GQ&lang=fr'},
+  {k:'debt',l:'Dette publique / PIB',v:1.157,y:'2025',tol:0.10,u:'pct',src:'Insee Première n° 2106 (comptes des administrations publiques 2025)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'deficit',l:'Déficit public / PIB',v:0.051,y:'2025',tol:0.01,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
+  {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2106 (modèle : salaires et achats publics, intérêts ; pas encore de prestations sociales)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
+  {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
+  {k:'hhdebt',l:'Dette des ménages / PIB',v:0.591,y:'2025',tol:0.10,u:'pct',set:1,src:'Banque de France, taux d\'endettement des agents non financiers, T4 2025 (modèle : pas de crédit immobilier)',url:'https://www.banque-france.fr/fr/statistiques/comptes-nationaux-financiers/taux-dendettement-des-agents-non-financiers-comparaisons-internationales-2025-q4'}];
 /* ==== fichier : engine/01-math.js ==== */
 /* =====================================================================
    Outils mathématiques
@@ -1339,6 +1398,34 @@ function aggFrom(world,P,xs){
 }
 // calcul direct (sans workers), utile pour les tests
 function agg(world,P){const xs=[];for(let s=0;s<P.runs;s++)xs.push(run(world,1000+s,P));return aggFrom(world,P,xs);}
+/* ==== fichier : engine/30-score.js ==== */
+/* =====================================================================
+   Tableau de bord de représentativité : le modèle (gains libres) comparé aux statistiques françaises (REF_FR)
+   Pour chaque indicateur : valeur au départ (premières années) et à la fin, écart à la référence, verdict.
+   Fonction pure : utilisée par la page et par tests/score.js.
+   ===================================================================== */
+function scoreCard(w,P){
+  const T=P.T,L=T-1,closed=P.firm&&P.closed;
+  const avg=(a,i0,i1)=>{if(!a)return null;let s=0,n=0;for(let i=Math.max(0,i0);i<=Math.min(a.length-1,i1);i++){s+=a[i];n++;}return n?s/n:null;};
+  const growth=(a,i0,i1)=>a&&a[i0]>0&&a[i1]>0&&i1>i0?Math.pow(a[i1]/a[i0],1/(i1-i0))-1:null;
+  const top10=lor=>lor?1-lor[36]:null;
+  const net=w.eq&&w.eq.net,med=net&&net.length?net[Math.floor(net.length/2)]*UNIT_EUR:null;
+  let topEnd=null;if(net&&net.length){let t=0,s=0;const k=Math.round(net.length*0.1);for(let i=0;i<net.length;i++){t+=net[i];if(i>=net.length-k)s+=net[i];}topEnd=t>0?s/t:null;}
+  const M={
+    gini:[w.gini0,w.gi[L]],top10:[top10(w.lor0),topEnd],wmed:[null,med],
+    save:closed?[null,w.cSaveRate]:[null,null],margin:closed?[null,1-w.cWageShare]:[null,null],
+    unemp:P.unemp&&closed?[w.lU[0],w.lU[L]]:[null,null],ulong:P.unemp&&closed?[avg(w.lLong,2,6),avg(w.lLong,L-4,L)]:[null,null],
+    hours:P.unemp&&closed?[w.lHours[0],w.lHours[L]]:[null,null],
+    infl:P.prices&&closed?[avg(w.pInfl,1,10),avg(w.pInfl,L-9,L)]:[null,null],
+    growth:closed?[growth(w.rNdp,0,Math.min(10,L)),growth(w.rNdp,Math.max(0,L-10),L)]:[null,null],
+    debt:P.state&&closed?[w.sDebt[0],w.sDebt[L]]:[null,null],deficit:P.state&&closed?[w.sDef[0],w.sDef[L]]:[null,null],
+    stock:P.stock?[w.fPart0,w.fPart1]:[null,null],
+    spend:P.state&&closed?[P.gW+P.gP+P.rB*P.debt0,null]:[null,null],prod:[0,0],surv5:P.firm?[P.pok,null]:[null,null],hhdebt:[0,null]};
+  return REF_FR.map(r=>{const [s,e]=M[r.k]||[null,null];
+    const gap=v=>v==null||!isFinite(v)?null:(r.rel?(v-r.v)/r.v:v-r.v);
+    const ok=v=>{const g=gap(v);return g==null?null:Math.abs(g)<=r.tol;};
+    return {...r,start:s,end:e,gapEnd:gap(e),okStart:ok(s),okEnd:ok(e)};});
+}
 </script>
 <script>
 /* ==== fichier : app/00-format.js ==== */
@@ -1556,7 +1643,7 @@ function render(Lw,Iw,ms){
   renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderPrices(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
-  renderCharts(W);
+  renderCharts(W);renderScore(W);
   const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
   document.querySelector('main').classList.remove('stale');
 }
@@ -1774,6 +1861,23 @@ function renderCharts([Lw,Iw]){
   if(Lw.lor0)lser.unshift({ys:Array.from(Lw.lor0,v=>v*100),color:'var(--muted)',dash:true,name:'Départ'});
   lineChart($('ch_lorenz'),{W:380,H:260,xs:lx,xMax:100,yMin:lmin<0?-Math.ceil(-lmin/25)*25:0,yMax:100,yTicks:4,xTicks:4,xLabel:'% de la population',yFmt:v=>Math.round(v)+' %',xFmt:v=>Math.round(v)+' %',tipX:v=>fr(v)+' % les moins riches',diag:true,series:lser});
   setText('lorlede',Lw.lor0?`Part de la richesse nette détenue par les x % les moins riches. En pointillé : le patrimoine de départ, identique dans les deux scénarios (Gini ${f2(Lw.gini0)}) ; à la fin, Gini ${f2(Lw.gi[L])} avec gains libres et ${f2(Iw.gi[L])} avec gains interdits. Sous zéro, ce sont des personnes endettées.`:'Part de la richesse nette détenue par les x % les moins riches, à la fin de la simulation. Sans patrimoine de départ, il n\'y a pas de courbe de départ. Sous zéro, ce sont des personnes endettées.');
+}
+
+// tableau de bord de représentativité (gains libres comparé à la France)
+function renderScore(W){
+  const S=scoreCard(W[0],P);
+  const fv=(r,v)=>v==null||!isFinite(v)?'—':r.u==='eur'?fr(Math.round(v/100)*100)+' €':r.u==='h'?fr(Math.round(v))+' h':r.u==='idx'?fr(v,{minimumFractionDigits:2,maximumFractionDigits:2}):pct1(v);
+  const row=r=>{const vals=[r.v,r.start,r.end].filter(v=>v!=null&&isFinite(v));
+    const lo0=r.rel?r.v*(1-r.tol):r.v-r.tol,hi0=r.rel?r.v*(1+r.tol):r.v+r.tol;
+    let lo=Math.min(0,...vals,lo0),hi=Math.max(...vals,hi0)*1.08;if(hi<=lo)hi=lo+1;
+    const x=v=>((v-lo)/(hi-lo)*100).toFixed(2)+'%';
+    const dot=(v,cls)=>v==null||!isFinite(v)?'':`<span class="dot ${cls}" style="left:${x(v)}" title="${cls==='start'?'départ':'fin'} : ${fv(r,v)}"></span>`;
+    return `<div class="srow${r.set?' set':''}"><div class="slabel">${r.l}<small>France ${r.y} : <a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small></div>
+      <div class="strack" role="img" aria-label="${r.l} : France ${fv(r,r.v)}, modèle au départ ${fv(r,r.start)}, à la fin ${fv(r,r.end)}"><span class="axis"></span><span class="band" style="left:${x(lo0)};width:calc(${x(hi0)} - ${x(lo0)})"></span><span class="ref" style="left:${x(r.v)}"></span>${dot(r.start,'start')}${dot(r.end,'end'+(r.okEnd?' ok':''))}</div>
+      <div class="sval">France <b>${fv(r,r.v)}</b><br>départ ${fv(r,r.start)}<br>fin <b>${fv(r,r.end)}</b></div></div>`;};
+  const meas=S.filter(r=>!r.set),done=meas.filter(r=>r.okEnd!=null),ok=done.filter(r=>r.okEnd).length;
+  setText('scoresum',done.length?`${ok} indicateur${ok>1?'s':''} sur ${done.length} dans l'écart acceptable à la fin de la simulation.`:'Activer l\'économie bouclée pour comparer le modèle à la France.');
+  setHTML('scorerows',meas.map(row).join(''));setHTML('scoreset',S.filter(r=>r.set).map(row).join(''));
 }
 /* ==== fichier : app/11-verdict.js ==== */
 /* =====================================================================

@@ -10,7 +10,7 @@ function render(Lw,Iw,ms){
   renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderPrices(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
   renderBank(W);renderCircuit(W);renderState(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
-  renderCharts(W);
+  renderCharts(W);renderScore(W);
   const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
   document.querySelector('main').classList.remove('stale');
 }
@@ -228,4 +228,21 @@ function renderCharts([Lw,Iw]){
   if(Lw.lor0)lser.unshift({ys:Array.from(Lw.lor0,v=>v*100),color:'var(--muted)',dash:true,name:'Départ'});
   lineChart($('ch_lorenz'),{W:380,H:260,xs:lx,xMax:100,yMin:lmin<0?-Math.ceil(-lmin/25)*25:0,yMax:100,yTicks:4,xTicks:4,xLabel:'% de la population',yFmt:v=>Math.round(v)+' %',xFmt:v=>Math.round(v)+' %',tipX:v=>fr(v)+' % les moins riches',diag:true,series:lser});
   setText('lorlede',Lw.lor0?`Part de la richesse nette détenue par les x % les moins riches. En pointillé : le patrimoine de départ, identique dans les deux scénarios (Gini ${f2(Lw.gini0)}) ; à la fin, Gini ${f2(Lw.gi[L])} avec gains libres et ${f2(Iw.gi[L])} avec gains interdits. Sous zéro, ce sont des personnes endettées.`:'Part de la richesse nette détenue par les x % les moins riches, à la fin de la simulation. Sans patrimoine de départ, il n\'y a pas de courbe de départ. Sous zéro, ce sont des personnes endettées.');
+}
+
+// tableau de bord de représentativité (gains libres comparé à la France)
+function renderScore(W){
+  const S=scoreCard(W[0],P);
+  const fv=(r,v)=>v==null||!isFinite(v)?'—':r.u==='eur'?fr(Math.round(v/100)*100)+' €':r.u==='h'?fr(Math.round(v))+' h':r.u==='idx'?fr(v,{minimumFractionDigits:2,maximumFractionDigits:2}):pct1(v);
+  const row=r=>{const vals=[r.v,r.start,r.end].filter(v=>v!=null&&isFinite(v));
+    const lo0=r.rel?r.v*(1-r.tol):r.v-r.tol,hi0=r.rel?r.v*(1+r.tol):r.v+r.tol;
+    let lo=Math.min(0,...vals,lo0),hi=Math.max(...vals,hi0)*1.08;if(hi<=lo)hi=lo+1;
+    const x=v=>((v-lo)/(hi-lo)*100).toFixed(2)+'%';
+    const dot=(v,cls)=>v==null||!isFinite(v)?'':`<span class="dot ${cls}" style="left:${x(v)}" title="${cls==='start'?'départ':'fin'} : ${fv(r,v)}"></span>`;
+    return `<div class="srow${r.set?' set':''}"><div class="slabel">${r.l}<small>France ${r.y} : <a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small></div>
+      <div class="strack" role="img" aria-label="${r.l} : France ${fv(r,r.v)}, modèle au départ ${fv(r,r.start)}, à la fin ${fv(r,r.end)}"><span class="axis"></span><span class="band" style="left:${x(lo0)};width:calc(${x(hi0)} - ${x(lo0)})"></span><span class="ref" style="left:${x(r.v)}"></span>${dot(r.start,'start')}${dot(r.end,'end'+(r.okEnd?' ok':''))}</div>
+      <div class="sval">France <b>${fv(r,r.v)}</b><br>départ ${fv(r,r.start)}<br>fin <b>${fv(r,r.end)}</b></div></div>`;};
+  const meas=S.filter(r=>!r.set),done=meas.filter(r=>r.okEnd!=null),ok=done.filter(r=>r.okEnd).length;
+  setText('scoresum',done.length?`${ok} indicateur${ok>1?'s':''} sur ${done.length} dans l'écart acceptable à la fin de la simulation.`:'Activer l\'économie bouclée pour comparer le modèle à la France.');
+  setHTML('scorerows',meas.map(row).join(''));setHTML('scoreset',S.filter(r=>r.set).map(row).join(''));
 }

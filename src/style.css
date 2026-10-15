@@ -3,17 +3,17 @@
   --warn:#a14a07; --bg:#f3f5f7; --panel:#ffffff; --fg:#1b2430; --muted:#5d6977; --line:#d9dfe6; --grid:#e9edf1;
   --l:#2257a8; --l-soft:rgba(34,87,168,.10);
   --i:#b36a12; --i-soft:rgba(179,106,18,.10);
-  --focus:#2257a8;
+  --focus:#2257a8; --ok:#1e7a46; --ok-soft:rgba(30,122,70,.12);
   --f-display:"Literata", Georgia, "Times New Roman", serif;
   --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --warn:#f0a35c; --bg:#12171d; --panel:#1a2129; --fg:#e4e9ef; --muted:#93a0ae; --line:#2c3642; --grid:#252e38;
-  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; color-scheme:dark}}
+  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; --ok:#4cc27e; --ok-soft:rgba(76,194,126,.16); color-scheme:dark}}
 :root[data-theme="dark"]{
   --warn:#f0a35c; --bg:#12171d; --panel:#1a2129; --fg:#e4e9ef; --muted:#93a0ae; --line:#2c3642; --grid:#252e38;
-  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; color-scheme:dark}
+  --l:#5b8fe0; --l-soft:rgba(91,143,224,.15); --i:#c0823a; --i-soft:rgba(192,130,58,.15); --focus:#7aa7ec; --ok:#4cc27e; --ok-soft:rgba(76,194,126,.16); color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;padding:0 16px}
@@ -164,3 +164,26 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
 .vhead i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
 @media (max-width:640px){.vlist li{grid-template-columns:minmax(0,1fr)}.vlist .vv{text-align:left}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Tableau de bord de représentativité : une ligne par indicateur, France (trait), tolérance (bande), modèle au départ (cercle) et à la fin (point) */
+.score{display:grid}
+.srow{display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr) minmax(0,9.5rem);gap:6px 18px;padding:11px 0;border-top:1px solid var(--line);align-items:center}
+.srow:first-child{border-top:0}
+.srow .slabel{font-size:.92rem}
+.srow .slabel small{display:block;color:var(--muted);font-size:.76rem;line-height:1.35;margin-top:2px}
+.srow .slabel small a{color:inherit}
+.strack{position:relative;height:26px}
+.strack .axis{position:absolute;left:0;right:0;top:12px;height:2px;background:var(--grid)}
+.strack .band{position:absolute;top:6px;height:14px;background:var(--ok-soft);border-radius:3px}
+.strack .ref{position:absolute;top:2px;width:2px;height:22px;background:var(--fg)}
+.strack .dot{position:absolute;top:7px;width:12px;height:12px;margin-left:-6px;border-radius:50%}
+.strack .dot.start{border:2px solid var(--muted);background:var(--panel)}
+.strack .dot.end{background:var(--warn)}
+.strack .dot.end.ok{background:var(--ok)}
+.srow .sval{font-family:var(--f-mono);font-size:.8rem;line-height:1.45;text-align:right}
+.srow .sval b{font-weight:600}
+.srow.set{opacity:.75}
+.slegend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8rem;color:var(--muted);margin:4px 0 8px}
+.slegend i{display:inline-block;vertical-align:-1px;margin-right:5px}
+.ssum{font-size:1.05rem;margin:6px 0 2px}
+@media (max-width:720px){.srow{grid-template-columns:minmax(0,1fr)}.srow .sval{text-align:left}}

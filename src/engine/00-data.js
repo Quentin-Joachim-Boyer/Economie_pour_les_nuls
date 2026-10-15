@@ -108,3 +108,25 @@ const WAGE_SHARE0=0.65;
 const MARKUP0=1/WAGE_SHARE0-1;
 const PHILLIPS_THETA=0.30*0.0048*100;
 const WAGE_INDEXATION=4.4/5.2;
+
+/* ---------- tableau de bord de représentativité : statistiques de référence de la France ----------
+   Chaque entrée : valeur de référence, année, source (lien), tolérance (écart jugé acceptable), et nature :
+   « mesure » (résultat du modèle) ou « réglage » (paramètre fixé, montré pour mémoire). Relevé du 15/10/2026. */
+const REF_FR=[
+  {k:'gini',l:'Gini du patrimoine net',v:0.676,y:'2021',tol:0.03,u:'idx',src:'Insee, RPM 2024, fiche 2.9 (enquête européenne HFCS)',url:'https://www.insee.fr/fr/statistiques/fichier/7941427/RPM2024-F29.pdf'},
+  {k:'top10',l:'Part du patrimoine net détenue par les 10 % les plus dotés',v:0.50,y:'2021',tol:0.05,u:'pct',src:'Insee, RPM 2024, fiche 2.9 (HFCS)',url:'https://www.insee.fr/fr/statistiques/fichier/7941427/RPM2024-F29.pdf'},
+  {k:'wmed',l:'Patrimoine net médian par ménage',v:148100,y:'2024',tol:0.15,rel:1,u:'eur',src:'Insee Focus n° 371 (enquête Histoire de vie et Patrimoine 2023-2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
+  {k:'save',l:'Taux d\'épargne des ménages',v:0.179,y:'2025',tol:0.02,u:'pct',src:'Insee Première n° 2105 (comptes de la Nation 2025)',url:'https://www.insee.fr/fr/statistiques/8996855'},
+  {k:'margin',l:'Taux de marge des entreprises (profits bruts / valeur ajoutée)',v:0.322,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2105 (sociétés non financières)',url:'https://www.insee.fr/fr/statistiques/8996855'},
+  {k:'unemp',l:'Taux de chômage',v:0.077,y:'2025',tol:0.015,u:'pct',src:'Insee Première n° 2096 (enquête Emploi)',url:'https://www.insee.fr/fr/statistiques/8901327'},
+  {k:'ulong',l:'Part des chômeurs depuis un an ou plus',v:0.231,y:'2025',tol:0.05,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
+  {k:'hours',l:'Heures travaillées par ménage et par an',v:46.27e9/31.27e6,y:'2024',tol:0.05,rel:1,u:'h',src:'Eurostat nama_10_a10_e (46,27 Md d\'heures) ; Insee, 31,27 millions de ménages (2023)',url:'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_a10_e?geo=FR&na_item=EMP_DC&unit=THS_HW&nace_r2=TOTAL&lang=fr'},
+  {k:'infl',l:'Inflation annuelle',v:0.02,y:'cible',tol:0.01,u:'pct',src:'Cible de la BCE (observé : 5,2 % en 2022, 4,9 % en 2023, 2,0 % en 2024, 0,9 % en 2025, Insee)',url:'https://www.insee.fr/fr/statistiques/8726461'},
+  {k:'growth',l:'Croissance annuelle du PIB réel',v:0.0124,y:'2014-2024',tol:0.005,u:'pct',src:'Eurostat tec00115, moyenne géométrique des taux annuels (calcul)',url:'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/tec00115?geo=FR&unit=CLV_PCH_PRE&na_item=B1GQ&lang=fr'},
+  {k:'debt',l:'Dette publique / PIB',v:1.157,y:'2025',tol:0.10,u:'pct',src:'Insee Première n° 2106 (comptes des administrations publiques 2025)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'deficit',l:'Déficit public / PIB',v:0.051,y:'2025',tol:0.01,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
+  {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2106 (modèle : salaires et achats publics, intérêts ; pas encore de prestations sociales)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
+  {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
+  {k:'hhdebt',l:'Dette des ménages / PIB',v:0.591,y:'2025',tol:0.10,u:'pct',set:1,src:'Banque de France, taux d\'endettement des agents non financiers, T4 2025 (modèle : pas de crédit immobilier)',url:'https://www.banque-france.fr/fr/statistiques/comptes-nationaux-financiers/taux-dendettement-des-agents-non-financiers-comparaisons-internationales-2025-q4'}];
