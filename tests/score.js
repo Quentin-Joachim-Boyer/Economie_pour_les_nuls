@@ -6,7 +6,7 @@ const m=html.match(/<script id="engine">([\s\S]*?)<\/script>/);if(!m)throw new E
 const ctx={console,Math,Float64Array,Int32Array,Int8Array,Uint8Array,Array,Object,Map,Set,JSON,isFinite,NaN,Infinity};vm.createContext(ctx);
 vm.runInContext(m[1]+'\nthis.agg=agg;this.scoreCard=scoreCard;',ctx);
 const DEF=eval('('+html.match(/const DEF=(\{[^;]*\});/)[1]+')');
-const P={...DEF,N:+process.argv[3]||2000,runs:+process.argv[4]||8};
+const P={...DEF,N:+process.argv[3]||2000,runs:+process.argv[4]||8,...JSON.parse(process.argv[5]||"{}")};
 const t0=Date.now();const w=ctx.agg('L',P);const S=ctx.scoreCard(w,P);
 const f=(r,v)=>v==null?'—':r.u==='eur'?Math.round(v).toLocaleString('fr-FR')+' €':r.u==='h'?Math.round(v)+' h':r.u==='idx'?v.toFixed(3):(v*100).toFixed(1)+' %';
 const mark=o=>o==null?' ':o?'✓':'✗';

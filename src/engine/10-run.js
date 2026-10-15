@@ -48,6 +48,9 @@ function run(world,seed,P){
      pool : ventes de l'année, payées par les dépenses de l'année précédente (poolNext) ; feePot : coûts de la banque et des fonds,
      reversés en salaires. Au départ, le pool vaut salaires + profits notionnels des entreprises existantes. */
   // emploi : qui travaille (tous, sans la brique chômage) ; WB = masse salariale des personnes en emploi
+  /* propension à consommer le revenu : 1 − taux d'épargne observé − effet du patrimoine « normal » du quintile (k = patrimoine / revenu
+     du quintile au départ), pour que revenu + patrimoine redonnent au départ les taux d'épargne observés (consommation = cA × revenu + mpcW × patrimoine) */
+  const cA=new Float64Array(N);
   const lab=makeLabour({N,P,seed,qi,age0,T,on:closed&&!!P.unemp},wage);const emp=lab.emp;
   let WB=0;for(let i=0;i<N;i++)if(emp[i])WB+=wage[i];
   let wageSum=0,back=0,GDP0=0,capGDP=0;const WB0=WB;const unmet=new Float64Array(T);
@@ -84,6 +87,8 @@ function run(world,seed,P){
     // production possible au plein emploi (productivité fixe, proportionnelle au salaire)
     GDP0=stateOn?GDPprev:pool;{let wa=0;for(let i=0;i<N;i++)wa+=wage[i];capGDP=WB0>0?GDP0*wa/WB0:0;}
     M0=money();}
+  if(closed){const sw=new Float64Array(5),sy=new Float64Array(5);for(let i=0;i<N;i++){sw[qi[i]]+=init0[i];sy[qi[i]]+=wage[i]*emp[i];}
+    for(let i=0;i<N;i++){const k=sy[qi[i]]>0?sw[qi[i]]/sy[qi[i]]:0;cA[i]=Math.max(0,1-sr[i]-P.mpcW*k);}}
 
   for(let t=0;t<T;t++){
     if(t>0)partic.update(pricesOn&&Pnet!==1?Float64Array.from(net,v=>v/Pnet):net,t);
@@ -130,7 +135,7 @@ function run(world,seed,P){
     /* ---------- épargne : remboursement des dettes, dépôt, actions, liquidités ---------- */
     if(closed){// le ménage reçoit son salaire, consomme (revenu et patrimoine), puis place ce qui reste
       for(let i=0;i<N;i++){const y=wage[i]*wIdx*ratio*emp[i];W[i]+=y;const inc=y+capInc[i];
-        const c=(1-sr[i])*inc+P.mpcW*Math.max(0,t===0?init0[i]:net[i]);
+        const c=Math.max(0,cA[i]*inc+P.mpcW*(t===0?init0[i]:net[i]));
         let pc=Math.min(c,Math.max(0,W[i]));W[i]-=pc;
         if(c-pc>eps&&bank){const x=Math.min(c-pc,D[i],Math.max(F,0));D[i]-=x;F-=x;pc+=x;}
         poolNext+=pc;cc.cons+=pc;consH[i]=pc;cc.inc+=inc;cc.save+=inc-pc;capInc[i]=0;
