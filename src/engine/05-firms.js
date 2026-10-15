@@ -22,7 +22,9 @@ function hazardModel(P){
 /* Entreprises existantes au départ, appartenant à des ménages du modèle.
    Seule une part P.hold des ménages en détient (Insee : 16 %), tirée d'autant plus souvent que le patrimoine est élevé.
    PME et microentreprises : un propriétaire principal (part P.own) et 10 actionnaires ; grandes entreprises et ETI : 40 actionnaires.
-   Les parts font partie du patrimoine Insee : elles sont retirées du reste du patrimoine de leur détenteur.
+   Les parts font partie du patrimoine Insee : elles sont retirées du reste du patrimoine de leur détenteur. Ce qui dépasse le
+   patrimoine d'un détenteur passe à des fonds (investisseurs institutionnels : assurance-vie, OPC), dont les parts sont réparties
+   entre tous les ménages en proportion de leur patrimoine restant : la distribution d'ensemble reste celle de l'Insee.
    Modifie C.firms, C.W, C.W0, C.init0 ; renvoie quelques indicateurs. */
 function seedExistingFirms(C){
   const {N,P,W,W0,init0,firms}=C;const er=rng(C.seed*104729+3);const n0=Math.max(1,Math.round(N*P.nf/100));
@@ -31,14 +33,24 @@ function seedExistingFirms(C){
   const keys=Array.from({length:N},(_,i)=>[Math.log(Math.max(er(),1e-12))/wt(i),i]).sort((a,b)=>b[0]-a[0]);const H=keys.slice(0,nH).map(x=>x[1]);
   const cdf=new Float64Array(nH);{let c=0;for(let k=0;k<nH;k++){c+=wt(H[k]);cdf[k]=c;}}
   const pick=()=>{const x=er()*cdf[nH-1];let lo=0,hi=nH-1;while(lo<hi){const m=(lo+hi)>>1;if(cdf[m]<x)lo=m+1;else hi=m;}return H[lo];};
+  // économie bouclée : chaque entreprise détient au départ la trésorerie d'une année d'investissement (sa règle d'autofinancement),
+  // payée par ses détenteurs comme le capital : la valeur d'une entreprise est K + R
+  const r0=P.closed?P.invest:0;
   for(const ls of landscape(n0,P.k0*N,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho=drawRho(er,P);
-    const owner=isBig?-1:pick();const own=isBig?0:P.own;
-    const fm=newHoldings({K,R:0,debt:0,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
-    if(owner>=0){addHolder(fm,owner,K*own,K*own);init0[owner]+=K*own;}
-    const ns=isBig?SHAREHOLDERS_BIG:SHAREHOLDERS_SMALL,part=K*(1-own)/ns;if(part>0)for(let a=0;a<ns;a++){const j=pick();addHolder(fm,j,part,part);init0[j]+=part;}
+    const owner=isBig?-1:pick();const own=isBig?0:P.own;const V=K*(1+r0);
+    const fm=newHoldings({K,R:K*r0,debt:0,rho,age:EXIST_AGE_MIN+Math.floor(er()*EXIST_AGE_SPAN),f:-1,cat:ls.cat,selfC:0,dead:false,old:true},isBig?64:16);
+    if(owner>=0){addHolder(fm,owner,V*own,V*own);init0[owner]+=V*own;}
+    const ns=isBig?SHAREHOLDERS_BIG:SHAREHOLDERS_SMALL,part=V*(1-own)/ns;if(part>0)for(let a=0;a<ns;a++){const j=pick();addHolder(fm,j,part,part);init0[j]+=part;}
     firms.push(fm);}
-  // parts retirées du reste du patrimoine (sans descendre sous zéro) ; ce qui dépasse s'ajoute au patrimoine
-  let ex=0,tb=0;for(let i=0;i<N;i++){const b=init0[i]-W0[i];if(b<=0)continue;tb+=b;if(P.ini){const keep=Math.max(0,W0[i]-b);ex+=Math.max(0,b-W0[i]);W0[i]=keep;W[i]=keep;init0[i]=keep+b;}else ex+=b;}
+  // parts retirées du reste du patrimoine ; ce qui dépasse le patrimoine du détenteur passe aux fonds
+  let ex=0,tb=0;const sc=new Float64Array(N).fill(1);
+  for(let i=0;i<N;i++){const b=init0[i]-W0[i];if(b<=0)continue;tb+=b;
+    if(P.ini){const w0=W0[i];if(b>w0){ex+=b-w0;sc[i]=w0/b;}W0[i]=Math.max(0,w0-b);W[i]=W0[i];init0[i]=w0;}else ex+=b;}
+  if(P.ini&&ex>0&&C.funds){const fu=C.funds,NF=fu.NF,toF=new Float64Array(NF);
+    for(const fm of firms){const n=fm.n;for(let k=0;k<n;k++){const j=fm.hi[k];if(j<0||sc[j]>=1)continue;const x=fm.hc[k]*(1-sc[j]);fm.hc[k]-=x;fm.hr[k]-=x;const f=fu.fundOf[j];toF[f]+=x;addHolder(fm,fundId(f),x,x);}}
+    // parts de fonds : réparties dans chaque fonds en proportion du patrimoine restant de ses membres (le patrimoine total ne change pas)
+    const sw=new Float64Array(NF);for(let i=0;i<N;i++)sw[fu.fundOf[i]]+=Math.max(0,W[i]);
+    for(let i=0;i<N;i++){const f=fu.fundOf[i];if(sw[f]<=0||W[i]<=0)continue;const x=Math.min(W[i],toF[f]*W[i]/sw[f]);W[i]-=x;W0[i]-=x;fu.seed(i,x);}}
   // part des parts détenue par les 5 % qui en ont le plus
   const b=Array.from(init0,(v,i)=>v-W0[i]).sort((a,b)=>b-a);const tot=b.reduce((a,c)=>a+c,0);const k5=Math.max(1,Math.round(N*0.05));let t5=0;for(let k=0;k<k5;k++)t5+=b[k];
   return {exist0:n0,bizEx:tb>0?ex/tb:0,biz5:tot>0?t5/tot:0};

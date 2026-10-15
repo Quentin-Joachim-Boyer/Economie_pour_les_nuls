@@ -35,6 +35,8 @@ function makeFunds(C){
       const left=Float64Array.from(FI);for(let i=0;i<N;i++){const f=fundOf[i];if(FI[f]<=eps||uF[i]<=eps)continue;let x=FI[f]*uF[i]/FU[f];if(capped){x=Math.min(x,capF[i]);capF[i]-=x;}W[i]+=x;if(capInc)capInc[i]+=x;left[f]-=x;fs.fundPaid+=x;}
       for(let f=0;f<NF;f++){FC[f]+=Math.max(0,left[f]);FI[f]=0;}syncFC();},
     // monnaie détenue par les fonds (trésorerie et reçu de l'année pas encore reversé)
+    // parts reçues au départ en échange d'une partie du patrimoine (le fonds détient en contrepartie des parts d'entreprises existantes)
+    seed(i,a){if(a<=eps)return;const f=fundOf[i];uF[i]+=a;FU[f]+=a;capF[i]+=a;},
     // gains interdits, règle réelle : mises restantes et prix maximal revalorisés de l'inflation (facteur g)
     index(g){pcap*=g;for(let i=0;i<N;i++)capF[i]*=g;},
     cash(){let s=0;for(let f=0;f<NF;f++)s+=FC[f]+FI[f];return s;},

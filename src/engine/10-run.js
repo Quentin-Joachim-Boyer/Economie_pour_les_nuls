@@ -31,7 +31,7 @@ function run(world,seed,P){
   /* ---------- départ ---------- */
   const pop=makePopulation(P,N,C.prng);const {wage,sr,qi,age0}=pop;
   Object.assign(C,{W0:pop.W0,qi,age0});
-  const funds=makeFunds(C);
+  const funds=C.funds=makeFunds(C);
   for(let i=0;i<N;i++)W[i]=pop.W0[i];
   const init0=C.init0=Float64Array.from(pop.W0);
   const hazard=hazardModel(P);
@@ -56,6 +56,8 @@ function run(world,seed,P){
   let wageSum=0,back=0,GDP0=0,capGDP=0;const WB0=WB;const unmet=new Float64Array(T);
   // prix (un seul bien) : indice des prix Pidx, des salaires wIdx, marge ; écart de demande de l'année précédente
   const pricesOn=closed&&!!P.prices;let Pidx=1,wIdx=1,mk=MARKUP0,gapPrev=0,inflPrev=0,Pnet=1;
+  // gains de productivité : la production par heure (et par unité de salaire) croît de gA par an ; les salaires réels suivent
+  const gA=closed?(P.prodG||0):0;let Aprod=1;
   const pP=new Float64Array(T),pInfl=new Float64Array(T),pWr=new Float64Array(T),pGap=new Float64Array(T);
   // indicateurs d'économie réelle (Stiglitz, Sen et Fitoussi 2009) : consommation médiane et moyenne par ménage, production nette
   // de l'usure, utilisation des capacités (ventes / ventes que permettrait le capital, au rythme du départ)
@@ -75,28 +77,33 @@ function run(world,seed,P){
   const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,pubDebt=0,GDPprev=0;let rB=stateOn&&world==='L'?P.rB:0;
   const sc={tax:0,gw:0,gp:0,int:0,cut:0,spend:0};
   let M0=0;
-  if(closed){let notional=0;for(const fm of firms)notional+=fm.rho*fm.K;pool=WB+notional;
-    if(stateOn){// calage : à l'année 0, ventes = salaires privés + profits notionnels + impôt, et l'impôt laisse le déficit visé
+  if(closed){// propension à consommer le revenu, calée par quintile (voir cA)
+    {const sw=new Float64Array(5),sy=new Float64Array(5);for(let i=0;i<N;i++){sw[qi[i]]+=init0[i];sy[qi[i]]+=wage[i]*emp[i];}
+     for(let i=0;i<N;i++){const k=sy[qi[i]]>0?sw[qi[i]]/sy[qi[i]]:0;cA[i]=Math.max(0,1-sr[i]-P.mpcW*k);}}
+    /* ventes de l'année 0 = dépenses que le modèle produit lui-même : consommation (revenus d'activité et patrimoine) + investissement
+       des entreprises (+ achats publics). Le profit d'ensemble en découle (ventes − salaires − impôt) : le départ est cohérent. */
+    let C0=0,I0=0;for(let i=0;i<N;i++)C0+=Math.max(0,cA[i]*wage[i]*emp[i]+P.mpcW*init0[i]);for(const fm of firms)I0+=P.invest*fm.K;
+    pool=C0+I0;
+    if(stateOn){// PIB = ventes + salaires publics, avec achats publics et salaires publics en part du PIB ; l'impôt laisse le déficit visé
       // (même taux dans les deux scénarios : il est calé avec le taux d'intérêt observé)
-      let gdp=WB+notional;for(let it=0;it<60;it++){const GW=P.gW*gdp,T0=(P.gW+P.gP+P.rB*P.debt0-P.defT)*gdp;pool=WB-GW+notional+T0;tau=T0/pool;gdp=pool+GW;}
+      const gdp=(C0+I0)/Math.max(0.05,1-P.gW-P.gP);const GW=P.gW*gdp,T0=(P.gW+P.gP+P.rB*P.debt0-P.defT)*gdp;pool=gdp-GW;tau=T0/pool;
       GDPprev=gdp;
       // dette de départ : une partie des liquidités des ménages est en fait détenue en obligations publiques
       let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const b=Math.min(P.debt0*gdp,0.9*tw);
       if(tw>0)for(let i=0;i<N;i++){const x=b*Math.max(0,W[i])/tw;W[i]-=x;Bh[i]+=x;}pubDebt=b;}
     cap0=pool;for(const fm of firms)if(!fm.dead)K0+=fm.K;
-    // production possible au plein emploi (productivité fixe, proportionnelle au salaire)
+    // production possible au plein emploi (productivité proportionnelle au salaire)
     GDP0=stateOn?GDPprev:pool;{let wa=0;for(let i=0;i<N;i++)wa+=wage[i];capGDP=WB0>0?GDP0*wa/WB0:0;}
     M0=money();}
-  if(closed){const sw=new Float64Array(5),sy=new Float64Array(5);for(let i=0;i<N;i++){sw[qi[i]]+=init0[i];sy[qi[i]]+=wage[i]*emp[i];}
-    for(let i=0;i<N;i++){const k=sy[qi[i]]>0?sw[qi[i]]/sy[qi[i]]:0;cA[i]=Math.max(0,1-sr[i]-P.mpcW*k);}}
 
   for(let t=0;t<T;t++){
     if(t>0)partic.update(pricesOn&&Pnet!==1?Float64Array.from(net,v=>v/Pnet):net,t);
 
     /* ---------- prix : les salaires rattrapent l'inflation passée, la marge suit la tension ; le capital est réévalué ---------- */
     let infl=0;
-    if(pricesOn&&t>0){wIdx*=1+Math.max(0,WAGE_INDEXATION*inflPrev);mk=Math.max(0,(1+mk)*(1+PHILLIPS_THETA*gapPrev)-1);
-      const Pn=wIdx*(1+mk)/(1+MARKUP0);infl=Pn/Pidx-1;Pidx=Pn;inflPrev=infl;
+    if(gA&&t>0){Aprod*=1+gA;if(!pricesOn)wIdx*=1+gA;}
+    if(pricesOn&&t>0){wIdx*=(1+gA)*(1+Math.max(0,WAGE_INDEXATION*inflPrev));mk=Math.max(0,(1+mk)*(1+PHILLIPS_THETA*gapPrev)-1);
+      const Pn=wIdx/Aprod*(1+mk)/(1+MARKUP0);infl=Pn/Pidx-1;Pidx=Pn;inflPrev=infl;
       for(const fm of firms)if(!fm.dead)fm.K*=1+infl;     // capital au coût de remplacement
       if(capped){// gains interdits, règle réelle : les mises restantes, dettes, dépôts et obligations sont indexés sur les prix
         const g=1+Math.max(0,infl);rate=g-1;if(stateOn)rB=g-1;
@@ -110,9 +117,9 @@ function run(world,seed,P){
 
     /* ---------- économie bouclée : salaires payés sur les ventes, puis sur la trésorerie des entreprises ---------- */
     let ratio=1,sales=0,GW=0;
-    if(pricesOn){gapPrev=GDP0>0?((pool+back)+(stateOn?P.gW*GDPprev:0))/Pidx/GDP0-1:0;pGap[t]=gapPrev;}
+    if(pricesOn){gapPrev=GDP0>0?((pool+back)+(stateOn?P.gW*GDPprev:0))/Pidx/(GDP0*Aprod)-1:0;pGap[t]=gapPrev;}
     if(closed&&lab.on){// la demande au-delà de ce que la population active peut produire attend l'année suivante (commandes en attente)
-      pool+=back;back=0;const capS=Math.max(0,capGDP*Pidx-(stateOn?P.gW*GDPprev:0));
+      pool+=back;back=0;const capS=Math.max(0,capGDP*Pidx*Aprod-(stateOn?P.gW*GDPprev:0));
       if(pool>capS){back=pool-capS;pool=capS;}unmet[t]=pool+back>0?back/(pool+back):0;}
     if(closed){sales=pool;{let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;util[t]=cap0>0&&K>0&&K0>0?sales/(cap0*K/K0):0;}
       if(stateOn){// impôt sur les ventes, puis dépenses (fonctionnaires, achats, intérêts) ; le déficit est emprunté aux ménages
@@ -125,7 +132,7 @@ function run(world,seed,P){
         if(INT>0&&pubDebt>0)for(let i=0;i<N;i++){const x=INT*Bh[i]/pubDebt;W[i]+=x;capInc[i]+=x;}
         poolNext+=GP;sc.gw+=GW;sc.gp+=GP;sc.int+=INT;defR[t]=GDPprev>0?(GW+GP+INT-tax)/GDPprev:0;}
       // salaires privés : sur les ventes, puis sur la trésorerie des entreprises
-      if(lab.on){lab.adjust(GDP0>0?WB0*(sales+GW)/Pidx/GDP0:0,t);WB=lab.effEmp()*wIdx;}else if(pricesOn)WB=WB0*wIdx;
+      if(lab.on){lab.adjust(GDP0>0?WB0*(sales+GW)/Pidx/(GDP0*Aprod):0,t);WB=lab.effEmp()*wIdx;}else if(pricesOn||gA)WB=WB0*wIdx;
       wageSum+=WB;
       const WBp=Math.max(0,WB-GW);let paid=Math.min(pool,WBp);pool-=paid;
       if(paid<WBp){const need=WBp-paid;let totK=0;for(const fm of firms)if(!fm.dead)totK+=fm.K;

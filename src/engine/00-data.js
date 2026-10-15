@@ -137,3 +137,10 @@ const REF_FR=[
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
   {k:'hhdebt',l:'Dette des ménages / PIB',v:0.591,y:'2025',tol:0.10,u:'pct',set:1,src:'Banque de France, taux d\'endettement des agents non financiers, T4 2025 (modèle : pas de crédit immobilier)',url:'https://www.banque-france.fr/fr/statistiques/comptes-nationaux-financiers/taux-dendettement-des-agents-non-financiers-comparaisons-internationales-2025-q4'}];
+
+/* ---------- gains de productivité ----------
+   productivité horaire du travail : « le rythme tendanciel de croissance de la productivité horaire s'est établi autour de 0,7 % par an »
+   sur 25 ans (COR, tendances démographiques et économiques, avril 2026) ; 1,0 % sur 35 ans, 0,4 % sur 15 ans.
+   Les salaires réels suivent la productivité à long terme (Insee, Note de conjoncture mars 2018 : équation de salaire indexée
+   à long terme sur la productivité). */
+const PROD_GROWTH=0.007;
