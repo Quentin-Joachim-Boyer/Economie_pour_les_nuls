@@ -8,7 +8,7 @@ const at=(W,f)=>W.map(f);   // une valeur par scénario
 function render(Lw,Iw,ms){
   const W=[Lw,Iw];
   renderKpis(W);renderVerdict(W,P.T-1);renderReal(W);renderPrices(W);renderWork(W);renderMoney(W);renderBroad(W);renderAge(W);
-  renderBank(W);renderCircuit(W);renderSocial(W);renderState(W);renderCredit(W);renderFirms(W);renderStock(W);renderQuintiles(W);
+  renderBank(W);renderCircuit(W);renderSocial(W);renderState(W);renderCredit(W);renderHousing(W);renderFirms(W);renderStock(W);renderQuintiles(W);
   LAST={worlds:W,T:P.T};renderEquity();
   renderCharts(W);renderScore(W);
   const st=$('status');st.classList.remove('stale');st.textContent=`calculé en ${ms<2000?Math.round(ms)+' ms':fr(ms/1000,{maximumFractionDigits:1})+' s'}${POOL.ok?` sur ${POOL.ws.length} cœurs`:''}`;
@@ -181,6 +181,15 @@ function renderCredit(W){
     series:[{ys:xs.map(()=>11.2),color:'var(--muted)',dash:true,name:'Exigence'},{ys:xs.map(()=>16.1),color:'var(--muted)',dash:true,name:'Effectif'},...seriesLI(eL,eI)]});
   const m=a=>Array.from(a,v=>v*UNIT_EUR/1000),mL=m(W[0].kM),mI=m(W[1].kM);
   lineChart($('ch_mpub'),{...year,W:760,H:260,xs,xTicks:P.T%5===0?5:2,yMax:niceMax(Math.max(...mL,...mI)),yTicks:4,yFmt:v=>fr(Math.round(v))+' k€',series:seriesLI(mL,mI)});
+}
+
+function renderHousing(W){
+  const on=!!(P.firm&&P.closed&&P.housing);show('housecard',on);if(!on)return;
+  const xs=Array.from({length:P.T},(_,i)=>i+1),year={xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,xTicks:P.T%4===0?4:2};
+  const p=a=>Array.from(a,v=>v*100),pf=v=>fr(Math.round(v))+' %';
+  lineChart($('ch_own'),{...year,W:380,H:260,xs,yMax:100,yTicks:4,yFmt:pf,series:[{ys:xs.map(()=>61.2),color:'var(--muted)',dash:true,name:'France'},...seriesLI(p(W[0].hOwn),p(W[1].hOwn))]});
+  const mL=p(W[0].hMort),mI=p(W[1].hMort);
+  lineChart($('ch_mort'),{...year,W:380,H:260,xs,yMax:niceMax(Math.max(60,...mL,...mI)),yTicks:4,yFmt:pf,series:[{ys:xs.map(()=>43.1),color:'var(--muted)',dash:true,name:'France'},...seriesLI(mL,mI)]});
 }
 
 function renderFirms(W){

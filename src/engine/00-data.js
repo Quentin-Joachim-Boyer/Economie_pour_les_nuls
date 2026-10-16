@@ -148,9 +148,10 @@ const REF_FR=[
   {k:'dep',l:'Personnes de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
   {k:'fail',l:'Crédits des entreprises défaillantes / crédits aux entreprises (par an, médiane sur 10 ans)',v:0.0045,y:'2010-2019',tol:0.003,u:'pct',src:'Banque de France, calculs BNP Paribas (Eco Flash 24.09, 2024) : moyenne 2010-2019 de 0,45 % ; pic d\'août 2009 : 0,56 %',url:'https://economic-research.bnpparibas.com/pdf/fr-FR/France-Poids-economique-defaillances-entreprises-niveaux-eleves-relativiser-20/06/2024,49702'},
   {k:'credit',l:'Crédits bancaires aux entreprises / PIB',v:1437.1/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, Financement des entreprises, août 2026 (1 437,1 Md€ de crédits aux sociétés non financières) ; PIB 2025 : 2 991,1 Md€ (Insee)',url:'https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08'},
+  {k:'own',l:'Ménages propriétaires d\'un logement',v:0.612,y:'2024',tol:0.05,u:'pct',src:'Insee, taux de détention du patrimoine immobilier, début 2024 (enquête Histoire de vie et Patrimoine)',url:'https://www.insee.fr/fr/statistiques/2412784'},
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
-  {k:'hhdebt',l:'Dette des ménages / PIB',v:0.591,y:'2025',tol:0.10,u:'pct',set:1,src:'Banque de France, taux d\'endettement des agents non financiers, T4 2025 (modèle : pas de crédit immobilier)',url:'https://www.banque-france.fr/fr/statistiques/comptes-nationaux-financiers/taux-dendettement-des-agents-non-financiers-comparaisons-internationales-2025-q4'}];
+  {k:'hhdebt',l:'Crédits à l\'habitat des ménages / PIB',v:1288/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, crédits aux particuliers, août 2026 (1 288 Md€) ; PIB 2025 (Insee)',url:'https://www.banque-france.fr/system/files/2026-10/Stat_info_Credits_aux_particuliers_202608.pdf'}];
 
 /* ---------- gains de productivité ----------
    productivité horaire du travail : « le rythme tendanciel de croissance de la productivité horaire s'est établi autour de 0,7 % par an »
@@ -309,3 +310,36 @@ const DEPOSIT_GUARANTEE=100000/UNIT_EUR;
    ménages, qui représentent ici aussi les assureurs, les fonds et les non-résidents (57,5 %) */
 const BANK_GOV_SHARE=0.105;
 const CET1_TARGET=0.161, CET1_MIN=0.112, LEVERAGE_MIN=0.03, SNF_CREDIT_K=1437/3033, DEPOSIT_RATE=0.013, BANK_COST_RATIO=0.679;
+
+/* ---------- logement ----------
+   Patrimoine de départ : part de l'immobilier dans le patrimoine brut par décile (Insee, enquête Histoire de vie et Patrimoine
+   début 2024, « Composition du patrimoine brut par décile ») : 0 / 0,6 / 1,9 / 26,6 / 67,0 / 75,0 / 75,1 / 72,5 / 69,3 / 53,3 % ;
+   dettes / patrimoine brut des propriétaires selon l'âge : 42 % avant 40 ans, 26 % de 40 à 49, 13 % de 50 à 59, moins de 4 % après
+   (Insee Focus n° 371) ; la dette d'un propriétaire ne dépasse pas 77,7 % de son logement (apport moyen, ACPR 2024).
+   Prix : en gains libres, il suit le revenu (salaire nominal) : le prix des logements a évolué comme le revenu par ménage de 1965
+   à 2000 (Friggit, IGEDD) ; en gains interdits, il suit les prix (pas d'enrichissement réel).
+   Crédit immobilier : taux 3,32 % (crédits nouveaux, août 2026, Banque de France ; le taux moyen de l'encours n'est pas publié),
+   durée 22 ans 8 mois (Banque de France, juillet 2026), pondération en risque 9,4 % (approche IRB, ACPR 2024).
+   Investissement en logement : 8,9 % du revenu disponible des ménages (taux d'épargne 17,9 % − épargne financière 9,0 %, Insee 2025),
+   fait par les propriétaires, financé à 40 % à crédit (calé pour que l'encours de crédit immobilier reste stable rapporté au PIB :
+   +0,2 % sur un an en août 2026, Banque de France ; la production de crédits, 147 Md€ en 2025, finance surtout des achats de
+   logements existants, dont les vendeurs remboursent leur propre prêt). Usure : 0,9 % de la valeur par an (investissement 133 Md€ / logements et
+   terrains bâtis 8 850 Md€ = 1,5 %, moins la croissance du parc, 38,14 → 38,38 millions de logements, +0,6 %, Insee).
+   Primo-accession : chaque année, un ménage locataire de 25 à 59 ans devient propriétaire avec la probabilité 2,5 %, calée pour que
+   la part des ménages propriétaires reste vers 61 % (Insee : 61,2 % détiennent de l'immobilier, début 2024 ; 57 % des 40-49 ans
+   possèdent leur résidence principale) ; il paie l'apport qu'il peut, jusqu'à 22,3 % (16,3 % des prêts dépassent 100 % de la valeur
+   du bien, ACPR 2024) ; prix = 6,2 ans de revenu (prêt à 77,7 % remboursé en 22,7 ans au taux de
+   3,32 % avec un taux d'effort de 30,7 %, ACPR) ; il achète à un bailleur, qui rembourse au prorata son crédit.
+   Loyers : 55 % des ménages non propriétaires louent dans le parc privé (23,4 % des ménages, contre 16,9 % en HLM et 2,3 % logés
+   gratuitement, Insee Première n° 2090) ; ils paient 8 950 € par an (loyers 2024 du parc privé ≈ 65 Md€ pour 7,3 millions de
+   ménages, d'après SDES), une partie de leur consommation versée aux bailleurs, au prorata de ce qu'ils possèdent au-delà de leur
+   propre logement. En gains interdits, le loyer ne couvre que l'usure : 8 950 € × 0,9 % / 3,5 % (rendement locatif brut ≈ 3,5 %,
+   loyers 310 Md€ / patrimoine logement 8 850 Md€, borne haute). */
+const HOUSING_DEC=[0,.006,.019,.266,.670,.750,.751,.725,.693,.533];
+// taux de détention d'un patrimoine immobilier par décile de patrimoine brut, début 2024 (Insee, « Taux de détention »)
+const OWN_DEC=[0,.010,.028,.308,.863,.963,.983,.992,.982,.993];
+const MORT_TO_HOUSING=1288/8850;
+const MORT_DEBT_AGE=a=>a<40?0.42:a<50?0.26:a<60?0.13:0.03;
+const MORT_RATE=0.0332, MORT_YEARS=22.7, MORT_LTV=0.777, RW_MORT=0.094;
+const HOUSING_INV=0.089, HOUSING_DEPR=0.009, ACC_RATE=0.025, PRICE_INC=6.2, HOUSING_INV_CREDIT=0.4;
+const PRIV_TENANT=23.4/(23.4+16.9+2.3), RENT_PRIV=8950/UNIT_EUR, RENT_YIELD=0.035;

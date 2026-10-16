@@ -22,7 +22,8 @@ function scoreCard(w,P){
     stock:P.stock?[w.fPart0,w.fPart1]:[null,null],
     fail:closed&&P.bank&&P.credit&&w.kDef?[medY(w.kDef,1,10),medY(w.kDef,L-9,L)]:[null,null],dep:closed&&P.demo&&w.depR?[w.depR[0],w.depR[L]]:[null,null],credit:closed&&P.bank&&P.credit&&w.kCred?[w.kCred[0],w.kCred[L]]:[null,null],
     spend:P.state&&closed?(P.social?[avg(w.sPub,0,2),avg(w.sPub,L-2,L)]:[P.gW+P.gP+P.rB*P.debt0,null]):[null,null],
-    po:P.state&&closed&&P.social?[avg(w.sPO,0,2),avg(w.sPO,L-2,L)]:[null,null],prod:closed?[P.prodG||0,P.prodG||0]:[0,0],surv5:P.firm?[P.pok,null]:[null,null],hhdebt:[0,null]};
+    po:P.state&&closed&&P.social?[avg(w.sPO,0,2),avg(w.sPO,L-2,L)]:[null,null],prod:closed?[P.prodG||0,P.prodG||0]:[0,0],surv5:P.firm?[P.pok,null]:[null,null],
+    hhdebt:closed&&P.housing&&w.hMort?[w.hMort[0],w.hMort[L]]:[null,null],own:closed&&P.housing&&w.hOwn?[w.hOwn[0],w.hOwn[L]]:[null,null]};
   // vEnd : référence pour la fin (projection Insee pour la démographie, sinon la valeur actuelle)
   return REF_FR.map(r=>{const [s,e]=M[r.k]||[null,null];const vEnd=r.endProj?DEP_PROJ((P.y0||START_YEAR)+L):r.v;
     const gap=(v,ref)=>v==null||!isFinite(v)?null:(r.rel?(v-ref)/ref:v-ref);
