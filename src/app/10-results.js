@@ -73,6 +73,9 @@ function renderPrices(W){
   lineChart($('ch_wreal'),{...year,W:380,H:260,xs,yMin:50,yMax:Math.max(...wL,...wI)>150?250:150,yTicks:4,yFmt:ix,series:[ref(100,'Départ'),...seriesLI(wL,wI)]});
   const gL=p100(W[0].pGap),gI=p100(W[1].pGap);[lo,hi]=range(gL,gI);const m=niceMax(Math.max(Math.abs(lo),Math.abs(hi),5));
   lineChart($('ch_gap'),{...year,W:380,H:260,xs,yMin:-m,yMax:m,yTicks:4,yFmt:v=>(v>0?'+':'')+fr(Math.round(v))+' %',series:seriesLI(gL,gI)});
+  const cbOn=!!(P.cb&&P.credit&&P.bank)&&W[0].cbRate&&W[0].cbRate.some(v=>v!==0);show('cbwrap',cbOn);
+  if(cbOn){const r=p100(W[0].cbRate);[lo,hi]=range(r,iL,[2]);const [b0,b1]=niceRange(lo,hi);
+    lineChart($('ch_cb'),{...year,W:760,H:260,xs,yMin:b0,yMax:b1,yTicks:4,yFmt:pf,series:[ref(2,'Cible BCE'),{ys:iL,color:'var(--muted)',name:'Inflation'},{ys:r,color:'var(--l)',name:'Taux directeur'}]});}
 }
 
 // le travail : chômage, heures travaillées, demande que la population active ne peut pas servir

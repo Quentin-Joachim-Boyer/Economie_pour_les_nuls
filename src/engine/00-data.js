@@ -278,7 +278,7 @@ const BANK_RESERVE=0.01, FUND_CASH=0.05;
    la distribution 2021 est remise à cette échelle) ; productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026).
    Non repris : la crise des dettes souveraines, le Covid (−7,4 % de PIB en 2020), l'inflation de 2022-2023 ; salaires et achats publics
    en part du PIB gardés à leur niveau 2025. */
-const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,u0:0.093,debt0:0.823,defT:0.072,save:0.069,rB:0.032,m0:(113500/19270)/(124800/23160),prodG:0.004},
+const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.823,defT:0.072,save:0.069,rB:0.032,m0:(113500/19270)/(124800/23160),prodG:0.004},
   refs:[
     {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
     {k:'ulong',l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},
@@ -308,7 +308,7 @@ const DEPOSIT_GUARANTEE=100000/UNIT_EUR;
 /* la banque ne finance qu'une part du déficit : établissements de crédit français = 10,5 % de la dette négociable de l'État au
    1er trimestre 2026 (Agence France Trésor, bulletin mensuel n° 434, d'après la Banque de France) ; le reste est emprunté aux
    ménages, qui représentent ici aussi les assureurs, les fonds et les non-résidents (57,5 %) */
-const BANK_GOV_SHARE=0.105;
+const BANK_GOV_SHARE=0.105, NONRES_SHARE=0.575;   // non-résidents : 57,5 % de la dette négociable de l'État (AFT, 1er trimestre 2026)
 const CET1_TARGET=0.161, CET1_MIN=0.112, LEVERAGE_MIN=0.03, SNF_CREDIT_K=1437/3033, DEPOSIT_RATE=0.013, BANK_COST_RATIO=0.679;
 
 /* ---------- logement ----------
@@ -343,3 +343,32 @@ const MORT_DEBT_AGE=a=>a<40?0.42:a<50?0.26:a<60?0.13:0.03;
 const MORT_RATE=0.0332, MORT_YEARS=22.7, MORT_LTV=0.777, RW_MORT=0.094;
 const HOUSING_INV=0.089, HOUSING_DEPR=0.009, ACC_RATE=0.025, PRICE_INC=6.2, HOUSING_INV_CREDIT=0.4;
 const PRIV_TENANT=23.4/(23.4+16.9+2.3), RENT_PRIV=8950/UNIT_EUR, RENT_YIELD=0.035;
+
+/* ---------- banque centrale (gains libres) ----------
+   Règle de taux : i = ρ·i(t−1) + (1−ρ)·[r* + π* + 1,5·(π − π*) + 0,5·écart de demande], plancher −0,5 %.
+   π* = 2 % (cible de la BCE, stratégie 2021) ; r* = 0 (taux naturel réel de la zone euro entre −½ % et +½ %, Bulletin économique BCE
+   1/2025) ; 1,5 sur l'inflation (règle de référence BCE, document de travail n° 2797, 2023 ; Taylor 1993 : 1 + 0,5) ; 0,5 sur l'écart
+   (Taylor 1993) ; lissage ρ = 0,85 par trimestre (même document BCE), soit 0,85⁴ ≈ 0,52 par an ; plancher : −0,50 %, taux de la
+   facilité de dépôt de 2019 à 2022. Départ : 2,50 % (facilité de dépôt depuis le 16 septembre 2026, BCE).
+   Transmission (variations par rapport au départ) : crédits aux entreprises 0,78 (zone euro, +350 pb pour +450 pb, mai 2022 → oct. 2023,
+   Bulletin BCE 8/2023) ; crédits à l'habitat 0,69 (France, 1,07 % → 4,17 %, janv. 2022 → janv. 2024, Banque de France) ; dépôts 0,25
+   (part répercutée de long terme sur les dépôts à vue des ménages, BCE, document de travail n° 3255) ; dette publique : les nouvelles
+   émissions se font au taux directeur + 0,9 point (taux moyen des émissions 2025 : 3,14 %, AFT, pour une facilité de dépôt d'environ
+   2,25 %), et le taux apparent s'en rapproche de 1/8,5 par an (durée de vie moyenne de la dette : 8 ans et 180 jours, AFT, juin 2026).
+   Effets : investissement des entreprises −3,4 % par point de taux réel (Mésange, choc de 100 pb à 3 ans, d'après la DG Trésor) ;
+   investissement en logement −3,0 % par point (Mésange, semi-élasticité à 5 ans) ; primo-accession −19 % par point de taux immobilier
+   (production de crédits à l'habitat −59 % pour +3,1 points, janv. 2022 → janv. 2024, Banque de France). Le taux réel est le taux
+   nominal moins l'inflation anticipée, ancrée au départ sur la cible et mise à jour pour moitié chaque année par l'inflation constatée.
+   Avec gains interdits, les taux réels sont nuls par construction : la banque centrale n'a pas de levier. */
+const CB_I0=0.025, CB_RSTAR=0, CB_PI=0.02, CB_API=1.5, CB_AY=0.5, CB_RHO=Math.pow(0.85,4), CB_FLOOR=-0.005;
+const PT_FIRM=0.78, PT_MORT=0.69, PT_DEP=0.25, GOV_SPREAD=(3.14-2.25)/100, GOV_MAT=8.5;
+const SE_INV=3.4, SE_HINV=3.0, SE_ACC=19;
+
+/* ---------- consommation des revenus du capital ----------
+   Les ménages consomment une part plus faible de leurs revenus du capital (intérêts, dividendes, loyers, versements des fonds) que
+   de leurs autres revenus : un point de revenu du patrimoine en plus dans le revenu (revenu total inchangé) fait monter le taux
+   d'épargne d'environ 0,4 point (Banque de France, Eco Notepad n° 397, 2025 : « would lead to a rise in the saving rate of around
+   0.4 of a percentage point ») ; la propension à les consommer est donc inférieure de 0,4 à celle des autres revenus. Cohérent avec
+   les dividendes versés, consommés à 40-60 % dans l'année (Di Maggio, Kermani et Majlesi, 2020). À long terme, l'équation de la
+   Banque de France (Ouvrard et Thubin, 2020) va plus loin : propension « quasi nulle ». */
+const MPC_CAP_GAP=0.4, CAP_INC_SHARE=0.10;

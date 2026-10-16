@@ -74,10 +74,18 @@ function run(world,seed,P){
   /* propension à consommer le revenu : 1 − taux d'épargne observé − effet du patrimoine « normal » du quintile (k = patrimoine / revenu
      du quintile au départ), pour que revenu + patrimoine redonnent au départ les taux d'épargne observés (consommation = cA × revenu + mpcW × patrimoine) */
   const cA=new Float64Array(N);
+  /* calage : le taux d'épargne observé porte sur tout le revenu, revenus du capital compris (environ 10 % du revenu disponible :
+     revenus du patrimoine 21 % du RDB, Insee 2025, moins les loyers imputés des propriétaires, 215 Md€, absents du modèle) ; ceux-ci
+     sont consommés à cA − 0,4 : cA = 1 − s + 0,4·κ/(1+κ) − mpcW·k/(1+κ), κ = 0,10, k = patrimoine / revenu. Dans le monde « gains
+     interdits », les revenus du capital sont plus faibles (intérêts au niveau de l'inflation, loyers au coût, distributions plafonnées
+     à l'apport) : κ = 0,06, part mesurée dans le modèle sur les dix premières années */
+  const kap=world==='L'?CAP_INC_SHARE:0.06,cAof=(s,k)=>Math.max(0,1-s+MPC_CAP_GAP*kap/(1+kap)-P.mpcW*k/(1+kap));
   /* protection sociale (avec l'État) : retraités (hors population active, pension revalorisée sur les prix), allocation chômage,
      coût du travail = revenu disponible × lcF (cotisations, impôt sur le revenu et CSG), TVA, impôt sur les sociétés.
      démographie : décès, jeunes ménages, héritage (générateur propre) */
   const soc=stateOn&&!!P.social,dem=closed&&!!P.demo;
+  // banque centrale (gains libres seulement) : taux directeur, inflation anticipée, taux bancaires, facteurs d'investissement
+  const cb=closed&&bank&&!!P.credit&&!!P.cb&&world==='L',cbI0=P.i0??CB_I0;let iCB=cbI0,piE=CB_PI,rMort=MORT_RATE,rDep=DEPOSIT_RATE,fInv=1,fHinv=1,fAcc=1;const cbRate=new Float64Array(T);
   const gPe=P.gP+(soc?HEALTH_INKIND:0);   // achats publics aux entreprises, santé en nature comprise
   const retired=new Uint8Array(N),pens=new Float64Array(N),lcF=new Float64Array(N).fill(1);
   const act=new Uint8Array(N).fill(1);for(let i=N0;i<N;i++)act[i]=0;
@@ -124,7 +132,7 @@ function run(world,seed,P){
   let pool=0,poolNext=0,feePot=0;const cc={wagePriv:0,prodTax:0,wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
   const money=()=>{let m=F+pool+poolNext+feePot+back+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
   // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
-  const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,tauC=0,pubDebt=0,GDPprev=0;let rB=stateOn&&world==='L'?P.rB:0;
+  const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,tauC=0,pubDebt=0,BR=0,GDPprev=0;let rB=stateOn&&world==='L'?P.rB:0;
   const sc={tax:0,gw:0,gp:0,int:0,cut:0,spend:0};
   // l'État emprunte aux ménages, au prorata de leurs liquidités
   const circ=stateOn&&!!P.circ;let Bb=0;   // obligations détenues par la banque
@@ -146,7 +154,7 @@ function run(world,seed,P){
     const y0=i=>emp[i]?wage[i]:soc?(retired[i]?pens[i]:uiOf(i)):0;
     {const sw=new Float64Array(5),sy=new Float64Array(5);for(let i=0;i<N;i++){sw[qi[i]]+=init0[i];sy[qi[i]]+=y0(i);srQ[qi[i]]=sr[i];}
      for(let q=0;q<5;q++)kQ[q]=sy[q]>0?sw[q]/sy[q]:0;
-     for(let i=0;i<N;i++)cA[i]=Math.max(0,1-sr[i]-P.mpcW*kQ[qi[i]]);}
+     for(let i=0;i<N;i++)cA[i]=cAof(sr[i],kQ[qi[i]]);}
     if(dem){/* avec la démographie : épargne selon l'âge et le revenu (calage sur marges, pondéré par le revenu), et patrimoine
         « normal » par case âge × quintile ; recalculés chaque année quand le ménage change de tranche d'âge */
       const fa=SAVE_BY_AGE.slice(),fq=SAVE_BY_QUINTILE.slice(),ga=i=>ageGroup(age0[i]);
@@ -161,7 +169,7 @@ function run(world,seed,P){
       for(let g=0;g<6;g++)for(let q=0;q<5;q++)srCell[g*5+q]=Math.min(0.9,s(g,q));
       const cw=new Float64Array(30),cy=new Float64Array(30);for(let i=0;i<N;i++){const c=ga(i)*5+qi[i];cw[c]+=init0[i];cy[c]+=y0(i);}
       for(let c=0;c<30;c++)kCell[c]=cy[c]>0?cw[c]/cy[c]:kQ[c%5];
-      for(let i=0;i<N;i++){const c=ga(i)*5+qi[i];sr[i]=srCell[c];cA[i]=Math.max(0,1-sr[i]-P.mpcW*kCell[c]);}}
+      for(let i=0;i<N;i++){const c=ga(i)*5+qi[i];sr[i]=srCell[c];cA[i]=cAof(sr[i],kCell[c]);}}
     /* ventes de l'année 0 = dépenses que le modèle produit lui-même : consommation (revenus d'activité et patrimoine) + investissement
        des entreprises (+ achats publics). Le profit d'ensemble en découle (ventes − salaires − impôt) : le départ est cohérent. */
     let C0=0,I0=0;for(let i=0;i<N;i++)C0+=Math.max(0,cA[i]*y0(i)+P.mpcW*init0[i]);for(const fm of firms)I0+=P.invest*fm.K;
@@ -183,11 +191,14 @@ function run(world,seed,P){
         pool=P0-X;tau=pool>0?D29/pool:0;tauC=C0-tva0-X>0?X/(C0-tva0-X):0;tva0+=X;}   // tva0 : impôts sur les produits au départ
       GDPprev=gdp;
       // dette de départ : une partie des liquidités des ménages est en fait détenue en obligations publiques
-      let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const b=Math.min(P.debt0*gdp,0.9*tw);
+      // non-résidents : 57,5 % de la dette (AFT) ; les ménages détiennent le reste, dans la limite de leurs liquidités
+      BR=stateOn&&credit?NONRES_SHARE*P.debt0*gdp:0;const dDom=P.debt0*gdp-BR;
+      let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const b=Math.min(dDom,0.9*tw);
       if(tw>0)for(let i=0;i<N;i++){const x=b*Math.max(0,W[i])/tw;W[i]-=x;Bh[i]+=x;}pubDebt=b;
       // ce que les ménages n'ont pas les liquidités de détenir (avec le logement, une grande partie de leur patrimoine n'est plus liquide)
       // est détenu par la banque, qui se refinance (elle tient lieu des non-résidents, 57,5 % de la dette de l'État)
-      if(credit&&P.debt0*gdp>b+eps){const x=P.debt0*gdp-b;Bb+=x;F-=x;pubDebt+=x;}
+      if(credit&&dDom>b+eps){const x=dDom-b;Bb+=x;F-=x;pubDebt+=x;}
+      pubDebt+=BR;
       // avec la protection sociale, une partie de cette dette est la trésorerie de l'État : il paie salaires et achats publics en début
       // d'année et n'encaisse cotisations, impôt sur le revenu, TVA et impôt sur les sociétés qu'au fil de l'année
       if(soc)Sc=Math.min(pubDebt,(P.gW+gPe+P.rB*P.debt0)*gdp-tau*pool);}
@@ -214,6 +225,15 @@ function run(world,seed,P){
         const g=1+Math.max(0,infl);rate=g-1;if(stateOn)rB=g-1;
         for(const fm of firms)if(!fm.dead){const hr=fm.hr;for(let k=0;k<fm.n;k++)hr[k]*=g;}
         funds.index(g);}}
+    /* banque centrale (gains libres) : règle de taux lissée ; taux bancaires et taux de la dette publique en découlent ; l'investissement
+       des entreprises, l'investissement en logement et la primo-accession réagissent au taux réel */
+    if(cb&&t>0){piE=0.5*piE+0.5*inflPrev;
+      const tgt=CB_RSTAR+CB_PI+CB_API*(inflPrev-CB_PI)+CB_AY*gapPrev;iCB=Math.max(CB_FLOOR,CB_RHO*iCB+(1-CB_RHO)*tgt);
+      const di=iCB-cbI0;rate=P.rl+PT_FIRM*di;rMort=MORT_RATE+PT_MORT*di;rDep=Math.max(0,DEPOSIT_RATE+PT_DEP*di);
+      if(stateOn)rB+=(Math.max(0,iCB+GOV_SPREAD)-rB)/GOV_MAT;
+      const drr=(rate-piE)-(P.rl-CB_PI),drm=(rMort-piE)-(MORT_RATE-CB_PI);
+      fInv=Math.max(0,1-SE_INV*drr);fHinv=Math.max(0,1-SE_HINV*drm);fAcc=Math.max(0,1-SE_ACC*(rMort-MORT_RATE));}
+    if(cb)cbRate[t]=iCB;
     if(hous)ph=capped?Pidx:wIdx;   // prix des logements : suit le revenu (gains libres) ou les prix (gains interdits)
     const feeB=P.fee*Pidx,feeQ=P.feeE*Pidx;
     if(soc){// pensions revalorisées sur les prix ; départs à la retraite de l'année
@@ -221,7 +241,7 @@ function run(world,seed,P){
       for(let i=0;i<N;i++)if(!retired[i]&&!vac[i]&&age0[i]+t>=RET_AGE){retired[i]=1;lab.retire(i);pens[i]=PENSION_REPL*wage[i]*wIdx;}}
     let revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0,benE=0,rentPot=0,mortIntY=0,hInvY=0,rentY=0,accY=0;
     const rentAmt=hous?RENT_PRIV*(capped?HOUSING_DEPR/RENT_YIELD:1)*ph:0;
-    if(dem&&t>0)for(let i=0;i<N;i++){const c=ageGroup(age0[i]+t)*5+qi[i];sr[i]=srCell[c];cA[i]=Math.max(0,1-sr[i]-P.mpcW*kCell[c]);}
+    if(dem&&t>0)for(let i=0;i<N;i++){const c=ageGroup(age0[i]+t)*5+qi[i];sr[i]=srCell[c];cA[i]=cAof(sr[i],kCell[c]);}
 
     /* ---------- intérêts des dettes personnelles, reversés aux déposants ---------- */
     if(bank&&rate>0){let acc=0,sumD=0;for(let i=0;i<N;i++){if(L[i]>eps){const x=L[i]*rate;L[i]+=x;acc+=x;}sumD+=D[i];}
@@ -237,13 +257,16 @@ function run(world,seed,P){
       if(stateOn){// impôt sur les ventes, puis dépenses (fonctionnaires, achats, intérêts) ; le déficit est emprunté aux ménages
         const tax=tau*pool;pool-=tax;Sc+=tax;sc.tax+=tax;cc.prodTax+=tax;
         GW=P.gW*GDPprev;let GP=gPe*GDPprev,INT=rB*pubDebt;
+        // non-résidents : ils réinvestissent leurs intérêts en nouvelles obligations (rien ne sort du circuit, la dette grossit d'autant)
+        const intR=pubDebt>0?INT*BR/pubDebt:0;BR+=intR;pubDebt+=intR;INT-=intR;
         const need=GW+GP+INT-Sc;
         if(need>0)borrow(need);
         const spend=GW+GP+INT,f=spend>Sc?Math.max(0,Sc)/spend:1;sc.cut+=spend*(1-f);sc.spend+=spend;GW*=f;GP*=f;INT*=f;Sc-=GW+GP+INT;
-        if(INT>0&&pubDebt>0){for(let i=0;i<N;i++){const x=INT*Bh[i]/pubDebt;W[i]+=x;capInc[i]+=x;}
-          if(Bb>0){const xb=INT*Bb/pubDebt;F+=xb;let sd=0;for(let i=0;i<N;i++)sd+=D[i];const pass=credit&&!capped?Math.min(1,DEPOSIT_RATE/Math.max(rate,1e-9)):1;
+        const pubDom=pubDebt-BR;
+        if(INT>0&&pubDom>0){for(let i=0;i<N;i++){const x=INT*Bh[i]/pubDom;W[i]+=x;capInc[i]+=x;}
+          if(Bb>0){const xb=INT*Bb/pubDom;F+=xb;let sd=0;for(let i=0;i<N;i++)sd+=D[i];const pass=credit&&!capped?Math.min(1,rDep/Math.max(rate,1e-9)):1;
             if(sd>0)for(let i=0;i<N;i++)D[i]+=pass*xb*D[i]/sd;if(credit){const cost=BANK_COST_RATIO*(1-pass)*xb;F-=cost;feePot+=cost;}}}
-        poolNext+=GP;GPy=GP;INTy=INT;sc.gw+=GW;sc.gp+=GP;sc.int+=INT;defR[t]=GDPprev>0?(GW+GP+INT-tax)/GDPprev:0;revY+=tax;}
+        INT+=intR;poolNext+=GP;GPy=GP;INTy=INT;sc.gw+=GW;sc.gp+=GP;sc.int+=INT;defR[t]=GDPprev>0?(GW+GP+INT-tax)/GDPprev:0;revY+=tax;}
       // salaires privés : sur les ventes, puis sur la trésorerie des entreprises
       if(lab.on){lab.adjust(GDPr0>0?WB0*(sales+GW)/Pidx/(GDPr0*Aprod):0,t);WB=lab.effEmp()*wIdx;}else if(soc||dem)WB=lab.effEmp()*wIdx;else if(pricesOn||gA)WB=WB0*wIdx;
       // protection sociale : les employeurs paient le coût du travail LC ; les ménages reçoivent le revenu disponible WB
@@ -261,7 +284,7 @@ function run(world,seed,P){
 
     /* ---------- épargne : remboursement des dettes, dépôt, actions, liquidités ---------- */
     if(closed){// le ménage reçoit son salaire, consomme (revenu et patrimoine), puis place ce qui reste
-      const rM=capped?Math.max(0,rate)+(credit?lossEst+costRate:0):MORT_RATE;let hTax=1;
+      const rM=capped?Math.max(0,rate)+(credit?lossEst+costRate:0):rMort;let hTax=1;
       for(let i=0;i<N;i++){const y=wage[i]*wIdx*ratio*emp[i]+(soc?trF*(retired[i]?pens[i]:uiOf(i)*wIdx):0);W[i]+=y;let inc=y+capInc[i];
         if(hous&&Mg[i]>eps){/* crédit immobilier : intérêts (revenu de la banque, en moins du revenu du ménage) et remboursement du principal
             en 22,7 ans (monnaie détruite) ; ce qui ne peut être payé s'ajoute à la dette */
@@ -270,7 +293,7 @@ function run(world,seed,P){
           Mg[i]-=paid;const ip=Math.min(paid,it);F+=ip;mortIntY+=ip;Mc-=paid-ip;
           // défaut : la dette ne peut pas dépasser la valeur du logement ; le reste est une perte de la banque
           const cap=hU[i]*ph;if(Mg[i]>cap){fs.bankLoss+=Mg[i]-cap;Mg[i]=cap;}}
-        const c=Math.max(0,cA[i]*inc+P.mpcW*(t===0?init0[i]:net[i]));
+        const c=Math.max(0,cA[i]*(inc-capInc[i])+Math.max(0,cA[i]-MPC_CAP_GAP)*capInc[i]+P.mpcW*(t===0?init0[i]:net[i]));   // revenus du capital moins consommés
         let pc=Math.min(c,Math.max(0,W[i]));W[i]-=pc;
         if(c-pc>eps&&bank){const x=Math.min(c-pc,D[i],credit?Infinity:Math.max(F,0));D[i]-=x;F-=x;pc+=x;}
         // loyer d'un locataire du parc privé : une partie de ses dépenses, versée aux bailleurs (pas aux entreprises)
@@ -278,7 +301,7 @@ function run(world,seed,P){
         const pf=pc-rent;let netF=pf;
         if(soc){const v=pf*TVA_RATE/(1+TVA_RATE),vc=(pf-v)*tauC/(1+tauC);Sc+=v+vc;tvaY+=v+vc;poolNext+=pf-v-vc;netF=pf-v-vc;}else poolNext+=pf;
         // investissement en logement des propriétaires : une part de leurs dépenses, qui accroît leur logement ; 77,7 % à crédit
-        let hI=0;if(hous&&hU[i]>eps){hI=pf*hShare;hU[i]+=hI/Math.max(pf,eps)*netF/ph;hInvY+=hI;
+        let hI=0;if(hous&&hU[i]>eps){hI=pf*hShare*fHinv;hU[i]+=hI/Math.max(pf,eps)*netF/ph;hInvY+=hI;
           if(credit){const ln=HOUSING_INV_CREDIT*hI;Mg[i]+=ln;W[i]+=ln;Mc+=ln;}}
         cc.cons+=pc;consH[i]=pc-hI;cc.inc+=inc;cc.save+=inc-pc;capInc[i]=0;
         let s=y-pc;if(s<=eps)continue;
@@ -286,14 +309,14 @@ function run(world,seed,P){
         const d=s*depE,q=part[i]?s*invE:0;D[i]+=d;F+=d;eqSave[i]+=q;W[i]-=d+q;}
       if(hous){
         // intérêts des crédits immobiliers : même partage que ceux des entreprises (déposants, frais de la banque, fonds propres)
-        if(credit&&mortIntY>0){let sd=0;for(let j=0;j<N;j++)sd+=D[j];const rF=rM,pass=capped?(rF>0?Math.max(0,rate)/rF:1):Math.min(1,DEPOSIT_RATE/MORT_RATE);
+        if(credit&&mortIntY>0){let sd=0;for(let j=0;j<N;j++)sd+=D[j];const rF=rM,pass=capped?(rF>0?Math.max(0,rate)/rF:1):Math.min(1,rDep/rM);
           if(sd>0)for(let j=0;j<N;j++)D[j]+=D[j]*pass*mortIntY/sd;const cost=(capped?(rF>0?costRate/rF:0):BANK_COST_RATIO*(1-pass))*mortIntY;F-=cost;feePot+=cost;}
         // loyers versés aux bailleurs, au prorata de ce qu'ils possèdent au-delà de leur propre logement (6,2 ans de leur revenu)
         const xs=new Float64Array(N);let sx=0;for(let j=0;j<N;j++){if(vac[j]||hU[j]<=eps)continue;xs[j]=Math.max(0,hU[j]*ph-PRICE_INC*wage[j]*wIdx);sx+=xs[j];}
         if(rentPot>0){if(sx>eps)for(let j=0;j<N;j++){if(xs[j]<=0)continue;const x=rentPot*xs[j]/sx;W[j]+=x;capInc[j]+=x;}
           else{poolNext+=rentPot;}rentY=rentPot;}
         // primo-accession : un locataire de 25 à 59 ans achète un logement (6,2 ans de revenu) à un bailleur, avec 22,3 % d'apport
-        for(let i=0;i<N;i++){if(vac[i]||hU[i]>eps)continue;const a=age0[i]+t;if(a<25||a>=60||gH()>=ACC_RATE)continue;
+        for(let i=0;i<N;i++){if(vac[i]||hU[i]>eps)continue;const a=age0[i]+t;if(a<25||a>=60||gH()>=ACC_RATE*fAcc)continue;
           let v=PRICE_INC*wage[i]*wIdx;if(v<=eps||sx<=eps)continue;
           let u=gH()*sx,j=0;for(;j<N;j++){u-=xs[j];if(u<=0&&xs[j]>0)break;}if(j>=N||xs[j]<=0)continue;
           v=Math.min(v,xs[j]);const liq=Math.max(0,W[i])+D[i];const down=credit?Math.min((1-MORT_LTV)*v,liq):v;if(liq<down)continue;
@@ -363,7 +386,7 @@ function run(world,seed,P){
         else{const keep=pi-net;fm.R+=keep+distribute(fm,net,capped,W,funds.income,fs,capInc);fm.Rw=(fm.Rw||0)+keep;}
         // investissement : d'abord sur les réserves, puis bourse et banque pour le reste
         // gains interdits : les réserves réinvesties n'appartiennent à personne, sauf la part qui ne fait que compenser l'usure (Rw)
-        const I=P.invest*fm.K;const fromR=Math.min(fm.R,I);fm.R-=fromR;
+        const I=P.invest*fInv*fm.K;const fromR=Math.min(fm.R,I);fm.R-=fromR;
         if(capped){const fromW=Math.min(fm.Rw||0,fromR);fm.Rw=Math.min((fm.Rw||0)-fromW,fm.R);fm.selfC+=fromR-fromW;}
         let rem=I-fromR,got=0;
         if(rem>eps&&(bank||stock)){const capE=stock?funds.capacity():0,capB=bank?(credit?capFirm():Math.max(0,F)):0;
@@ -385,7 +408,7 @@ function run(world,seed,P){
       if(credit)kDef[t]=lo0>eps?defY/lo0:0;
       if(credit){// les déposants reçoivent leur taux ; la banque garde la marge, dont une partie paie ses frais (salaires)
         // gains interdits : les déposants reçoivent l'inflation, les frais sont payés, la couverture des pertes reste en fonds propres
-        const pass=capped?(rF>0?rate/rF:1):Math.min(1,DEPOSIT_RATE/Math.max(rate,1e-9));if(sumD>0&&dInt>0)for(let j=0;j<N;j++)D[j]+=D[j]*pass*dInt/sumD;
+        const pass=capped?(rF>0?rate/rF:1):Math.min(1,rDep/Math.max(rate,1e-9));if(sumD>0&&dInt>0)for(let j=0;j<N;j++)D[j]+=D[j]*pass*dInt/sumD;
         const cost=(capped?(rF>0?costRate/rF:0):BANK_COST_RATIO*(1-pass))*dInt;if(cost>0){F-=cost;feePot+=cost;}
         if(capped&&lo0>eps)lossEst=0.5*lossEst+0.5*lossY/lo0;}
       else if(sumD>0&&(dInt>0||dLoss>0)){const f=(dInt-dLoss)/sumD;for(let j=0;j<N;j++)D[j]+=D[j]*f;}}
@@ -480,7 +503,7 @@ function run(world,seed,P){
         // jeune ménage : nouveau revenu (même loi), quintile, épargne et propension à consommer de son quintile
         age0[i]=NEW_HH_AGE-(t+1);retired[i]=0;pens[i]=0;sp[i]=gS()<pE?1:0;if(hous)hPriv[i]=gH()<PRIV_TENANT?1:0;
         wage[i]=P.inc?P.incM*Math.exp(P.sigI*dZ()):P.incM;let q=0;while(q<4&&wage[i]>=wCut[q])q++;qi[i]=q;
-        {const c=ageGroup(NEW_HH_AGE)*5+q;sr[i]=srCell[c];cA[i]=Math.max(0,1-sr[i]-P.mpcW*kCell[c]);}if(soc){bS[i]=benQ[q];lcF[i]=(1-bS[i])/((1-IR_BY_QUINTILE[q])*(1-COT_RATE));}lab.enter(i);}
+        {const c=ageGroup(NEW_HH_AGE)*5+q;sr[i]=srCell[c];cA[i]=cAof(sr[i],kCell[c]);}if(soc){bS[i]=benQ[q];lcF[i]=(1-bS[i])/((1-IR_BY_QUINTILE[q])*(1-COT_RATE));}lab.enter(i);}
       dRet[t]=deaths;dWid[t]=wid;}
     if(closed){// les coûts de la banque et des fonds sont les salaires de leurs employés (répartis comme les salaires) ; les dépenses de l'année font les ventes de la suivante
       let sw=0;for(let i=0;i<N;i++)sw+=wage[i]*emp[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]*emp[i]/sw;W[i]+=x;capInc[i]+=x;}
@@ -531,7 +554,7 @@ function run(world,seed,P){
   return {tot,gi,uT,...st,lor:lorenz(netL,40),debt,indebted:indebted/nAlive,fund:F,depR,hhN,dWid,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned/Pidx,fValue:fs.firmV/Pidx,
-    cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,lU:lab.out.uT,hOwn,hMort,hVal,hRent,hAcc,kDef,kEq,kBail,kCred,kCET1,kM,sPub,sPO,dDeaths:dRet,dRet:retSh,lLong:lab.out.longT,lHours:lab.out.hoursT,lUnmet:unmet,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
+    cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,lU:lab.out.uT,cbRate,hOwn,hMort,hVal,hRent,hAcc,kDef,kEq,kBail,kCred,kCET1,kM,sPub,sPO,dDeaths:dRet,dRet:retSh,lLong:lab.out.longT,lHours:lab.out.hoursT,lUnmet:unmet,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
     sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(netL).sort();const c9=y[Math.floor(0.9*y.length)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&wageSum>0?cc.wageShort/wageSum:0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     // taux de marge des entreprises au sens de l'Insee : excédent brut / valeur ajoutée des entreprises (salaires privés, coût du travail
     // compris ; impôts sur la production compris dans la valeur ajoutée), sans les salaires publics

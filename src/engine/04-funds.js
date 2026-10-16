@@ -37,7 +37,7 @@ function makeFunds(C){
     // monnaie détenue par les fonds (trésorerie et reçu de l'année pas encore reversé)
     // poche de liquidités : au-delà de `share` de la valeur du fonds, la trésorerie est rendue aux porteurs (rachat de parts)
     release(share){for(let f=0;f<NF;f++){const v=FC[f]+FS[f];const ex=FC[f]-share*v;if(ex<=eps||FU[f]<=eps)continue;const p=price(f);let paid=0;
-        for(let i=0;i<N;i++){if(fundOf[i]!==f||uF[i]<=eps)continue;const x=ex*uF[i]/FU[f];const du=Math.min(uF[i],x/Math.max(p,1e-12));uF[i]-=du;capF[i]=Math.max(0,capF[i]-x);W[i]+=x;if(capInc)capInc[i]+=x;paid+=x;}
+        for(let i=0;i<N;i++){if(fundOf[i]!==f||uF[i]<=eps)continue;const x=ex*uF[i]/FU[f];const du=Math.min(uF[i],x/Math.max(p,1e-12));uF[i]-=du;capF[i]=Math.max(0,capF[i]-x);W[i]+=x;paid+=x;   /* rachat de parts : un retrait de patrimoine, pas un revenu */}
         let u=0;for(let i=0;i<N;i++)if(fundOf[i]===f)u+=uF[i];FU[f]=u;FC[f]-=paid;}syncFC();},
     // héritage : les parts d'un ménage passent à un autre ménage du même fonds
     move(i,j){if(fundOf[i]!==fundOf[j])return false;uF[j]+=uF[i];capF[j]+=capF[i];uF[i]=0;capF[i]=0;return true;},
