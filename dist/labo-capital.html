@@ -275,6 +275,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
             <label class="switch" for="credit"><input type="checkbox" id="credit"><span><b>Création monétaire par le crédit</b><span class="hint">Avec la banque. Un prêt crée de la monnaie, son remboursement la détruit (Banque de France). La banque prête aux entreprises, et finance 10,5 % du déficit de l'État, tant que ses fonds propres dépassent 11,2 % de ses prêts (exigence de la BCE) et 3 % de son bilan ; elle verse en dividendes ce qui dépasse 16,1 % (ratio effectif, ACPR). Au départ, les entreprises lui doivent 47 % de leur capital.</span></span></label>
             <label class="switch" for="housing"><input type="checkbox" id="housing"><span><b>Logement</b><span class="hint">L'immobilier (61 % du patrimoine brut, Insee) devient un logement dont le prix suit les revenus (gains libres) ou les prix (gains interdits), avec crédit immobilier (3,32 %, 22,7 ans), investissement des propriétaires (8,9 % du revenu), primo-accession et loyers versés par les locataires du parc privé à des ménages bailleurs.</span></span></label>
             <label class="switch" for="cb"><input type="checkbox" id="cb"><span><b>Banque centrale</b><span class="hint">Avec le crédit, en gains libres. Le taux directeur suit une règle de Taylor lissée (cible de 2 %, BCE) ; les taux des crédits, des dépôts et de la dette publique en découlent ; l'investissement des entreprises, l'investissement en logement et la primo-accession baissent quand le taux réel monte (Mésange, Banque de France).</span></span></label>
+            <label class="switch" for="fiscal"><input type="checkbox" id="fiscal"><span><b>Règle budgétaire européenne</b><span class="hint">Avec la protection sociale, dans les deux scénarios. Quand le déficit dépasse 3 % du PIB, l'État fait chaque année un effort de 0,5 point de PIB (pacte de stabilité), aux deux tiers par des hausses d'impôts et pour un tiers par des économies, comme la France en 2011-2019.</span></span></label>
             <label class="switch" for="state"><input type="checkbox" id="state"><span><b>État minimal</b><span class="hint">Il prélève un impôt sur les ventes, paie des fonctionnaires, achète aux entreprises et emprunte aux ménages pour couvrir son déficit.</span></span></label>
             <div class="inner" id="in_state">
             <div class="ctl"><div class="top"><label for="gW">Salaires publics</label><output id="gW_o"></output></div><input type="range" id="gW" min="0" max="0.3" step="0.001"><small>En part du PIB de l'année précédente. France 2025 : 370 Md€, 12,3 % du PIB (Insee). Ils font partie du revenu des ménages.</small></div>
@@ -657,6 +658,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li><b>Logement.</b> Au départ, l'immobilier est séparé du reste du patrimoine Insee : part de l'immobilier dans le patrimoine brut et taux de détention par décile (<a href="https://www.insee.fr/fr/statistiques/5213910">Insee, début 2024</a> : 61 % des ménages propriétaires), dette selon l'âge (42 % du patrimoine brut avant 40 ans, moins de 4 % après 60, <a href="https://www.insee.fr/fr/statistiques/8672665">Insee Focus n° 371</a>), encours total à 14,6 % de la valeur des logements (1 288 Md€ de crédits habitat, Banque de France, pour 8 850 Md€ de logements et terrains bâtis, Insee). Prix : il suit le revenu en gains libres (le prix des logements a suivi le revenu par ménage de 1965 à 2000, Friggit), les prix en gains interdits. Crédit : 3,32 %, 22,7 ans (Banque de France, 2026), pondéré à 9,4 % dans les fonds propres de la banque (ACPR) ; au-delà de la valeur du logement, la dette est une perte de la banque. Investissement des propriétaires : 8,9 % du revenu des ménages (épargne 17,9 % − épargne financière 9,0 %, Insee 2025), à 40 % à crédit (calé pour un encours stable), usure 0,9 % par an (calcul d'après l'Insee). Primo-accession : 2,5 % par an des locataires de 25 à 59 ans achètent un logement de 6,2 ans de revenu à un bailleur (calé pour garder 61 % de propriétaires). Loyers : 55 % des non-propriétaires louent dans le parc privé (Insee) et paient 8 950 € par an (≈ 65 Md€ de loyers privés, SDES) à des ménages bailleurs ; en gains interdits, le loyer ne couvre que l'usure (choix de l'utilisateur). Les loyers HLM restent dans la consommation. Au départ, la dette publique que les ménages n'ont pas les liquidités de détenir est détenue par la banque.</li>
       <li><b>Banque centrale (gains libres).</b> Taux directeur selon une règle de Taylor lissée : i = 0,52·i(an passé) + 0,48·[0 + 2 % + 1,5·(inflation − 2 %) + 0,5·écart de demande], plancher −0,5 % (le plus bas de la BCE, 2019-2022). Cible de 2 % (<a href="https://www.ecb.europa.eu/mopo/strategy/strategy-review/ecb.strategyreview_monpol_strategy_overview.en.html">stratégie de la BCE</a>) ; taux naturel réel nul (zone euro entre −½ et +½ %, Bulletin économique BCE 1/2025) ; 1,5 sur l'inflation et lissage de 0,85 par trimestre (<a href="https://www.ecb.europa.eu/pub/pdf/scpwps/ecb.wp2797~ae5e4b853d.en.pdf">BCE, document de travail n° 2797</a>) ; 0,5 sur l'écart (Taylor, 1993). Départ : 2,50 % (<a href="https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.mp260910~314e508016.en.html">facilité de dépôt, septembre 2026</a>) ; 0,25 % dans le test 2010 → 2024. Transmission d'un point de taux directeur : 0,78 point aux crédits aux entreprises (<a href="https://www.ecb.europa.eu/pub/pdf/ecbu/eb202308.en.pdf">Bulletin BCE 8/2023</a>), 0,69 aux crédits à l'habitat (Banque de France, 2022-2024), 0,25 aux dépôts (BCE, document de travail n° 3255) ; la dette publique est émise au taux directeur + 0,9 point (AFT, 2025) et son taux moyen s'en rapproche de 1/8,5 par an (durée de vie moyenne 8,5 ans, AFT). Effets d'un point de taux réel : investissement des entreprises −3,4 %, investissement en logement −3,0 % (<a href="https://www.tresor.economie.gouv.fr/Articles/2017/05/12/le-modele-macroeconometrique-mesange-reestimation-et-nouveautes">modèle Mésange, DG Trésor</a>) ; primo-accession −19 % par point de taux immobilier (crédits nouveaux à l'habitat −59 % pour +3,1 points, Banque de France, 2022-2024). Inflation anticipée : ancrée sur 2 %, révisée chaque année pour moitié vers l'inflation constatée. Sans objet en gains interdits, où le taux réel est nul par construction (choix de l'utilisateur : la banque y couvre inflation, pertes et frais).</li>
       <li><b>Revenus du capital moins consommés.</b> Intérêts, dividendes, loyers et versements des fonds sont consommés avec une propension inférieure de 0,4 à celle des salaires et prestations : un point de revenus du patrimoine en plus dans le revenu fait monter l'épargne d'environ 0,4 point (Banque de France, Eco Notepad n° 397, 2025) ; à long terme, la Banque de France trouve une propension « quasi nulle » (<a href="https://www.banque-france.fr/system/files/2023-01/bdf227-9_taux-epargne_vf-2.pdf">Bulletin n° 227, 2020</a>). Le calage garde le taux d'épargne observé au départ (revenus du capital : 10 % du revenu, Insee 2025, hors loyers imputés ; 6 % en gains interdits, mesuré dans le modèle). Choix de l'utilisateur, pour que la hausse des taux ne relance pas la consommation par les intérêts versés. Un rachat de parts de fonds est un retrait de patrimoine, pas un revenu.</li>
+      <li><b>Règle budgétaire européenne.</b> Quand le déficit public de l'année passée dépasse 3 % du PIB, l'État ajoute 0,5 point de PIB d'effort structurel, qui reste acquis (volet correctif du pacte de stabilité : règlement 1467/97 modifié en 2011 ; <a href="https://data.consilium.europa.eu/doc/document/ST-5033-2025-REV-1/fr/pdf">recommandation du Conseil à la France, janvier 2025</a> : « un ajustement structurel annuel minimal d'au moins 0,5 % du PIB », sortie de la procédure « d'ici 2029 »). Pas d'effort l'année qui suit un recul du PIB en volume (règlement 1467/97, art. 2). Partage : deux tiers en hausses de prélèvements, un tiers en économies, comme la France sur 2011-2019 (mesures nouvelles en prélèvements : 3,1 points de PIB cumulés ; effort en dépenses : 1,6 point ; rapports des commissions des finances, par exemple <a href="https://www.assemblee-nationale.fr/14/rapports/r2069-ti.asp">Assemblée nationale, n° 2069</a> pour 2013 : « dont effort en recettes 1,4 », « dont effort en dépenses 0,0 »). Les prélèvements supplémentaires portent sur la consommation, les économies sur les salaires et achats publics. Dans les deux scénarios.</li>
       <li><b>Non-résidents.</b> Ils détiennent 57,5 % de la dette négociable de l'État (AFT, 1er trimestre 2026) et réinvestissent leurs intérêts en nouvelles obligations : ces intérêts comptent dans le déficit mais ne reviennent pas aux ménages.</li>
       <li><b>Rentabilité notionnelle.</b> Sa distribution suit l'Insee (médiane 10,7 %), mais son niveau est ramené au départ au profit que l'économie du modèle dégage vraiment ; le risque de disparition est calé sur ces rentabilités pour que la survie à 5 ans reste celle observée (69 %).</li>
       <li><b>Coûts de fonctionnement de la banque et de la bourse.</b> Choix de travail, sans source.</li>
@@ -680,7 +682,7 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
       <li>Sans économie bouclée, les entreprises n'emploient personne et ne paient pas de salaires. Avec gains interdits, leurs profits non distribués n'appartiennent à personne et sont perdus si elles disparaissent.</li>
       <li>Dans le scénario « gains interdits », personne ne contourne la règle.</li>
       <li>Dépenses publiques : environ 49 % du PIB contre 57 % ; il manque surtout les « autres transferts et subventions » (subventions aux entreprises, transferts à l'Union européenne et aux associations, environ 6,6 % du PIB) et le modèle n'a pas de recettes hors prélèvements obligatoires.</li>
-      <li>Finances publiques : ni règle budgétaire ni réaction du solde à la dette, conformément aux estimations pour la France (coefficient non significatif : Checherita-Westphal et Žďárek 2017, Berti et coauteurs 2016, Bruegel 2025) ; la dette monte tant que le déficit primaire persiste. Avec la banque centrale, une inflation au-dessus de 2 % fait monter les taux, donc la charge d'intérêts et le déficit : sans réaction budgétaire, la dette s'emballe en fin de période.</li>
+      <li>Finances publiques : la règle européenne est appliquée à la lettre, alors que la France l'a souvent manquée (effort nul ou négatif en 2017 et 2019, clause dérogatoire en 2020-2022) et que les estimations ne trouvent pas de réaction significative du solde à la dette (Checherita-Westphal et Žďárek 2017, Berti et coauteurs 2016, Bruegel 2025) ; l'interrupteur permet de comparer. Pas d'objectif de moyen terme une fois le déficit sous 3 %, pas de baisse d'impôts ensuite. Sans la règle, la dette s'emballe : une inflation au-dessus de 2 % fait monter les taux, donc la charge d'intérêts et le déficit.</li>
       <li>Protection sociale : les prestations familiales, logement et minima sont réparties par quintile de revenu, pas selon la composition du ménage ; pas de taux de remplacement différent selon le revenu.</li>
       <li>Démographie : hommes et femmes ont la même mortalité (le conjoint survivant n'est pas plus souvent une femme), la mise en couple et les séparations ne sont pas modélisées (un jeune ménage est en couple dès son entrée, avec la probabilité observée vers 30 ans), et le nombre d'emplois par ménage actif ne dépend pas du couple. Le vieillissement suit la projection de l'Insee pendant 30 ans (46 contre 46 pour 100 après 10 ans, 53 contre 52 après 20 ans), mais redescend à 51 en fin de période contre 60 : la loi de Gompertz fait sans doute mourir trop tôt les très âgés. Les veuvages sont un peu trop nombreux (environ 300 000 par an à l'échelle de la France, contre 235 000 à 250 000).</li>
       <li>Prix : un seul bien, pas d'importations ni d'énergie ; pas d'anticipations d'inflation ; la marge ne dépend pas de la concurrence ; en gains libres, la banque centrale agit sur l'investissement et le logement, pas sur le change ni sur les prix des actifs ; l'inflation anticipée suit l'inflation passée.</li>
@@ -1062,6 +1064,22 @@ const PRIV_TENANT=23.4/(23.4+16.9+2.3), RENT_PRIV=8950/UNIT_EUR, RENT_YIELD=0.03
 const CB_I0=0.025, CB_RSTAR=0, CB_PI=0.02, CB_API=1.5, CB_AY=0.5, CB_RHO=Math.pow(0.85,4), CB_FLOOR=-0.005;
 const PT_FIRM=0.78, PT_MORT=0.69, PT_DEP=0.25, GOV_SPREAD=(3.14-2.25)/100, GOV_MAT=8.5;
 const SE_INV=3.4, SE_HINV=3.0, SE_ACC=19;
+
+/* ---------- règle budgétaire européenne (volet correctif du pacte de stabilité) ----------
+   Quand le déficit public dépasse 3 % du PIB, l'État améliore son solde structurel de 0,5 point de PIB par an (règlement 1467/97
+   modifié en 2011 : « a minimum annual improvement of at least 0,5 % of GDP as a benchmark, in its cyclically adjusted balance » ;
+   règlement 2024/1264, appliqué à la France par la recommandation du Conseil du 17 janvier 2025 : « un ajustement structurel annuel
+   minimal d'au moins 0,5 % du PIB à titre de référence », retour sous 3 % « d'ici 2029 »). Les mesures prises restent en place.
+   Partage : 2/3 en hausses de prélèvements, 1/3 en économies de dépenses, comme la France sur 2011-2019 (période de la précédente
+   procédure de déficit excessif) : mesures nouvelles en prélèvements 1,0 ; 1,1 ; 1,4 ; 0,2 ; −0,1 ; −0,2 ; −0,1 ; −0,2 point de PIB
+   (2011-2018), soit 3,1 ; effort en dépenses 0,2 ; 0,1 ; 0,0 ; 0,4 ; 0,5 ; 0,4 ; −0,2 ; 0,3 ; −0,1 (2011-2019), soit 1,6 (rapports
+   des commissions des finances de l'Assemblée nationale et du Sénat, d'après le ministère des Finances ; 2013 vérifié : « dont effort
+   en recettes 1,4 », « dont effort en dépenses 0,0 », AN, rapport n° 2069). La consolidation de 2011-2013 est passée à près de 90 %
+   par les recettes (FMI, 2013 : « About 90 percent of the adjustment to date realized through revenue measures »), celle de
+   2014-2018 par les dépenses. Dans le modèle, les prélèvements supplémentaires portent sur la consommation (le levier fiscal
+   résiduel) et les économies sur les salaires et achats publics, au prorata. Pas d'effort l'année qui suit un recul du PIB en
+   volume : le dépassement n'est alors pas « excessif » (règlement 1467/97, art. 2 : « a negative annual GDP volume growth rate »). */
+const FISC_DEF=0.03, FISC_STEP=0.005, FISC_PO=3.1/(3.1+1.6);
 
 /* ---------- consommation des revenus du capital ----------
    Les ménages consomment une part plus faible de leurs revenus du capital (intérêts, dividendes, loyers, versements des fonds) que
@@ -1500,7 +1518,9 @@ function run(world,seed,P){
   let pool=0,poolNext=0,feePot=0;const cc={wagePriv:0,prodTax:0,wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
   const money=()=>{let m=F+pool+poolNext+feePot+back+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
   // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
-  const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,tauC=0,pubDebt=0,BR=0,GDPprev=0;let rB=stateOn&&world==='L'?P.rB:0;
+  const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,tauC=0,pubDebt=0,BR=0,GDPprev=0;
+  // règle budgétaire : efforts cumulés en prélèvements (effPO) et en dépenses (effG), en part du PIB ; cBase : assiette de la taxe sur la consommation
+  const fisc=stateOn&&soc&&!!P.fiscal;let effPO=0,effG=0,dTauC=0,cBase=0,cBaseY=0;const fEff=new Float64Array(T),gdpR=new Float64Array(T);let rB=stateOn&&world==='L'?P.rB:0;
   const sc={tax:0,gw:0,gp:0,int:0,cut:0,spend:0};
   // l'État emprunte aux ménages, au prorata de leurs liquidités
   const circ=stateOn&&!!P.circ;let Bb=0;   // obligations détenues par la banque
@@ -1607,6 +1627,7 @@ function run(world,seed,P){
     if(soc){// pensions revalorisées sur les prix ; départs à la retraite de l'année
       if(infl>0)for(let i=0;i<N;i++)if(retired[i])pens[i]*=1+infl;
       for(let i=0;i<N;i++)if(!retired[i]&&!vac[i]&&age0[i]+t>=RET_AGE){retired[i]=1;lab.retire(i);pens[i]=PENSION_REPL*wage[i]*wIdx;}}
+    cBase=cBaseY;cBaseY=0;
     let revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0,benE=0,rentPot=0,mortIntY=0,hInvY=0,rentY=0,accY=0;
     const rentAmt=hous?RENT_PRIV*(capped?HOUSING_DEPR/RENT_YIELD:1)*ph:0;
     if(dem&&t>0)for(let i=0;i<N;i++){const c=ageGroup(age0[i]+t)*5+qi[i];sr[i]=srCell[c];cA[i]=cAof(sr[i],kCell[c]);}
@@ -1624,7 +1645,12 @@ function run(world,seed,P){
     if(closed){sales=pool;{let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;util[t]=cap0>0&&K>0&&K0>0?sales/(cap0*K/K0):0;}
       if(stateOn){// impôt sur les ventes, puis dépenses (fonctionnaires, achats, intérêts) ; le déficit est emprunté aux ménages
         const tax=tau*pool;pool-=tax;Sc+=tax;sc.tax+=tax;cc.prodTax+=tax;
-        GW=P.gW*GDPprev;let GP=gPe*GDPprev,INT=rB*pubDebt;
+        // règle budgétaire : au-delà de 3 % de déficit l'an passé, 0,5 point de PIB d'effort de plus, 2/3 en prélèvements, 1/3 en dépenses
+        // clause de récession : pas d'effort l'année qui suit un recul du PIB en volume
+        if(fisc&&t>0&&defR[t-1]>FISC_DEF&&!(t>1&&gdpR[t-1]<gdpR[t-2])){effPO+=FISC_STEP*FISC_PO;effG+=FISC_STEP*(1-FISC_PO);}
+        if(fisc){fEff[t]=effPO+effG;dTauC=cBase>0?effPO*GDPprev/cBase:0;}
+        const sG=fisc?Math.max(0,1-effG/(P.gW+gPe)):1;
+        GW=P.gW*sG*GDPprev;let GP=gPe*sG*GDPprev,INT=rB*pubDebt;
         // non-résidents : ils réinvestissent leurs intérêts en nouvelles obligations (rien ne sort du circuit, la dette grossit d'autant)
         const intR=pubDebt>0?INT*BR/pubDebt:0;BR+=intR;pubDebt+=intR;INT-=intR;
         const need=GW+GP+INT-Sc;
@@ -1667,7 +1693,7 @@ function run(world,seed,P){
         // loyer d'un locataire du parc privé : une partie de ses dépenses, versée aux bailleurs (pas aux entreprises)
         let rent=0;if(hous&&hPriv[i]&&hU[i]<=eps&&!vac[i]){rent=Math.min(pc,rentAmt);rentPot+=rent;}
         const pf=pc-rent;let netF=pf;
-        if(soc){const v=pf*TVA_RATE/(1+TVA_RATE),vc=(pf-v)*tauC/(1+tauC);Sc+=v+vc;tvaY+=v+vc;poolNext+=pf-v-vc;netF=pf-v-vc;}else poolNext+=pf;
+        if(soc){const v=pf*TVA_RATE/(1+TVA_RATE),tx=tauC+dTauC,vc=(pf-v)*tx/(1+tx);cBaseY+=(pf-v)/(1+tx);Sc+=v+vc;tvaY+=v+vc;poolNext+=pf-v-vc;netF=pf-v-vc;}else poolNext+=pf;
         // investissement en logement des propriétaires : une part de leurs dépenses, qui accroît leur logement ; 77,7 % à crédit
         let hI=0;if(hous&&hU[i]>eps){hI=pf*hShare*fHinv;hU[i]+=hI/Math.max(pf,eps)*netF/ph;hInvY+=hI;
           if(credit){const ln=HOUSING_INV_CREDIT*hI;Mg[i]+=ln;W[i]+=ln;Mc+=ln;}}
@@ -1877,7 +1903,7 @@ function run(world,seed,P){
       let sw=0;for(let i=0;i<N;i++)sw+=wage[i]*emp[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]*emp[i]/sw;W[i]+=x;capInc[i]+=x;}
       feePot=0;pool+=poolNext;poolNext=0;
       if(stateOn){
-        GDPprev=sales+GW+tvaY;debtR[t]=GDPprev>0?pubDebt/GDPprev:0;
+        GDPprev=sales+GW+tvaY;gdpR[t]=GDPprev/Pidx;debtR[t]=GDPprev>0?pubDebt/GDPprev:0;
         if(soc){revY+=tvaY;const sp=GW+GPy+INTy+trY+benE;defR[t]=GDPprev>0?(sp-revY)/GDPprev:0;sPub[t]=GDPprev>0?sp/GDPprev:0;sPO[t]=GDPprev>0?revY/GDPprev:0;}}
       // en euros du départ (divisés par l'indice des prix)
       {const y=liveOf(consH).sort();consMed[t]=y[Math.floor(y.length/2)]/Pidx;let sm=0;for(let i=0;i<N;i++)sm+=consH[i];consMean[t]=sm/nAlive/Pidx;
@@ -1922,7 +1948,7 @@ function run(world,seed,P){
   return {tot,gi,uT,...st,lor:lorenz(netL,40),debt,indebted:indebted/nAlive,fund:F,depR,hhN,dWid,
     fCreated:fs.created,fAlive:alive,fBiz5:exist.biz5,fBizEx:exist.bizEx,fOld0:exist.exist0,fOldAlive:oldAlive,fDied:fs.died,fBankrupt:fs.bankrupt,fBankLoss:fs.bankLoss,
     fDiv:fs.divPaid,fWear:fs.wear,fInvested:fs.invested,fExtE:fs.extE,fExtB:fs.extB,fUnowned:fs.unowned/Pidx,fValue:fs.firmV/Pidx,
-    cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,lU:lab.out.uT,cbRate,hOwn,hMort,hVal,hRent,hAcc,kDef,kEq,kBail,kCred,kCET1,kM,sPub,sPO,dDeaths:dRet,dRet:retSh,lLong:lab.out.longT,lHours:lab.out.hoursT,lUnmet:unmet,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
+    cCov:cov,mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,lU:lab.out.uT,cbRate,fEff,hOwn,hMort,hVal,hRent,hAcc,kDef,kEq,kBail,kCred,kCET1,kM,sPub,sPO,dDeaths:dRet,dRet:retSh,lLong:lab.out.longT,lHours:lab.out.hoursT,lUnmet:unmet,rCons:consMed,rConsMean:consMean,rNdp:ndp,rUtil:util,rK:kNet,sDebt:debtR,sDef:defR,sTau:tau,sTax:sc.tax,sWages:sc.gw,sPurch:sc.gp,sInt:sc.int,sCut:sc.spend>0?sc.cut/sc.spend:0,
     sBond10:(()=>{if(!stateOn||pubDebt<=0)return 0;const y=Float64Array.from(netL).sort();const c9=y[Math.floor(0.9*y.length)];let b=0;for(let i=0;i<N;i++)if(net[i]>=c9)b+=Bh[i];return b/pubDebt;})(),cDrift:cc.drift,cWageShort:closed&&wageSum>0?cc.wageShort/wageSum:0,cSaveRate:cc.inc>0?cc.save/cc.inc:0,cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     // taux de marge des entreprises au sens de l'Insee : excédent brut / valeur ajoutée des entreprises (salaires privés, coût du travail
     // compris ; impôts sur la production compris dans la valeur ajoutée), sans les salaires publics
@@ -1943,7 +1969,7 @@ function endDiagnostics(C,dg,part,vac){const s=new Float64Array(5),c=new Float64
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
 // répartition de la monnaie, au sens strict puis au sens large (séries, moyennées sur les simulations)
-const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate'];
+const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
@@ -2087,8 +2113,8 @@ const fmtN=v=>{if(Math.abs(v)>=10000)return Math.round(v/1000)+' k';if(Math.abs(
    Pour ajouter un paramètre : une entrée dans DEF, un format dans FMT, un curseur (id = clé, sortie = clé_o) dans page.html,
    puis augmenter PARAMS_KEY si l'ancienne valeur mémorisée ne doit pas être reprise.
    ===================================================================== */
-const DEF={N:2000,T:40,save:0.09,incM:1.48,inc:1,sigI:0.595,sprof:1,ini:1,m0:1,alW:1.85,pidea:0.012,cost:4.3,pok:0.69,payoff:11,vary:1,firm:1,rho:0.107,payout:0.5,invest:0.11,depr:0.093,closed:1,mpcW:0.011,prodG:0.007,social:1,demo:1,circ:1,credit:1,housing:1,cb:1,unemp:1,prices:1,state:1,gW:0.123,gP:0.099,defT:0.051,debt0:1.156,rB:0.019,exist:1,k0:3.75,nf:10,own:0.5,hold:0.16,rhoIW:0.25,ageb:1.2,sig:2.4,alpha:1.5,bank:1,stock:1,r:0.8,dep:0.5,fee:0.05,rl:0.035,inv:0.25,phi:0.5,m:10,nfd:10,part:0.2,feeE:0.05,runs:30};
-const SWITCHES=['inc','sprof','ini','vary','firm','exist','closed','unemp','prices','state','social','demo','circ','credit','housing','cb','bank','stock'];   // cases à cocher (0 ou 1)
+const DEF={N:2000,T:40,save:0.09,incM:1.48,inc:1,sigI:0.595,sprof:1,ini:1,m0:1,alW:1.85,pidea:0.012,cost:4.3,pok:0.69,payoff:11,vary:1,firm:1,rho:0.107,payout:0.5,invest:0.11,depr:0.093,closed:1,mpcW:0.011,prodG:0.007,social:1,demo:1,circ:1,credit:1,housing:1,cb:1,fiscal:1,unemp:1,prices:1,state:1,gW:0.123,gP:0.099,defT:0.051,debt0:1.156,rB:0.019,exist:1,k0:3.75,nf:10,own:0.5,hold:0.16,rhoIW:0.25,ageb:1.2,sig:2.4,alpha:1.5,bank:1,stock:1,r:0.8,dep:0.5,fee:0.05,rl:0.035,inv:0.25,phi:0.5,m:10,nfd:10,part:0.2,feeE:0.05,runs:30};
+const SWITCHES=['inc','sprof','ini','vary','firm','exist','closed','unemp','prices','state','social','demo','circ','credit','housing','cb','fiscal','bank','stock'];   // cases à cocher (0 ou 1)
 const ids=Object.keys(DEF);
 const none=()=>'',dec=n=>v=>fr(v,{maximumFractionDigits:n});
 const FMT={N:v=>fr(v),T:v=>v,save:v=>v.toFixed(2),runs:v=>v,incM:v=>fr(v,{maximumFractionDigits:2})+' × '+fr(UNIT_EUR)+' €',
@@ -2102,7 +2128,7 @@ const SCALE={N:{from:s=>{const v=100*Math.pow(500,s/100);const p=Math.pow(10,Mat
 
 // mémoire du navigateur (peut être indisponible : toutes les lectures et écritures sont protégées)
 const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
-const PARAMS_KEY='labo-params-v35';
+const PARAMS_KEY='labo-params-v36';
 let P={...DEF};
 try{const s=JSON.parse(store.get(PARAMS_KEY)||'null');if(s)for(const k of ids)if(typeof s[k]==='number')P[k]=s[k];}catch(e){}
 const saveParams=()=>store.set(PARAMS_KEY,JSON.stringify(P));

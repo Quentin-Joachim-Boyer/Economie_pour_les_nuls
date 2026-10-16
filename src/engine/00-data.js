@@ -364,6 +364,22 @@ const CB_I0=0.025, CB_RSTAR=0, CB_PI=0.02, CB_API=1.5, CB_AY=0.5, CB_RHO=Math.po
 const PT_FIRM=0.78, PT_MORT=0.69, PT_DEP=0.25, GOV_SPREAD=(3.14-2.25)/100, GOV_MAT=8.5;
 const SE_INV=3.4, SE_HINV=3.0, SE_ACC=19;
 
+/* ---------- règle budgétaire européenne (volet correctif du pacte de stabilité) ----------
+   Quand le déficit public dépasse 3 % du PIB, l'État améliore son solde structurel de 0,5 point de PIB par an (règlement 1467/97
+   modifié en 2011 : « a minimum annual improvement of at least 0,5 % of GDP as a benchmark, in its cyclically adjusted balance » ;
+   règlement 2024/1264, appliqué à la France par la recommandation du Conseil du 17 janvier 2025 : « un ajustement structurel annuel
+   minimal d'au moins 0,5 % du PIB à titre de référence », retour sous 3 % « d'ici 2029 »). Les mesures prises restent en place.
+   Partage : 2/3 en hausses de prélèvements, 1/3 en économies de dépenses, comme la France sur 2011-2019 (période de la précédente
+   procédure de déficit excessif) : mesures nouvelles en prélèvements 1,0 ; 1,1 ; 1,4 ; 0,2 ; −0,1 ; −0,2 ; −0,1 ; −0,2 point de PIB
+   (2011-2018), soit 3,1 ; effort en dépenses 0,2 ; 0,1 ; 0,0 ; 0,4 ; 0,5 ; 0,4 ; −0,2 ; 0,3 ; −0,1 (2011-2019), soit 1,6 (rapports
+   des commissions des finances de l'Assemblée nationale et du Sénat, d'après le ministère des Finances ; 2013 vérifié : « dont effort
+   en recettes 1,4 », « dont effort en dépenses 0,0 », AN, rapport n° 2069). La consolidation de 2011-2013 est passée à près de 90 %
+   par les recettes (FMI, 2013 : « About 90 percent of the adjustment to date realized through revenue measures »), celle de
+   2014-2018 par les dépenses. Dans le modèle, les prélèvements supplémentaires portent sur la consommation (le levier fiscal
+   résiduel) et les économies sur les salaires et achats publics, au prorata. Pas d'effort l'année qui suit un recul du PIB en
+   volume : le dépassement n'est alors pas « excessif » (règlement 1467/97, art. 2 : « a negative annual GDP volume growth rate »). */
+const FISC_DEF=0.03, FISC_STEP=0.005, FISC_PO=3.1/(3.1+1.6);
+
 /* ---------- consommation des revenus du capital ----------
    Les ménages consomment une part plus faible de leurs revenus du capital (intérêts, dividendes, loyers, versements des fonds) que
    de leurs autres revenus : un point de revenu du patrimoine en plus dans le revenu (revenu total inchangé) fait monter le taux
