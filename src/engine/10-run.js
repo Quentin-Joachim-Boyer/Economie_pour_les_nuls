@@ -120,7 +120,7 @@ function run(world,seed,P){
   const bankEq=()=>F+loansTot()+Bb-sumDep();
   const capLev=()=>{const e=bankEq();return Math.max(0,e/LEVERAGE_MIN-(loansTot()+Bb+Math.max(0,F)));};
   const capFirm=()=>{const e=bankEq(),l=loansTot();return Math.max(0,Math.min(e/CET1_MIN-l,e/LEVERAGE_MIN-(l+Bb+Math.max(0,F))));};
-  const borrow=need=>{if(credit&&need>0){const x=Math.min(need,capLev());if(x>0){Bb+=x;Sc+=x;Mc+=x;pubDebt+=x;need-=x;}}
+  const borrow=need=>{if(credit&&need>0){const x=Math.min(need*BANK_GOV_SHARE,capLev());if(x>0){Bb+=x;Sc+=x;Mc+=x;pubDebt+=x;need-=x;}}
     if(circ&&!credit&&need>0){let sd=0;for(let i=0;i<N;i++)sd+=D[i];const x=Math.min(need,Math.max(0,F-BANK_RESERVE*sd));if(x>0){F-=x;Bb+=x;Sc+=x;pubDebt+=x;need-=x;}}
     let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const x=Math.min(need,tw);
     if(x>0){for(let i=0;i<N;i++){const b=x*Math.max(0,W[i])/tw;W[i]-=b;Bh[i]+=b;}Sc+=x;pubDebt+=x;}return x;};

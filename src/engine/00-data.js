@@ -304,4 +304,8 @@ const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,u0:0.093,debt0:0.823,defT:0.07
    Si les pertes font passer les fonds propres sous l'exigence, les dépôts au-delà de 100 000 € (garantie des dépôts, FGDR)
    sont convertis en fonds propres (renflouement interne, directive BRRD 2014/59/UE). */
 const DEPOSIT_GUARANTEE=100000/UNIT_EUR;
+/* la banque ne finance qu'une part du déficit : établissements de crédit français = 10,5 % de la dette négociable de l'État au
+   1er trimestre 2026 (Agence France Trésor, bulletin mensuel n° 434, d'après la Banque de France) ; le reste est emprunté aux
+   ménages, qui représentent ici aussi les assureurs, les fonds et les non-résidents (57,5 %) */
+const BANK_GOV_SHARE=0.105;
 const CET1_TARGET=0.161, CET1_MIN=0.112, LEVERAGE_MIN=0.03, SNF_CREDIT_K=1437/3033, DEPOSIT_RATE=0.013, BANK_COST_RATIO=0.679;
