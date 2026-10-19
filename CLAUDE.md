@@ -7,6 +7,7 @@
 - La page est aussi publiée comme artifact claude.ai (https://claude.ai/artifact/6Ff98oVmvRCyMk6NvzVFMc) : la republier depuis `dist/labo-capital.html` après chaque étape.
 - Un carnet d'idées (document Claude Docs du projet « Economie pour les nuls ») garde la trace des choix et constats : y ajouter une section à chaque brique.
 - Préférer les résultats visuels aux suites de chiffres ; demander avant les choix de modélisation qui reviennent à l'utilisateur.
+- Jusqu'à ce que le modèle « tienne la route » (feuille de route ci-dessous), l'utilisateur délègue les choix de modélisation : Claude les fait en suivant la littérature et les données, les justifie dans le carnet, et ne demande que pour les choix qui changent le sens de l'expérience de pensée. Ce qui intéresse l'utilisateur, ce sont les modifications une fois le modèle solide.
 
 ## Objectif à long terme
 
