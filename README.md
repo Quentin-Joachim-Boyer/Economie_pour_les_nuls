@@ -34,9 +34,9 @@ Si seule la page publiée est disponible, `python3 split.py page.html src` retro
 | `src/engine/05-firms.js` | paysage d'entreprises, risque de disparition, entreprises existantes |
 | `src/engine/06-participation.js` | qui épargne en actions (patrimoine × âge × revenu) |
 | `src/engine/07-labour.js` | emploi et chômage : qui travaille, selon la demande (économie bouclée) |
-| `src/engine/10-run.js` | une simulation, année par année ; diagnostics |
-| `src/engine/30-score.js` | tableau de bord de représentativité : modèle (gains libres) comparé aux statistiques françaises (`REF_FR`) |
+| `src/engine/10-run.js` | une simulation : le départ (population, logement, bilans, calage), puis la boucle des années, qui appelle une fonction par étape (`updatePrices`, `centralBank`, `stateBudget`, `payWages`, `householdsSpendAndSave`, `housingMarket`, `firmsYear`, `newIdeas`, `bankCapital`, `demography`, `closeYear`, `balanceSheets`…), puis les résultats |
 | `src/engine/20-stats.js` | équité, quintiles, Atkinson, agrégation des simulations |
+| `src/engine/30-score.js` | tableau de bord de représentativité (`REF_FR`) et test 2010 → 2024 (`BACKTEST`) |
 | `src/app/00-format.js` … `03-charts.js` | formats, paramètres, aides DOM, graphiques |
 | `src/app/04-pool.js` | calcul en parallèle (workers) |
 | `src/app/10-results.js` … `14-previews.js` | cartes de résultats, synthèse, âge, effet du taux, aperçus |
@@ -44,9 +44,11 @@ Si seule la page publiée est disponible, `python3 split.py page.html src` retro
 
 Le moteur (`src/engine/`) ne touche jamais au DOM : il est aussi exécuté dans les workers et par les tests.
 
+Dans `run()`, les étapes de l'année sont des fonctions internes qui partagent l'état de la simulation (tableaux par ménage, bilans de la banque et de l'État, variables de l'année remises à zéro en tête de boucle). Leur ordre dans la boucle est celui des paiements dans l'année et fixe l'ordre des tirages : le changer change les résultats.
+
 ### Règles à respecter
 
-- **Ordre des tirages.** Deux générateurs par simulation : `prng` (population, identique dans les deux scénarios) et `rnd` (événements). Ajouter un tirage `prng` en fin de séquence (après `uP` dans la participation), sinon toute la population change. Les entreprises existantes ont leur propre générateur.
+- **Ordre des tirages.** Chaque mécanisme a son générateur : `prng` (population, identique dans les deux scénarios), `rnd` (événements : idées, disparitions), et des générateurs propres pour les entreprises existantes, le travail, la démographie (`dR`), les conjoints (`gS`) et le logement (`gH`). Un nouveau mécanisme prend son propre générateur ; un nouveau tirage dans un générateur existant va en fin de séquence (après `uP` pour `prng`), sinon toute la suite change.
 - **Mêmes graines dans les deux scénarios** : c'est ce qui permet de compter les simulations où un écart « va dans le même sens ».
 - **Unité monétaire** : une année de niveau de vie médian (`UNIT_EUR` = 25 760 €). Convertir avec `toUnit`.
 - **Gains interdits** : partout où de l'argent revient à un détenteur, il est plafonné à sa mise restante (`capped`).
@@ -55,14 +57,23 @@ Le moteur (`src/engine/`) ne touche jamais au DOM : il est aussi exécuté dans 
 
 **Ajouter un paramètre** : une clé dans `DEF` et un format dans `FMT` (`app/01-params.js`) ; un curseur dans `page.html` (`id` = clé, sortie `clé_o`) ; si besoin, son affichage dans `syncScopes`. Augmenter `PARAMS_KEY` si les anciens réglages mémorisés ne doivent pas être repris.
 
-**Ajouter un résultat** : le renvoyer dans `run()` (`10-run.js`) ; l'ajouter à `SUM_KEYS` (moyenne sur les simulations) ou à `PER_RUN` (avec fourchette et robustesse) dans `20-stats.js` ; l'afficher dans `app/10-results.js` ou dans la synthèse (`verdictItems`, `app/11-verdict.js`).
+**Ajouter un résultat** : le renvoyer dans `run()` (`10-run.js`, groupé par préfixe) ; l'ajouter dans `20-stats.js` à `SERIES_KEYS` (série annuelle moyennée année par année), à `SUM_KEYS` (nombre moyenné) ou à `PER_RUN` (avec fourchette et robustesse) ; l'afficher dans `app/10-results.js` ou dans la synthèse (`verdictItems`, `app/11-verdict.js`).
 
-**Ajouter une brique** : ses données dans `00-data.js` (avec source), sa mécanique dans un module `engine/0x-….js` qui reçoit le contexte `C`, son appel au bon moment de l'année dans `run()`, un interrupteur dans `SWITCHES`, ses sources et limites dans `page.html`.
+**Ajouter une brique** : ses données dans `00-data.js` (avec source) ; sa mécanique dans une étape de l'année de `run()` (une fonction de plus, appelée au bon moment de la boucle) ou, si elle a son propre état, dans un module `engine/0x-….js` qui reçoit le contexte `C` ; un interrupteur dans `DEF` et `SWITCHES` et une configuration `noX` dans `tests/regress.js` ; ses sources et limites dans `page.html` (onglet Hypothèses).
+
+**Recopier une donnée dans `DEF`** : `DEF` reste un objet littéral (les tests le lisent dans la page) ; une valeur sourcée qui y est recopiée est ajoutée à `tests/consistency.js`, qui vérifie qu'elle correspond toujours à `00-data.js`.
 
 ### Tests
 
-- `tests/regress.js` : 17 configurations × 2 scénarios × 2 graines, toutes les sorties comparées à 1e-8 près.
+- `tests/lib.js` : chargement du moteur depuis la page assemblée, commun aux tests et aux outils.
+- `tests/regress.js` : 22 configurations × 2 scénarios × 2 graines, toutes les sorties comparées à 1e-8 près ; vérifie aussi que la monnaie est conservée.
+- `tests/consistency.js` : les réglages par défaut recopiés des données (`DEF`) correspondent toujours à `00-data.js`.
 - `tests/ui.py` : charge la page, lance 4 configurations, compare tout le texte affiché et les tracés SVG. `--shots` enregistre des captures des onglets, `--nospace` ignore les espaces.
 - `tests/score.js` : tableau de bord de représentativité en ligne de commande (informatif, lancé par `check.sh`).
 - `tests/backtest.js` : test de validation 2010 → 2024 (le modèle part des conditions de 2010, comparé aux données de 2024 ; informatif, lancé par `check.sh`).
 - `tests/perf.js` : temps par simulation selon le nombre de ménages.
+
+Outils d'analyse (informatifs, hors `check.sh`) :
+
+- `tests/tools/traj.js` : trajectoires moyennes de quelques séries (chômage, inflation, taux, déficit, dette, crédits, capital, Gini), pour des réglages et des mondes donnés ; `--backtest` part de 2010.
+- `tests/tools/seeds.js` : le tableau de bord sur plusieurs lots de graines, pour juger si un écart entre deux versions dépasse le hasard.

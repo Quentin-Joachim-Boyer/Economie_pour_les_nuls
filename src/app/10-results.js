@@ -134,7 +134,7 @@ function renderBroad(W){
 // économie bouclée : la demande suffit-elle à faire les profits ? où s'arrête la monnaie ?
 function renderCircuit(W){
   const on=!!(P.firm&&P.closed);show('circuitcard',on);if(!on)return;
-  const xs=Array.from({length:P.T},(_,i)=>i+1);const ys=W.map(w=>Array.from(w.cov,v=>v*100));
+  const xs=Array.from({length:P.T},(_,i)=>i+1);const ys=W.map(w=>Array.from(w.cCov,v=>v*100));
   lineChart($('ch_cov'),{W:760,H:260,xs,xMax:P.T,xFmt:v=>Math.round(v),xLabel:'année',tipX:v=>'Année '+v,yMax:niceMax(Math.max(100,...ys[0],...ys[1])),yTicks:4,xTicks:P.T%5===0?5:2,
     yFmt:v=>Math.round(v)+' %',marks:[],series:[{ys:xs.map(()=>100),color:'var(--muted)',dash:true,name:'Notionnel'},...seriesLI(ys[0],ys[1])]});
   setHTML('circrows',

@@ -1,11 +1,7 @@
 // Test de non-régression du moteur : exécute run() sur plusieurs configurations et compare à une référence.
 // Usage : node tests/regress.js <fichier.html> [--save]
-const fs=require('fs'),path=require('path'),vm=require('vm');
-const html=fs.readFileSync(process.argv[2],'utf8');
-const m=html.match(/<script id="engine">([\s\S]*?)<\/script>/);if(!m)throw new Error('moteur introuvable');
-const ctx={console,Math,Float64Array,Int32Array,Int8Array,Uint8Array,Array,Object,Map,Set,JSON,isFinite,NaN,Infinity};vm.createContext(ctx);
-vm.runInContext(m[1]+'\nthis.run=run;this.aggFrom=aggFrom;',ctx);
-const defM=html.match(/const DEF=(\{[^;]*\});/);const DEF=eval('('+defM[1]+')');
+const fs=require('fs'),path=require('path');
+const {E:ctx,DEF}=require('./lib').loadEngine(process.argv[2],['run','aggFrom']);
 const base={...DEF,N:300,runs:2};
 const CONFIGS={def:{},open:{closed:0},noState:{state:0},noUnemp:{unemp:0},noPrices:{prices:0},noSocial:{social:0},noDemo:{demo:0},noCirc:{circ:0},noCredit:{credit:0},noHousing:{housing:0},noCB:{cb:0},noFiscal:{fiscal:0},noFirm:{firm:0},noBank:{bank:0},noStock:{stock:0},direct:{bank:0,stock:0},noIni:{ini:0},noInc:{inc:0},noExist:{exist:0},noVary:{vary:0},noFirmDirect:{firm:0,bank:0,stock:0},small:{N:120,T:15}};
 const round=v=>typeof v==='number'?(isFinite(v)?Number(v.toPrecision(10)):String(v)):v;

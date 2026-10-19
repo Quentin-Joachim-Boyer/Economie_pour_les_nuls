@@ -1,8 +1,8 @@
 /* =====================================================================
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
-// répartition de la monnaie, au sens strict puis au sens large (séries, moyennées sur les simulations)
-const MONEY_KEYS=['mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff'];
+// séries annuelles moyennées année par année sur les simulations (monnaie, travail, prix, État, banque, logement, démographie)
+const SERIES_KEYS=['tot','gi','uT','cCov','sDebt','sDef','rCons','rConsMean','rNdp','rUtil','rK','mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
@@ -55,13 +55,12 @@ function spreadOf(a){const y=Array.from(a).filter(v=>isFinite(v)).sort((a,b)=>a-
 
 /* Agrège des simulations déjà calculées (une par tirage, dans l'ordre des graines) */
 function aggFrom(world,P,xs){
-  const T=P.T,R=xs.length;const tot=new Float64Array(T),gi=new Float64Array(T),lor=new Float64Array(41),uT=new Float64Array(T),cov=new Float64Array(T),sDebt=new Float64Array(T),sDef=new Float64Array(T),rCons=new Float64Array(T),rConsMean=new Float64Array(T),rNdp=new Float64Array(T),rUtil=new Float64Array(T),rK=new Float64Array(T),mon={},lor0=new Float64Array(41);let g0=0;
+  const T=P.T,R=xs.length;const lor=new Float64Array(41),lor0=new Float64Array(41),mon={};let g0=0;
   const o={};for(const k of SUM_KEYS)o[k]=0;
   const nets=[],grps=[],owes=[],qis=[],refs=[];
   const per={};for(const k in PER_RUN)per[k]=new Float64Array(R);
   for(let s=0;s<R;s++){const x=xs[s];
-    for(let t=0;t<T;t++){tot[t]+=x.tot[t]/R;gi[t]+=x.gi[t]/R;uT[t]+=x.uT[t]/R;cov[t]+=x.cCov[t]/R;sDebt[t]+=x.sDebt[t]/R;sDef[t]+=x.sDef[t]/R;rCons[t]+=x.rCons[t]/R;rConsMean[t]+=x.rConsMean[t]/R;rNdp[t]+=x.rNdp[t]/R;rUtil[t]+=x.rUtil[t]/R;rK[t]+=x.rK[t]/R;}
-    for(const k of MONEY_KEYS){if(!mon[k])mon[k]=new Float64Array(T);for(let t=0;t<T;t++)mon[k][t]+=x[k][t]/R;}
+    for(const k of SERIES_KEYS){if(!mon[k])mon[k]=new Float64Array(T);for(let t=0;t<T;t++)mon[k][t]+=x[k][t]/R;}
     for(let k=0;k<=40;k++)lor[k]+=x.lor[k]/R;
     if(x.lor0){for(let k=0;k<=40;k++)lor0[k]+=x.lor0[k]/R;g0+=x.gini0/R;}
     for(const k of SUM_KEYS)o[k]+=x[k]/R;
@@ -69,7 +68,7 @@ function aggFrom(world,P,xs){
     const e=equity(x.net,x.grp,x.owes),q=byQuint(x.net,x.grp,x.qi,x.refI);for(const k in PER_RUN)per[k][s]=PER_RUN[k](x,e,T,q);}
   const spread={};for(const k in per)spread[k]=spreadOf(per[k]);
   const hasStart=P.ini||(P.firm&&P.exist);
-  return {tot,gi,uT,cov,sDebt,sDef,rCons,rConsMean,rNdp,rUtil,rK,...mon,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
+  return {...mon,lor,lor0:hasStart?lor0:null,gini0:hasStart?g0:null,...o,
     eqReturn:o.eqRaised>0?o.eqPaid/o.eqRaised-1:null,holdersPer:o.issues>0?o.holders/o.issues:null,
     eq:equity(nets,grps,owes),byq:byQuint(nets,grps,qis,refs),per,spread,R,dg:meanDiagnostics(xs)};
 }
