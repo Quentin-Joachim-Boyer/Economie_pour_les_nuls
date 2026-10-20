@@ -7,7 +7,7 @@ python3 build.py
 node tests/regress.js dist/labo-capital.html $1
 node tests/consistency.js dist/labo-capital.html
 python3 tests/ui.py dist/labo-capital.html $1 2>&1 | grep -v 'agent-proxy\|fonts.google\|For details\|While this' || true
-# tableau de bord de représentativité (informatif)
-node tests/score.js dist/labo-capital.html 2000 8 | tail -1
-# test de validation 2010 → 2024 (informatif)
+# test de validation 2010 → 2024, mesure principale de la ressemblance avec la France (informatif)
 node tests/backtest.js dist/labo-capital.html 2000 8 | tail -1
+# tableau de bord : départ et fin de simulation comparés à la France d'aujourd'hui (informatif)
+node tests/score.js dist/labo-capital.html 2000 8 | tail -1

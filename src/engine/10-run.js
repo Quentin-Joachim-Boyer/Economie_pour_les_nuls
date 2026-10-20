@@ -86,7 +86,7 @@ function run(world,seed,P){
   const soc=stateOn&&!!P.social,dem=closed&&!!P.demo;
   // banque centrale (gains libres seulement) : taux directeur, inflation anticipée, taux bancaires, facteurs d'investissement
   const cb=closed&&bank&&!!P.credit&&!!P.cb&&world==='L',cbI0=P.i0??CB_I0;let iCB=cbI0,piE=CB_PI,rMort=MORT_RATE,rDep=DEPOSIT_RATE,fInv=1,fHinv=1,fAcc=1;const cbRate=new Float64Array(T);
-  const gPe=P.gP+(soc?HEALTH_INKIND:0);   // achats publics aux entreprises, santé en nature comprise
+  const gPe=P.gP+(soc?(P.hik??HEALTH_INKIND):0);   // achats publics aux entreprises, santé en nature comprise
   const retired=new Uint8Array(N),pens=new Float64Array(N),lcF=new Float64Array(N).fill(1);
   const act=new Uint8Array(N).fill(1);for(let i=N0;i<N;i++)act[i]=0;
   if(soc)for(let i=0;i<N0;i++){lcF[i]=1/((1-IR_BY_QUINTILE[qi[i]])*(1-COT_RATE));if(age0[i]>=RET_AGE){retired[i]=1;act[i]=0;pens[i]=PENSION_REPL*wage[i];}}   // même règle que pour les nouveaux retraités : pensions ≈ 13 % du PIB

@@ -35,9 +35,12 @@ function scoreCard(w,P){
 function backtestCard(w,P){
   const L=P.T-1,net=w.eq&&w.eq.net,wr=w.pWr?w.pWr[L]:1;
   const med=net&&net.length?net[Math.floor(net.length/2)]:null,d9=net&&net.length?net[Math.floor(net.length*0.9)]:null;
-  const M={unemp:w.lU[L],ulong:w.lLong[L],debt:w.sDebt[L],deficit:w.sDef[L],spend:w.sPub[L],po:w.sPO[L],margin:w.cMargin,save:w.cSaveRate,
+  // moyennes des années 1 à 9 du modèle (2011-2019) ; croissance du produit net réel de l'ensemble des ménages
+  const t9=Math.min(9,L),avgI=(()=>{let s=0;for(let t=1;t<=t9;t++)s+=w.pInfl[t];return t9>0?s/t9:null;})();
+  const tot=t=>w.rNdp[t]*(w.hhN?w.hhN[t]:1),grow=t9>0&&tot(1)>0?Math.pow(tot(t9)/tot(1),1/(t9-1||1))-1:null;
+  const M={unemp:w.lU[L],ulong:w.lLong[L],debt:w.sDebt[L],deficit:w.sDef[L],spend:w.sPub[L],po:w.sPO[L],margin:w.cMargin,save:w.cSaveRate,infl:avgI,growth:grow,
     wmed:med!=null&&wr>0?med/wr:null,wd9:med>0?d9/med:null};
-  const S0={unemp:w.lU[0],ulong:w.lLong[Math.min(2,L)],debt:w.sDebt[0],deficit:w.sDef[0],spend:w.sPub[0],po:w.sPO[0],margin:null,save:null,
+  const S0={unemp:w.lU[0],ulong:w.lLong[Math.min(2,L)],debt:w.sDebt[0],deficit:w.sDef[0],spend:w.sPub[0],po:w.sPO[0],margin:null,save:null,infl:null,growth:null,
     wmed:WEALTH_Q[5][1]*(P.m0||1),wd9:WEALTH_Q[9][1]/WEALTH_Q[5][1]};
   return BACKTEST.refs.map(r=>{const m=M[r.k],m0=S0[r.k];const dirOK=m==null?null:Math.sign(m-r.a)===Math.sign(r.b-r.a)||Math.abs(r.b-r.a)<1e-9;
     const err=m==null?null:Math.abs(m-r.b)/Math.max(Math.abs(r.b-r.a),Math.abs(r.b)*0.05);return {...r,m,m0,dirOK,close:err!=null&&err<=1};});

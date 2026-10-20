@@ -560,28 +560,29 @@ details.grp .body{padding:2px 16px 16px;display:grid;gap:12px}
   </div>
 
   <div class="tabpane" data-pane="fr">
-  <section class="card" id="scorecard">
-    <h2>Le modèle ressemble-t-il à la France ?</h2>
-    <p>Le scénario « gains libres » comparé aux statistiques françaises les plus récentes. Objectif à long terme du projet : que chaque brique rapproche le modèle de la France. Le trait noir est la valeur française, la bande verte l'écart jugé acceptable ; le cercle montre le modèle au départ (premières années), le point à la fin de la simulation, vert s'il est dans la bande.</p>
-    <div class="slegend"><span><i style="width:2px;height:12px;background:var(--fg)"></i>France</span><span><i style="width:14px;height:10px;background:var(--ok-soft)"></i>écart acceptable</span><span><i style="width:10px;height:10px;border-radius:50%;border:2px solid var(--muted)"></i>modèle, départ</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--ok)"></i>modèle, fin (dans la bande)</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--warn)"></i>modèle, fin (hors de la bande)</span></div>
-    <p class="ssum" id="scoresum"></p>
-    <div class="score" id="scorerows"></div>
-    <h3 class="sub" style="margin-top:18px">Réglages, pour mémoire</h3>
-    <p class="note" style="margin-top:2px">Ces valeurs ne sont pas des résultats : ce sont des réglages ou des absences du modèle (pas encore de prestations sociales ni de crédit immobilier ; productivité fixée par réglage).</p>
-    <div class="score" id="scoreset"></div>
-  </section>
-
   <section class="card keep" id="btcard">
     <div class="card-head">
       <div><h2>Test : partir de 2010, arriver en 2024</h2></div>
       <div class="card-tools"><button id="btbtn" type="button">Lancer le test</button></div>
     </div>
-    <p>Le modèle (gains libres) part des conditions de 2010 (chômage 9,3 %, dette 82,3 % du PIB, déficit 7,2 %, épargne financière 6,9 %, patrimoine rapporté au revenu de 2010, productivité de 0,4 % par an), avance de 14 ans et est comparé aux données de 2024. Les autres réglages restent ceux du panneau. Ni la crise des dettes souveraines, ni le Covid, ni l'inflation de 2022 ne sont reproduits : on teste les tendances, pas les chocs.</p>
+    <p>La mesure principale de la ressemblance avec la France. Le modèle (gains libres) part des conditions de 2010 (chômage 9,3 %, dette 86,3 % du PIB, déficit 7,2 %, dépenses publiques, taux de la dette et PIB par ménage de 2010, épargne financière 6,9 %, patrimoine rapporté au revenu de 2010, productivité de 0,4 % par an), avance de 14 ans et est comparé aux données de 2024, toutes en base 2020 des comptes nationaux (Eurostat). Les autres réglages restent ceux du panneau. Ni la crise des dettes souveraines, ni le Covid, ni le choc énergétique de 2022 ne sont reproduits : on teste les tendances, pas les chocs ; l'inflation et la croissance sont donc comparées à leur moyenne de 2011 à 2019.</p>
     <div class="slegend"><span><i style="width:10px;height:10px;border-radius:50%;border:2px solid var(--muted)"></i>France 2010</span><span><i style="width:2px;height:12px;background:var(--fg)"></i>France 2024</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--ok)"></i>modèle en 2024, proche</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--warn)"></i>modèle en 2024, éloigné</span></div>
     <p class="ssum" id="btsum">Pas encore lancé.</p>
     <div class="score" id="btrows"></div>
     <p class="note">« Proche » : l'écart à 2024 est plus petit que le chemin parcouru par la France entre 2010 et 2024 (ou 5 % de la valeur). Le départ du modèle reprend la forme de la distribution du patrimoine de 2021, remise à l'échelle de 2010 : le rapport 9e décile / médiane part donc de 5,07 et non de 4,42.</p>
   </section>
+
+  <section class="card" id="scorecard">
+    <h2>Le modèle ressemble-t-il à la France ?</h2>
+    <p>Le scénario « gains libres », au départ et au bout de la simulation (40 ans par défaut), comparé aux statistiques françaises les plus récentes. La fin mesure surtout si le modèle reste plausible sur la durée, pas sa ressemblance avec la France d'aujourd'hui : pour cela, voir le test 2010 → 2024 ci-dessus. Le trait noir est la valeur française, la bande verte l'écart jugé acceptable ; le cercle montre le modèle au départ (premières années), le point à la fin de la simulation, vert s'il est dans la bande.</p>
+    <div class="slegend"><span><i style="width:2px;height:12px;background:var(--fg)"></i>France</span><span><i style="width:14px;height:10px;background:var(--ok-soft)"></i>écart acceptable</span><span><i style="width:10px;height:10px;border-radius:50%;border:2px solid var(--muted)"></i>modèle, départ</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--ok)"></i>modèle, fin (dans la bande)</span><span><i style="width:10px;height:10px;border-radius:50%;background:var(--warn)"></i>modèle, fin (hors de la bande)</span></div>
+    <p class="ssum" id="scoresum"></p>
+    <div class="score" id="scorerows"></div>
+    <h3 class="sub" style="margin-top:18px">Réglages, pour mémoire</h3>
+    <p class="note" style="margin-top:2px">Ces valeurs ne sont pas des résultats : ce sont des réglages ou des absences du modèle (productivité et survie des entreprises fixées par réglage).</p>
+    <div class="score" id="scoreset"></div>
+  </section>
+
   </div>
 
   <div class="tabpane" data-pane="hyp">
@@ -981,22 +982,34 @@ const SAVE_BY_AGE=[4,7.7,11.3,15,11.5,8];
 const BANK_RESERVE=0.01, FUND_CASH=0.05;
 
 /* ---------- test de validation : partir de 2010, comparer en 2024 ----------
-   Conditions de départ 2010 (Insee ; comptes nationaux en base 2005 sauf mention) : chômage 9,3 % ; dette 82,3 % du PIB ; déficit 7,2 %
-   (base 2020) ; taux d'épargne financière 6,9 % ; taux apparent de la dette ≈ 3,2 % (intérêts 50,5 Md€ pour une dette de 82,3 % d'un PIB
-   de 1 923 Md€, calcul) ; patrimoine net médian 113 500 € pour un niveau de vie médian de 19 270 € (5,89 années, contre 5,39 en 2021 :
-   la distribution 2021 est remise à cette échelle) ; productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026).
-   Non repris : la crise des dettes souveraines, le Covid (−7,4 % de PIB en 2020), l'inflation de 2022-2023 ; salaires et achats publics
-   en part du PIB gardés à leur niveau 2025. */
-const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.823,defT:0.072,save:0.069,rB:0.032,m0:(113500/19270)/(124800/23160),prodG:0.004},
+   Comptes nationaux en base 2020 (Eurostat, séries de la France, consultées le 20 octobre 2026), cohérents entre 2010 et 2024 :
+   - dette publique 86,3 % du PIB en 2010, 112,6 % en 2024 ; déficit 7,2 % et 5,8 % (gov_10dd_edpt1) ;
+   - dépenses publiques 57,7 % et 57,0 % ; salaires publics 13,2 % ; consommations intermédiaires 5,4 % et investissement 4,8 % ;
+     prestations en nature achetées au marché 6,1 % ; intérêts 2,5 % du PIB, soit un taux apparent de 2,5 / 86,3 ≈ 2,9 % (gov_10a_main) ;
+   - prélèvements (impôts et cotisations, définition européenne, un peu plus large que celle de l'Insee) 44,2 % et 45,3 % (gov_10a_taxag) ;
+   - taux de marge des sociétés non financières : EBE / valeur ajoutée = 313,5 / 996,8 = 31,4 % en 2010, 486,6 / 1 513,1 = 32,2 % en
+     2024 (nasa_10_nf_tr) ;
+   - chômage 9,3 % et 7,4 % (une_rt_a) ; inflation (IPCH) 1,7 % en 2010 et 1,2 % par an en moyenne de 2011 à 2019 (prc_hicp_aind) ;
+     croissance du PIB en volume 2,0 % en 2010 et 1,3 % par an de 2011 à 2019 (nama_10_gdp). Ces deux moyennes s'arrêtent en 2019 :
+     le modèle ne reproduit ni le Covid (−7,4 % en 2020) ni le choc énergétique de 2022-2023 ;
+   - PIB 1 996,1 Md€ en 2010 (nama_10_gdp), pour 27,79 millions de ménages (recensement 2010, Insee, TEF 2014) et un niveau de vie
+     médian de 19 270 € : 3,73 années de niveau de vie médian par ménage.
+   Hors comptes nationaux : taux d'épargne financière 6,9 % (Insee, base 2005) ; patrimoine net médian 113 500 € pour un niveau de vie
+   médian de 19 270 € (5,89 années, contre 5,39 en 2021 : la distribution 2021 est remise à cette échelle) ; taux directeur 0,25 % ;
+   productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026). */
+const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863,defT:0.072,save:0.069,rB:0.025/0.863,gW:0.132,gP:0.054+0.048,hik:0.061,
+    gdpHH:1996.0751e9/27.7859e6/19270,m0:(113500/19270)/(124800/23160),prodG:0.004},
   refs:[
-    {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
+    {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Eurostat, une_rt_a (définition du BIT)',url:'https://ec.europa.eu/eurostat/databrowser/view/une_rt_a/default/table?lang=fr'},
     {k:'ulong',l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},
-    {k:'debt',l:'Dette publique / PIB',a:0.823,b:1.126,u:'pct',src:'Insee Première n° 1348 (2010) et n° 2106 (2024)',url:'https://www.insee.fr/fr/statistiques/8997691'},
-    {k:'deficit',l:'Déficit public / PIB',a:0.072,b:0.058,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-    {k:'spend',l:'Dépenses publiques / PIB',a:0.577,b:0.570,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-    {k:'po',l:'Prélèvements obligatoires / PIB',a:0.425,b:0.427,u:'pct',src:'Insee Première n° 1348 et n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-    {k:'margin',l:'Taux de marge des entreprises (moyenne de la période)',a:0.302,b:0.327,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
+    {k:'debt',l:'Dette publique / PIB',a:0.863,b:1.126,u:'pct',src:'Eurostat, gov_10dd_edpt1 (base 2020)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table?lang=fr'},
+    {k:'deficit',l:'Déficit public / PIB',a:0.072,b:0.058,u:'pct',src:'Eurostat, gov_10dd_edpt1 (base 2020)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table?lang=fr'},
+    {k:'spend',l:'Dépenses publiques / PIB',a:0.577,b:0.570,u:'pct',src:'Eurostat, gov_10a_main',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table?lang=fr'},
+    {k:'po',l:'Impôts et cotisations / PIB (définition européenne)',a:0.442,b:0.453,u:'pct',src:'Eurostat, gov_10a_taxag',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table?lang=fr'},
+    {k:'margin',l:'Taux de marge des sociétés non financières (moyenne de la période)',a:313477/996825,b:486553/1513050,u:'pct',src:'Eurostat, nasa_10_nf_tr (EBE / valeur ajoutée)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
     {k:'save',l:'Taux d\'épargne financière (moyenne de la période)',a:0.069,b:0.097,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
+    {k:'infl',l:'Inflation annuelle moyenne, 2011-2019',yb:'2011-19',a:0.017,b:0.0123,u:'pct',src:'Eurostat, prc_hicp_aind (IPCH)',url:'https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_aind/default/table?lang=fr'},
+    {k:'growth',l:'Croissance annuelle moyenne du PIB en volume, 2011-2019',yb:'2011-19',a:0.020,b:0.0134,u:'pct',src:'Eurostat, nama_10_gdp',url:'https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table?lang=fr'},
     {k:'wmed',l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
     {k:'wd9',l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
 
@@ -1485,7 +1498,7 @@ function run(world,seed,P){
   const soc=stateOn&&!!P.social,dem=closed&&!!P.demo;
   // banque centrale (gains libres seulement) : taux directeur, inflation anticipée, taux bancaires, facteurs d'investissement
   const cb=closed&&bank&&!!P.credit&&!!P.cb&&world==='L',cbI0=P.i0??CB_I0;let iCB=cbI0,piE=CB_PI,rMort=MORT_RATE,rDep=DEPOSIT_RATE,fInv=1,fHinv=1,fAcc=1;const cbRate=new Float64Array(T);
-  const gPe=P.gP+(soc?HEALTH_INKIND:0);   // achats publics aux entreprises, santé en nature comprise
+  const gPe=P.gP+(soc?(P.hik??HEALTH_INKIND):0);   // achats publics aux entreprises, santé en nature comprise
   const retired=new Uint8Array(N),pens=new Float64Array(N),lcF=new Float64Array(N).fill(1);
   const act=new Uint8Array(N).fill(1);for(let i=N0;i<N;i++)act[i]=0;
   if(soc)for(let i=0;i<N0;i++){lcF[i]=1/((1-IR_BY_QUINTILE[qi[i]])*(1-COT_RATE));if(age0[i]>=RET_AGE){retired[i]=1;act[i]=0;pens[i]=PENSION_REPL*wage[i];}}   // même règle que pour les nouveaux retraités : pensions ≈ 13 % du PIB
@@ -2231,9 +2244,12 @@ function scoreCard(w,P){
 function backtestCard(w,P){
   const L=P.T-1,net=w.eq&&w.eq.net,wr=w.pWr?w.pWr[L]:1;
   const med=net&&net.length?net[Math.floor(net.length/2)]:null,d9=net&&net.length?net[Math.floor(net.length*0.9)]:null;
-  const M={unemp:w.lU[L],ulong:w.lLong[L],debt:w.sDebt[L],deficit:w.sDef[L],spend:w.sPub[L],po:w.sPO[L],margin:w.cMargin,save:w.cSaveRate,
+  // moyennes des années 1 à 9 du modèle (2011-2019) ; croissance du produit net réel de l'ensemble des ménages
+  const t9=Math.min(9,L),avgI=(()=>{let s=0;for(let t=1;t<=t9;t++)s+=w.pInfl[t];return t9>0?s/t9:null;})();
+  const tot=t=>w.rNdp[t]*(w.hhN?w.hhN[t]:1),grow=t9>0&&tot(1)>0?Math.pow(tot(t9)/tot(1),1/(t9-1||1))-1:null;
+  const M={unemp:w.lU[L],ulong:w.lLong[L],debt:w.sDebt[L],deficit:w.sDef[L],spend:w.sPub[L],po:w.sPO[L],margin:w.cMargin,save:w.cSaveRate,infl:avgI,growth:grow,
     wmed:med!=null&&wr>0?med/wr:null,wd9:med>0?d9/med:null};
-  const S0={unemp:w.lU[0],ulong:w.lLong[Math.min(2,L)],debt:w.sDebt[0],deficit:w.sDef[0],spend:w.sPub[0],po:w.sPO[0],margin:null,save:null,
+  const S0={unemp:w.lU[0],ulong:w.lLong[Math.min(2,L)],debt:w.sDebt[0],deficit:w.sDef[0],spend:w.sPub[0],po:w.sPO[0],margin:null,save:null,infl:null,growth:null,
     wmed:WEALTH_Q[5][1]*(P.m0||1),wd9:WEALTH_Q[9][1]/WEALTH_Q[5][1]};
   return BACKTEST.refs.map(r=>{const m=M[r.k],m0=S0[r.k];const dirOK=m==null?null:Math.sign(m-r.a)===Math.sign(r.b-r.a)||Math.abs(r.b-r.a)<1e-9;
     const err=m==null?null:Math.abs(m-r.b)/Math.max(Math.abs(r.b-r.a),Math.abs(r.b)*0.05);return {...r,m,m0,dirOK,close:err!=null&&err<=1};});
@@ -2741,8 +2757,8 @@ function renderBacktest(S){
   const row=r=>{const vals=[r.a,r.b,r.m].filter(v=>v!=null&&isFinite(v));let lo=Math.min(0,...vals),hi=Math.max(...vals)*1.1;if(hi<=lo)hi=lo+1;
     const x=v=>((v-lo)/(hi-lo)*100).toFixed(2)+'%';
     return `<div class="srow"><div class="slabel">${r.l}<small><a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small></div>
-      <div class="strack" role="img" aria-label="${r.l} : France ${BACKTEST.from} ${fv(r,r.a)}, ${BACKTEST.to} ${fv(r,r.b)}, modèle ${fv(r,r.m)}"><span class="axis"></span><span class="ref" style="left:${x(r.b)}"></span><span class="dot start" style="left:${x(r.a)}"></span>${r.m!=null&&isFinite(r.m)?`<span class="dot end${r.close?' ok':''}" style="left:${x(r.m)}"></span>`:''}</div>
-      <div class="sval">${BACKTEST.from} ${fv(r,r.a)}<br>${BACKTEST.to} <b>${fv(r,r.b)}</b><br>modèle <b>${fv(r,r.m)}</b></div></div>`;};
+      <div class="strack" role="img" aria-label="${r.l} : France ${BACKTEST.from} ${fv(r,r.a)}, ${r.yb||BACKTEST.to} ${fv(r,r.b)}, modèle ${fv(r,r.m)}"><span class="axis"></span><span class="ref" style="left:${x(r.b)}"></span><span class="dot start" style="left:${x(r.a)}"></span>${r.m!=null&&isFinite(r.m)?`<span class="dot end${r.close?' ok':''}" style="left:${x(r.m)}"></span>`:''}</div>
+      <div class="sval">${BACKTEST.from} ${fv(r,r.a)}<br>${r.yb||BACKTEST.to} <b>${fv(r,r.b)}</b><br>modèle <b>${fv(r,r.m)}</b></div></div>`;};
   const d=S.filter(r=>r.dirOK).length,c=S.filter(r=>r.close).length;
   setText('btsum',`Évolution dans le bon sens : ${d} indicateurs sur ${S.length} ; proches de la valeur ${BACKTEST.to} : ${c} sur ${S.length}.`);
   setHTML('btrows',S.map(row).join(''));

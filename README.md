@@ -69,11 +69,11 @@ Dans `run()`, les étapes de l'année sont des fonctions internes qui partagent 
 - `tests/regress.js` : 22 configurations × 2 scénarios × 2 graines, toutes les sorties comparées à 1e-8 près ; vérifie aussi que la monnaie est conservée.
 - `tests/consistency.js` : les réglages par défaut recopiés des données (`DEF`) correspondent toujours à `00-data.js`.
 - `tests/ui.py` : charge la page, lance 4 configurations, compare tout le texte affiché et les tracés SVG. `--shots` enregistre des captures des onglets, `--nospace` ignore les espaces.
-- `tests/score.js` : tableau de bord de représentativité en ligne de commande (informatif, lancé par `check.sh`).
-- `tests/backtest.js` : test de validation 2010 → 2024 (le modèle part des conditions de 2010, comparé aux données de 2024 ; informatif, lancé par `check.sh`).
+- `tests/backtest.js` : test de validation 2010 → 2024, **mesure principale de la ressemblance avec la France** : le modèle part des conditions de 2010 et est comparé aux données de 2024 (comptes nationaux en base 2020, Eurostat) ; informatif, lancé par `check.sh`.
+- `tests/score.js` : tableau de bord, départ et fin de simulation comparés à la France d'aujourd'hui ; la fin juge surtout la stabilité sur la durée (informatif, lancé par `check.sh`).
 - `tests/perf.js` : temps par simulation selon le nombre de ménages.
 
 Outils d'analyse (informatifs, hors `check.sh`) :
 
 - `tests/tools/traj.js` : trajectoires moyennes de quelques séries (chômage, inflation, taux, déficit, dette, crédits, capital, Gini), pour des réglages et des mondes donnés ; `--backtest` part de 2010.
-- `tests/tools/seeds.js` : le tableau de bord sur plusieurs lots de graines, pour juger si un écart entre deux versions dépasse le hasard.
+- `tests/tools/seeds.js` : le tableau de bord (ou, avec `--backtest`, le test 2010 → 2024) sur plusieurs lots de graines, pour juger si un écart entre deux versions dépasse le hasard. Un écart de ±1 indicateur ou de ±0,1 d'écart moyen entre lots est du hasard.

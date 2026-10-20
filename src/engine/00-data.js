@@ -282,22 +282,34 @@ const SAVE_BY_AGE=[4,7.7,11.3,15,11.5,8];
 const BANK_RESERVE=0.01, FUND_CASH=0.05;
 
 /* ---------- test de validation : partir de 2010, comparer en 2024 ----------
-   Conditions de départ 2010 (Insee ; comptes nationaux en base 2005 sauf mention) : chômage 9,3 % ; dette 82,3 % du PIB ; déficit 7,2 %
-   (base 2020) ; taux d'épargne financière 6,9 % ; taux apparent de la dette ≈ 3,2 % (intérêts 50,5 Md€ pour une dette de 82,3 % d'un PIB
-   de 1 923 Md€, calcul) ; patrimoine net médian 113 500 € pour un niveau de vie médian de 19 270 € (5,89 années, contre 5,39 en 2021 :
-   la distribution 2021 est remise à cette échelle) ; productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026).
-   Non repris : la crise des dettes souveraines, le Covid (−7,4 % de PIB en 2020), l'inflation de 2022-2023 ; salaires et achats publics
-   en part du PIB gardés à leur niveau 2025. */
-const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.823,defT:0.072,save:0.069,rB:0.032,m0:(113500/19270)/(124800/23160),prodG:0.004},
+   Comptes nationaux en base 2020 (Eurostat, séries de la France, consultées le 20 octobre 2026), cohérents entre 2010 et 2024 :
+   - dette publique 86,3 % du PIB en 2010, 112,6 % en 2024 ; déficit 7,2 % et 5,8 % (gov_10dd_edpt1) ;
+   - dépenses publiques 57,7 % et 57,0 % ; salaires publics 13,2 % ; consommations intermédiaires 5,4 % et investissement 4,8 % ;
+     prestations en nature achetées au marché 6,1 % ; intérêts 2,5 % du PIB, soit un taux apparent de 2,5 / 86,3 ≈ 2,9 % (gov_10a_main) ;
+   - prélèvements (impôts et cotisations, définition européenne, un peu plus large que celle de l'Insee) 44,2 % et 45,3 % (gov_10a_taxag) ;
+   - taux de marge des sociétés non financières : EBE / valeur ajoutée = 313,5 / 996,8 = 31,4 % en 2010, 486,6 / 1 513,1 = 32,2 % en
+     2024 (nasa_10_nf_tr) ;
+   - chômage 9,3 % et 7,4 % (une_rt_a) ; inflation (IPCH) 1,7 % en 2010 et 1,2 % par an en moyenne de 2011 à 2019 (prc_hicp_aind) ;
+     croissance du PIB en volume 2,0 % en 2010 et 1,3 % par an de 2011 à 2019 (nama_10_gdp). Ces deux moyennes s'arrêtent en 2019 :
+     le modèle ne reproduit ni le Covid (−7,4 % en 2020) ni le choc énergétique de 2022-2023 ;
+   - PIB 1 996,1 Md€ en 2010 (nama_10_gdp), pour 27,79 millions de ménages (recensement 2010, Insee, TEF 2014) et un niveau de vie
+     médian de 19 270 € : 3,73 années de niveau de vie médian par ménage.
+   Hors comptes nationaux : taux d'épargne financière 6,9 % (Insee, base 2005) ; patrimoine net médian 113 500 € pour un niveau de vie
+   médian de 19 270 € (5,89 années, contre 5,39 en 2021 : la distribution 2021 est remise à cette échelle) ; taux directeur 0,25 % ;
+   productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026). */
+const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863,defT:0.072,save:0.069,rB:0.025/0.863,gW:0.132,gP:0.054+0.048,hik:0.061,
+    gdpHH:1996.0751e9/27.7859e6/19270,m0:(113500/19270)/(124800/23160),prodG:0.004},
   refs:[
-    {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
+    {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Eurostat, une_rt_a (définition du BIT)',url:'https://ec.europa.eu/eurostat/databrowser/view/une_rt_a/default/table?lang=fr'},
     {k:'ulong',l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},
-    {k:'debt',l:'Dette publique / PIB',a:0.823,b:1.126,u:'pct',src:'Insee Première n° 1348 (2010) et n° 2106 (2024)',url:'https://www.insee.fr/fr/statistiques/8997691'},
-    {k:'deficit',l:'Déficit public / PIB',a:0.072,b:0.058,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-    {k:'spend',l:'Dépenses publiques / PIB',a:0.577,b:0.570,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-    {k:'po',l:'Prélèvements obligatoires / PIB',a:0.425,b:0.427,u:'pct',src:'Insee Première n° 1348 et n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-    {k:'margin',l:'Taux de marge des entreprises (moyenne de la période)',a:0.302,b:0.327,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
+    {k:'debt',l:'Dette publique / PIB',a:0.863,b:1.126,u:'pct',src:'Eurostat, gov_10dd_edpt1 (base 2020)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table?lang=fr'},
+    {k:'deficit',l:'Déficit public / PIB',a:0.072,b:0.058,u:'pct',src:'Eurostat, gov_10dd_edpt1 (base 2020)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table?lang=fr'},
+    {k:'spend',l:'Dépenses publiques / PIB',a:0.577,b:0.570,u:'pct',src:'Eurostat, gov_10a_main',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table?lang=fr'},
+    {k:'po',l:'Impôts et cotisations / PIB (définition européenne)',a:0.442,b:0.453,u:'pct',src:'Eurostat, gov_10a_taxag',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table?lang=fr'},
+    {k:'margin',l:'Taux de marge des sociétés non financières (moyenne de la période)',a:313477/996825,b:486553/1513050,u:'pct',src:'Eurostat, nasa_10_nf_tr (EBE / valeur ajoutée)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
     {k:'save',l:'Taux d\'épargne financière (moyenne de la période)',a:0.069,b:0.097,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
+    {k:'infl',l:'Inflation annuelle moyenne, 2011-2019',yb:'2011-19',a:0.017,b:0.0123,u:'pct',src:'Eurostat, prc_hicp_aind (IPCH)',url:'https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_aind/default/table?lang=fr'},
+    {k:'growth',l:'Croissance annuelle moyenne du PIB en volume, 2011-2019',yb:'2011-19',a:0.020,b:0.0134,u:'pct',src:'Eurostat, nama_10_gdp',url:'https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table?lang=fr'},
     {k:'wmed',l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
     {k:'wd9',l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
 
