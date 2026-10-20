@@ -153,7 +153,7 @@ const REF_FR=[
   {k:'debt',l:'Dette publique / PIB',v:1.157,y:'2025',tol:0.10,u:'pct',src:'Insee Première n° 2106 (comptes des administrations publiques 2025)',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'deficit',l:'Déficit public / PIB',v:0.051,y:'2025',tol:0.01,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
-  {k:'spend',l:'Dépenses publiques / PIB',v:0.573,y:'2025',tol:0.05,u:'pct',src:'Insee Première n° 2106 (modèle : sans dépenses de santé, de famille ni minima sociaux)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'spend',l:'Dépenses publiques / PIB, hors « autres transferts »',v:0.124+0.054+0.044+0.064+0.194+0.022+0.019,y:'2025',tol:0.05,u:'pct',src:'Eurostat, gov_10a_main : rémunérations, consommations intermédiaires, investissement, prestations en nature et en espèces, intérêts, subventions (57,2 % du PIB en tout, dont 5,1 % d\'autres transferts que le modèle n\'a pas)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table?lang=fr'},
   {k:'po',l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
   {k:'dep',l:'Personnes de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
   {k:'fail',l:'Crédits des entreprises défaillantes / crédits aux entreprises (par an, médiane sur 10 ans)',v:0.0045,y:'2010-2019',tol:0.003,u:'pct',src:'Banque de France, calculs BNP Paribas (Eco Flash 24.09, 2024) : moyenne 2010-2019 de 0,45 % ; pic d\'août 2009 : 0,56 %',url:'https://economic-research.bnpparibas.com/pdf/fr-FR/France-Poids-economique-defaillances-entreprises-niveaux-eleves-relativiser-20/06/2024,49702'},
@@ -207,6 +207,12 @@ const BEN_UC=[5600,1720,820,500,260], NV_MEAN=30900, HEALTH_INKIND=186/2920;
    de la propriété…) est prélevé sur la consommation des ménages, à un taux calé pour que le déficit de départ soit celui observé.
    Recettes publiques totales 2024 : 1 500,6 Md€, 51,4 % du PIB (même source). */
 const PROD_TAX_GDP=72/2920;
+/* Subventions d'exploitation reçues par les sociétés non financières (D.39) : 41,8 Md€ en 2024 pour une valeur ajoutée de 1 513,1 Md€,
+   soit 2,8 % (Eurostat, nasa_10_nf_tr, base 2020). Elles s'ajoutent à l'excédent brut d'exploitation (l'Insee calcule le taux de marge
+   ainsi) ; total des subventions versées par les administrations : 1,9 % du PIB en 2025 (Eurostat, gov_10a_main).
+   Prélèvements sur les pensions : CSG 8,3 % + CRDS 0,5 % + Casa 0,3 % au taux plein (service-public.fr) ; sur les allocations
+   chômage : CSG 6,2 % + CRDS 0,5 %. Taux pleins : les pensions modestes paient moins, ce qui surestime un peu ces montants. */
+const SUBS_VA=41802/1513050, PENS_LEVY=0.083+0.005+0.003, UI_LEVY=0.062+0.005;
 // emplois par ménage actif : 46,27 milliards d'heures (Eurostat, 2024) / 1 586 h par emploi, pour 31,27 millions de ménages dont
 // ceux dont la personne de référence a moins de 62 ans et 9 mois (pyramide des ménages, Insee)
 const ACTIVE_HH_SHARE=(()=>{let a=0,t=0;for(const [lo,hi,n] of AGE_PYRAMID){t+=n;a+=n*Math.max(0,Math.min(1,(RET_AGE-lo)/(hi-lo)));}return a/t;})();
@@ -304,7 +310,7 @@ const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863
     {k:'ulong',l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},
     {k:'debt',l:'Dette publique / PIB',a:0.863,b:1.126,u:'pct',src:'Eurostat, gov_10dd_edpt1 (base 2020)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table?lang=fr'},
     {k:'deficit',l:'Déficit public / PIB',a:0.072,b:0.058,u:'pct',src:'Eurostat, gov_10dd_edpt1 (base 2020)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table?lang=fr'},
-    {k:'spend',l:'Dépenses publiques / PIB',a:0.577,b:0.570,u:'pct',src:'Eurostat, gov_10a_main',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table?lang=fr'},
+    {k:'spend',l:'Dépenses publiques / PIB, hors « autres transferts »',a:0.132+0.054+0.048+0.061+0.191+0.025+0.017,b:0.124+0.055+0.043+0.063+0.192+0.020+0.020,u:'pct',src:'Eurostat, gov_10a_main (57,7 % et 57,0 % en tout ; les autres transferts, environ 5 % du PIB, sont hors du modèle)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table?lang=fr'},
     {k:'po',l:'Impôts et cotisations / PIB (définition européenne)',a:0.442,b:0.453,u:'pct',src:'Eurostat, gov_10a_taxag',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_taxag/default/table?lang=fr'},
     {k:'margin',l:'Taux de marge des sociétés non financières (moyenne de la période)',a:313477/996825,b:486553/1513050,u:'pct',src:'Eurostat, nasa_10_nf_tr (EBE / valeur ajoutée)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
     {k:'save',l:'Taux d\'épargne financière (moyenne de la période)',a:0.069,b:0.097,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},

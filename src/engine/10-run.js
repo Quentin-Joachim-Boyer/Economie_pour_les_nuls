@@ -136,7 +136,7 @@ function run(world,seed,P){
   // reste du circuit, pour que rien ne soit oublié ni compté deux fois : ventes à encaisser (dues aux entreprises), fonds propres de la banque
   // (caisse − dépôts + prêts aux ménages et aux entreprises) et trésorerie de l'État. Total = monnaie (fixe) + obligations + capital des entreprises.
   const bCash=new Float64Array(T),bDep=new Float64Array(T),bBond=new Float64Array(T),bEq=new Float64Array(T),bSale=new Float64Array(T),bBank=new Float64Array(T);
-  let pool=0,poolNext=0,feePot=0,scopPot=0,GP0=0,sales0=0,salesPrev=0,salesY=0,stTax=0;const cc={wagePriv:0,prodTax:0,wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
+  let pool=0,poolNext=0,feePot=0,scopPot=0,GP0=0,sales0=0,salesPrev=0,salesY=0,stTax=0;const cc={sub:0,wagePriv:0,prodTax:0,wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
   const money=()=>{let m=F+pool+poolNext+feePot+scopPot+back+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R+(fm.wcap||0);return m;};
   // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
   const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,tauC=0,pubDebt=0,BR=0,GDPprev=0;
@@ -205,7 +205,7 @@ function run(world,seed,P){
          (périmètre : entreprises marchandes, salaires publics, impôts sur les produits) en découle, et kY = PIB français / PIB du modèle
          sert ensuite à exprimer les ratios comme ceux de l'Insee */
       const Yeq=(P.gdpHH??GDP_HH)*N0,GW=P.gW*Yeq,GP=gPe*Yeq;GP0=GP;
-      const gdp=C0+I0+GP+GW,T0=GW+GP+(P.rB*P.debt0-P.defT)*Yeq;gWm=GW/gdp;gPm=GP/gdp;kY=Yeq/gdp;pool=gdp-GW;tau=T0/pool;
+      const gdp=C0+I0+GP+GW,T0=GW+GP+(soc?SUBS_VA*(C0+I0+GP):0)+(P.rB*P.debt0-P.defT)*Yeq;gWm=GW/gdp;gPm=GP/gdp;kY=Yeq/gdp;pool=gdp-GW;tau=T0/pool;
       if(soc){// recettes : cotisations et impôt sur le revenu (écart coût du travail / revenu disponible), TVA, impôt sur les sociétés,
         // et un impôt sur les ventes calé pour que le déficit de départ soit celui observé
         tva0=C0*TVA_RATE/(1+TVA_RATE);pool=gdp-GW-tva0;
@@ -251,11 +251,11 @@ function run(world,seed,P){
      il fixe qui paie qui dans l'année et l'ordre des tirages aléatoires. */
   // variables de l'année, remises à zéro au début de chaque année
   let infl=0,feeB=0,feeQ=0,rentAmt=0,rM=0,ratio=1,sales=0,GW=0,kappa=0,E=0,piPaid=0;
-  let revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0,benE=0,rentPot=0,mortIntY=0,hInvY=0,rentY=0,accY=0;
+  let levyY=0,subY=0,revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0,benE=0,rentPot=0,mortIntY=0,hInvY=0,rentY=0,accY=0;
   for(let t=0;t<T;t++){
     if(t>0)partic.update(pricesOn&&Pnet!==1?Float64Array.from(net,v=>v/Pnet):net,t);
     infl=0;ratio=1;sales=0;GW=0;kappa=0;E=0;piPaid=0;cBase=cBaseY;cBaseY=0;
-    revY=0;trY=0;trF=1;tvaY=0;GPy=0;INTy=0;benE=0;rentPot=0;mortIntY=0;hInvY=0;rentY=0;accY=0;
+    revY=0;trY=0;trF=1;levyY=0;subY=0;tvaY=0;GPy=0;INTy=0;benE=0;rentPot=0;mortIntY=0;hInvY=0;rentY=0;accY=0;
     updatePrices(t);                 // salaires, marge, prix ; réévaluation du capital
     centralBank(t);                  // taux directeur et taux bancaires
     startOfYear(t);                  // prix des logements, retraites, propensions à consommer
@@ -336,6 +336,8 @@ function run(world,seed,P){
     sales=salesY-back;salesPrev=sales;
     {let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;util[t]=cap0>0&&K>0&&K0>0?sales/(cap0*K/K0):0;}
     if(stateOn){const tax=tau*sales;pool-=tax;Sc+=tax;sc.tax+=tax;cc.prodTax+=tax;revY+=tax;stTax=tax;
+      // subventions d'exploitation aux entreprises (2,8 % de leur valeur ajoutée) : elles entrent dans l'excédent brut d'exploitation
+      if(soc){subY=SUBS_VA*sales;if(Sc<subY)borrow(subY-Sc);pool+=subY;Sc-=subY;cc.sub+=subY;sc.spend+=subY;}
       if(!soc)defR[t]=GDPprev>0?(sc.spendY-tax)/(GDPprev*kY):0;}
   }
   // État
@@ -375,8 +377,11 @@ function run(world,seed,P){
     if(soc){// cotisations et impôt sur le revenu (écart entre coût du travail et revenu disponible) ; puis pensions et allocations
       const wedge=ratio*(WB-WBd);Sc+=wedge;revY+=wedge;
       {let b=0;for(let i=0;i<N;i++)if(emp[i])b+=bS[i]*wage[i];benE=ratio*b*wIdx;revY+=benE;}   // prestations des actifs occupés : versées en même temps que le salaire
-      for(let i=0;i<N;i++)trY+=retired[i]?pens[i]:uiOf(i)*wIdx;
-      if(Sc<trY)borrow(trY-Sc);if(Sc<trY){trF=trY>0?Math.max(0,Sc)/trY:1;sc.cut+=trY*(1-trF);trY*=trF;}sc.spend+=trY;Sc-=trY;}
+      let pnY=0,uiY=0;for(let i=0;i<N;i++){if(retired[i]){trY+=pens[i];pnY+=pens[i];}else{trY+=uiOf(i)*wIdx;if(act[i]&&!emp[i]&&lab.dur[i]<UI_YEARS)uiY+=UI_REPL*(1-bS[i])*wage[i]*wIdx;}}
+      // pensions et allocations chômage sont versées brutes ; la CSG, la CRDS et la Casa qu'elles supportent reviennent à l'État
+      // (opération blanche pour les ménages et le déficit, mais comptée dans les dépenses et les prélèvements, comme dans les comptes)
+      levyY=pnY*PENS_LEVY/(1-PENS_LEVY)+uiY*UI_LEVY/(1-UI_LEVY);
+      if(Sc<trY)borrow(trY-Sc);if(Sc<trY){trF=trY>0?Math.max(0,Sc)/trY:1;sc.cut+=trY*(1-trF);trY*=trF;}sc.spend+=trY;Sc-=trY;levyY*=trF;}
   }
   function householdsSpendAndSave(t){
     // le ménage reçoit son salaire, consomme (revenu et patrimoine), puis place ce qui reste
@@ -627,7 +632,7 @@ function run(world,seed,P){
     feePot=0;pool+=poolNext;poolNext=0;
     if(stateOn){
       GDPprev=sales+GW+tvaY;gdpR[t]=GDPprev/Pidx;debtR[t]=GDPprev>0?pubDebt/(GDPprev*kY):0;
-      if(soc){revY+=tvaY;const spendY=GW+GPy+INTy+trY+benE;const Yq=GDPprev*kY;defR[t]=Yq>0?(spendY-revY)/Yq:0;sPub[t]=Yq>0?spendY/Yq:0;sPO[t]=Yq>0?revY/Yq:0;}}
+      if(soc){revY+=tvaY+levyY;const spendY=GW+GPy+INTy+trY+benE+levyY+subY;const Yq=GDPprev*kY;defR[t]=Yq>0?(spendY-revY)/Yq:0;sPub[t]=Yq>0?spendY/Yq:0;sPO[t]=Yq>0?revY/Yq:0;}}
     // en euros du départ (divisés par l'indice des prix)
     {const y=liveOf(consH).sort();consMed[t]=y[Math.floor(y.length/2)]/Pidx;let sm=0;for(let i=0;i<N;i++)sm+=consH[i];consMean[t]=sm/nAlive/Pidx;
      ndp[t]=(sales+GW-wearY)/nAlive/Pidx;let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;kNet[t]=K/nAlive/Pidx;}
@@ -694,7 +699,7 @@ function run(world,seed,P){
     cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     // taux de marge des entreprises au sens de l'Insee : excédent brut / valeur ajoutée des entreprises (salaires privés, coût du travail
     // compris ; impôts sur la production compris dans la valeur ajoutée), sans les salaires publics
-    cMargin:cc.wagePriv+cc.profit+cc.prodTax>0?cc.profit/(cc.wagePriv+cc.profit+cc.prodTax):0,
+    cMargin:cc.wagePriv+cc.profit+cc.prodTax-cc.sub>0?cc.profit/(cc.wagePriv+cc.profit+cc.prodTax-cc.sub):0,
     // monnaie : où elle est, et au sens large
     mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,
     // travail, prix, économie réelle
