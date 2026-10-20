@@ -1519,13 +1519,13 @@ function run(world,seed,P){
   // reste du circuit, pour que rien ne soit oublié ni compté deux fois : ventes à encaisser (dues aux entreprises), fonds propres de la banque
   // (caisse − dépôts + prêts aux ménages et aux entreprises) et trésorerie de l'État. Total = monnaie (fixe) + obligations + capital des entreprises.
   const bCash=new Float64Array(T),bDep=new Float64Array(T),bBond=new Float64Array(T),bEq=new Float64Array(T),bSale=new Float64Array(T),bBank=new Float64Array(T);
-  let pool=0,poolNext=0,feePot=0,scopPot=0;const cc={wagePriv:0,prodTax:0,wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
-  const money=()=>{let m=F+pool+poolNext+feePot+scopPot+back+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R;return m;};
+  let pool=0,poolNext=0,feePot=0,scopPot=0,GP0=0,sales0=0,salesPrev=0,salesY=0,stTax=0;const cc={wagePriv:0,prodTax:0,wagePaid:0,wageShort:0,cons:0,inc:0,save:0,profit:0,drift:0};const cov=new Float64Array(T);
+  const money=()=>{let m=F+pool+poolNext+feePot+scopPot+back+funds.cash()+Sc;for(let i=0;i<N;i++)m+=W[i]+eqSave[i];for(const fm of firms)if(!fm.dead)m+=fm.R+(fm.wcap||0);return m;};
   // État : trésorerie Sc (monnaie), obligations détenues par chaque ménage (Bh), taux d'impôt tau calé au départ
   const Bh=new Float64Array(N),debtR=new Float64Array(T),defR=new Float64Array(T);let Sc=0,tau=0,tauC=0,pubDebt=0,BR=0,GDPprev=0;
   // règle budgétaire : efforts cumulés en prélèvements (effPO) et en dépenses (effG), en part du PIB ; cBase : assiette de la taxe sur la consommation
   const fisc=stateOn&&soc&&!!P.fiscal;let effPO=0,effG=0,dTauC=0,cBase=0,cBaseY=0;const fEff=new Float64Array(T),gdpR=new Float64Array(T);let rB=stateOn&&world==='L'?P.rB:0;
-  const sc={tax:0,gw:0,gp:0,int:0,cut:0,spend:0};
+  const sc={tax:0,gw:0,gp:0,int:0,cut:0,spend:0,spendY:0};
   // parts du PIB du modèle prises par les salaires et achats publics ; kY : PIB français équivalent / PIB du modèle (fixé au départ)
   let gWm=P.gW,gPm=0,kY=1;
   // l'État emprunte aux ménages, au prorata de leurs liquidités
@@ -1587,7 +1587,7 @@ function run(world,seed,P){
       /* grandes masses publiques en euros : parts du PIB français (P.gW…) × PIB par ménage (P.gdpHH) × ménages ; le PIB du modèle
          (périmètre : entreprises marchandes, salaires publics, impôts sur les produits) en découle, et kY = PIB français / PIB du modèle
          sert ensuite à exprimer les ratios comme ceux de l'Insee */
-      const Yeq=(P.gdpHH??GDP_HH)*N0,GW=P.gW*Yeq,GP=gPe*Yeq;
+      const Yeq=(P.gdpHH??GDP_HH)*N0,GW=P.gW*Yeq,GP=gPe*Yeq;GP0=GP;
       const gdp=C0+I0+GP+GW,T0=GW+GP+(P.rB*P.debt0-P.defT)*Yeq;gWm=GW/gdp;gPm=GP/gdp;kY=Yeq/gdp;pool=gdp-GW;tau=T0/pool;
       if(soc){// recettes : cotisations et impôt sur le revenu (écart coût du travail / revenu disponible), TVA, impôt sur les sociétés,
         // et un impôt sur les ventes calé pour que le déficit de départ soit celui observé
@@ -1618,9 +1618,15 @@ function run(world,seed,P){
       let tw=0;for(let i=0;i<N;i++)tw+=Math.max(0,W[i]);const x=Math.min(D0,0.9*tw);
       // fonds propres = E0 exactement ; si les ménages n'ont pas assez de liquidités pour les dépôts, la banque se refinance (caisse négative)
       if(tw>0)for(let i=0;i<N;i++){const d=x*Math.max(0,W[i])/tw;W[i]-=d;D[i]+=d;}F+=E0+x-lo;}
-    cap0=pool;for(const fm of firms)if(!fm.dead)K0+=fm.K;
+    /* ventes de l'année 0 : celles de l'investissement de l'an passé arrivent au début de l'année ; celles de la consommation et des
+       achats publics arrivent pendant l'année. En attendant, les entreprises paient les salaires sur leur fonds de roulement (wcap),
+       que les ventes de l'année reconstituent : il vaut au départ la consommation de l'année (même monnaie qu'avant). */
+    sales0=pool;salesPrev=pool;
+    {const wc=Math.max(0,pool-I0-GP0);let tk=0;for(const fm of firms)if(!fm.dead)tk+=fm.K;
+     if(tk>0)for(const fm of firms)if(!fm.dead)fm.wcap=wc*fm.K/tk;pool=Math.min(pool,I0);}
+    cap0=sales0;for(const fm of firms)if(!fm.dead)K0+=fm.K;
     // production possible au plein emploi (productivité proportionnelle au salaire)
-    GDP0=stateOn?GDPprev:pool;GDPr0=GDP0-tva0;{let wa=0;for(let i=0;i<N;i++)if(act[i])wa+=wage[i];capGDP=WB0>0?GDPr0*wa/WB0:0;}
+    GDP0=stateOn?GDPprev:sales0;GDPr0=GDP0-tva0;{let wa=0;for(let i=0;i<N;i++)if(act[i])wa+=wage[i];capGDP=WB0>0?GDPr0*wa/WB0:0;}
     M0=money();}
 
   /* ==================== l'année, étape par étape ====================
@@ -1646,6 +1652,7 @@ function run(world,seed,P){
       if(hous)housingMarket(t);      // loyers, primo-accession
     }else householdsSaveOpen();
     funds.subscribe();               // l'épargne-actions va aux fonds
+    if(closed)closeSales(t);         // fonds de roulement, commandes en attente, impôt sur la production
     splitProfits(t);                 // le profit d'ensemble réparti entre entreprises
     if(firmOn&&firms.length)firmsYear(t);   // échéances, disparitions, versements, investissement
     if(closed){poolNext+=E-piPaid;cc.profit+=piPaid;}   // profit non attribué : reste à vendre
@@ -1660,7 +1667,7 @@ function run(world,seed,P){
   function updatePrices(t){
     /* ---------- prix : les salaires rattrapent l'inflation passée, la marge suit la tension ; le capital est réévalué ---------- */
     if(gA&&t>0){Aprod*=1+gA;if(!pricesOn)wIdx*=1+gA;}
-    if(pricesOn&&t>0){wIdx*=(1+gA)*(1+Math.max(0,WAGE_INDEXATION*(cb&&P.xAnch?P.xAnch*CB_PI+(1-P.xAnch)*inflPrev:inflPrev)));mk=Math.max(0,(1+mk)*(1+PHILLIPS_THETA*gapPrev)-1);
+    if(pricesOn&&t>0){wIdx*=(1+gA)*(1+Math.max(0,WAGE_INDEXATION*inflPrev));mk=Math.max(0,(1+mk)*(1+PHILLIPS_THETA*gapPrev)-1);
       const Pn=wIdx/Aprod*(1+mk)/(1+MARKUP0);infl=Pn/Pidx-1;Pidx=Pn;inflPrev=infl;
       for(const fm of firms)if(!fm.dead)fm.K*=1+infl;     // capital au coût de remplacement
       if(capped){// gains interdits, règle réelle : les mises restantes, dettes, dépôts et obligations sont indexés sur les prix
@@ -1696,19 +1703,27 @@ function run(world,seed,P){
   }
   // économie bouclée : tension de la demande et commandes en attente
   function demandAndBacklog(t){
-    if(pricesOn){gapPrev=GDPr0>0?((pool+back)+(stateOn?gWm*GDPprev:0))/Pidx/(GDPr0*Aprod)-1:0;pGap[t]=gapPrev;}
-    if(closed&&lab.on){// la demande au-delà de ce que la population active peut produire attend l'année suivante (commandes en attente)
-      pool+=back;back=0;const capS=Math.max(0,capGDP*Pidx*Aprod-(stateOn?gWm*GDPprev:0));
-      if(pool>capS){back=pool-capS;pool=capS;}unmet[t]=pool+back>0?back/(pool+back):0;}
+    // tension : demande de l'an passé (ventes et commandes en attente) rapportée à la production de départ
+    if(pricesOn){gapPrev=GDPr0>0?((salesPrev+back)+(stateOn?gWm*GDPprev:0))/Pidx/(GDPr0*Aprod)-1:0;pGap[t]=gapPrev;}
+    if(closed){pool+=back;salesY=pool;back=0;}
   }
   // ventes de l'année et utilisation des capacités
-  function production(t){
-    sales=pool;{let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;util[t]=cap0>0&&K>0&&K0>0?sales/(cap0*K/K0):0;}
+  function production(t){}
+  /* fin des ventes de l'année : les entreprises reconstituent leur fonds de roulement ; la demande au-delà de ce que la population
+     active peut produire attend l'année suivante (commandes en attente) ; impôt sur la production ; le reste est le profit brut */
+  function closeSales(t){
+    let drawn=0;for(const fm of firms)if(!fm.dead)drawn+=(fm.dW||0)+(fm.dR||0);
+    if(drawn>0){const f=Math.min(1,pool/drawn);for(const fm of firms){if(fm.dead||!(fm.dW||fm.dR))continue;fm.wcap=(fm.wcap||0)+f*(fm.dW||0);fm.R+=f*(fm.dR||0);}pool-=f*drawn;}
+    for(const fm of firms){fm.dW=0;fm.dR=0;}
+    if(lab.on){const capS=Math.max(0,capGDP*Pidx*Aprod-(stateOn?gWm*GDPprev:0));if(salesY>capS){back=Math.min(pool,salesY-capS);pool-=back;}unmet[t]=salesY>0?back/salesY:0;}
+    sales=salesY-back;salesPrev=sales;
+    {let K=0;for(const fm of firms)if(!fm.dead)K+=fm.K;util[t]=cap0>0&&K>0&&K0>0?sales/(cap0*K/K0):0;}
+    if(stateOn){const tax=tau*sales;pool-=tax;Sc+=tax;sc.tax+=tax;cc.prodTax+=tax;revY+=tax;stTax=tax;
+      if(!soc)defR[t]=GDPprev>0?(sc.spendY-tax)/(GDPprev*kY):0;}
   }
   // État
   function stateBudget(t){
     // impôt sur les ventes, puis dépenses (fonctionnaires, achats, intérêts) ; le déficit est emprunté aux ménages
-      const tax=tau*pool;pool-=tax;Sc+=tax;sc.tax+=tax;cc.prodTax+=tax;
       // règle budgétaire : au-delà de 3 % de déficit l'an passé, 0,5 point de PIB d'effort de plus, 2/3 en prélèvements, 1/3 en dépenses
       // clause de récession : pas d'effort l'année qui suit un recul du PIB en volume
       if(fisc&&t>0&&defR[t-1]>FISC_DEF&&!(t>1&&gdpR[t-1]<gdpR[t-2])){effPO+=FISC_STEP*FISC_PO;effG+=FISC_STEP*(1-FISC_PO);}
@@ -1726,18 +1741,19 @@ function run(world,seed,P){
       if(INT>0&&pubDom>0){for(let i=0;i<N;i++){const x=INT*Bh[i]/pubDom;W[i]+=x;capInc[i]+=x;}
         if(Bb>0){const xb=INT*Bb/pubDom;F+=xb;let sd=0;for(let i=0;i<N;i++)sd+=D[i];const pass=credit&&!capped?Math.min(1,rDep/Math.max(rate,1e-9)):1;
           if(sd>0)for(let i=0;i<N;i++)D[i]+=pass*xb*D[i]/sd;if(credit){const cost=BANK_COST_RATIO*(1-pass)*xb;F-=cost;feePot+=cost;}}}
-      INT+=intR;poolNext+=GP;GPy=GP;INTy=INT;sc.gw+=GW;sc.gp+=GP;sc.int+=INT;defR[t]=GDPprev>0?(GW+GP+INT-tax)/(GDPprev*kY):0;revY+=tax;
+      INT+=intR;pool+=GP;salesY+=GP;GPy=GP;INTy=INT;sc.gw+=GW;sc.gp+=GP;sc.int+=INT;sc.spendY=GW+GP+INT;
   }
   // salaires : sur les ventes, puis sur la trésorerie des entreprises ; puis prélèvements, pensions et allocations
   function payWages(t){
     // salaires privés : sur les ventes, puis sur la trésorerie des entreprises
-    if(lab.on){lab.adjust(GDPr0>0?WB0*(sales+GW)/Pidx/(GDPr0*Aprod):0,t);WB=lab.effEmp()*wIdx;}else if(soc||dem)WB=lab.effEmp()*wIdx;else if(pricesOn||gA)WB=WB0*wIdx;
+    if(lab.on){lab.adjust(GDPr0>0?WB0*(salesPrev+GW)/Pidx/(GDPr0*Aprod):0,t);WB=lab.effEmp()*wIdx;}else if(soc||dem)WB=lab.effEmp()*wIdx;else if(pricesOn||gA)WB=WB0*wIdx;
     // protection sociale : les employeurs paient le coût du travail LC ; les ménages reçoivent le revenu disponible WB
     let WBd=WB;if(soc){let lc=0;for(let i=0;i<N;i++)if(emp[i])lc+=wage[i]*lcF[i];WB=lc*wIdx;}
     wageSum+=WB;
     const WBp=Math.max(0,WB-GW);let paid=Math.min(pool,WBp);pool-=paid;
     if(paid<WBp){const need=WBp-paid;let totK=0;for(const fm of firms)if(!fm.dead)totK+=fm.K;
-      if(totK>0)for(const fm of firms){if(fm.dead)continue;const x=Math.min(fm.R,need*fm.K/totK);fm.R-=x;paid+=x;}}
+      if(totK>0)for(const fm of firms){if(fm.dead)continue;const w=need*fm.K/totK,a=Math.min(fm.wcap||0,w),b=Math.min(fm.R,w-a);
+        fm.wcap=(fm.wcap||0)-a;fm.R-=b;fm.dW=a;fm.dR=b;paid+=a+b;}}
     ratio=WB>0?(paid+GW)/WB:0;cc.wagePaid+=paid+GW;cc.wagePriv+=paid;cc.wageShort+=WB-paid-GW;
     if(soc){// cotisations et impôt sur le revenu (écart entre coût du travail et revenu disponible) ; puis pensions et allocations
       const wedge=ratio*(WB-WBd);Sc+=wedge;revY+=wedge;
@@ -1762,7 +1778,7 @@ function run(world,seed,P){
       // loyer d'un locataire du parc privé : une partie de ses dépenses, versée aux bailleurs (pas aux entreprises)
       let rent=0;if(hous&&hPriv[i]&&hU[i]<=eps&&!vac[i]){rent=Math.min(pc,rentAmt);rentPot+=rent;}
       const pf=pc-rent;let netF=pf;
-      if(soc){const v=pf*TVA_RATE/(1+TVA_RATE),tx=tauC+dTauC,vc=(pf-v)*tx/(1+tx);cBaseY+=(pf-v)/(1+tx);Sc+=v+vc;tvaY+=v+vc;poolNext+=pf-v-vc;netF=pf-v-vc;}else poolNext+=pf;
+      if(soc){const v=pf*TVA_RATE/(1+TVA_RATE),tx=tauC+dTauC,vc=(pf-v)*tx/(1+tx);cBaseY+=(pf-v)/(1+tx);Sc+=v+vc;tvaY+=v+vc;pool+=pf-v-vc;salesY+=pf-v-vc;netF=pf-v-vc;}else{pool+=pf;salesY+=pf;}
       // investissement en logement des propriétaires : une part de leurs dépenses, qui accroît leur logement ; 77,7 % à crédit
       let hI=0;if(hous&&hU[i]>eps){hI=pf*hShare*fHinv;hU[i]+=hI/Math.max(pf,eps)*netF/ph;hInvY+=hI;
         if(credit){const ln=HOUSING_INV_CREDIT*hI;Mg[i]+=ln;W[i]+=ln;Mc+=ln;}}
@@ -1779,7 +1795,7 @@ function run(world,seed,P){
     // loyers versés aux bailleurs, au prorata de ce qu'ils possèdent au-delà de leur propre logement (6,2 ans de leur revenu)
     const xs=new Float64Array(N);let sx=0;for(let j=0;j<N;j++){if(vac[j]||hU[j]<=eps)continue;xs[j]=Math.max(0,hU[j]*ph-PRICE_INC*wage[j]*wIdx);sx+=xs[j];}
     if(rentPot>0){if(sx>eps)for(let j=0;j<N;j++){if(xs[j]<=0)continue;const x=rentPot*xs[j]/sx;W[j]+=x;capInc[j]+=x;}
-      else{poolNext+=rentPot;}rentY=rentPot;}
+      else{pool+=rentPot;salesY+=rentPot;}rentY=rentPot;}
     // primo-accession : un locataire de 25 à 59 ans achète un logement (6,2 ans de revenu) à un bailleur, avec 22,3 % d'apport
     for(let i=0;i<N;i++){if(vac[i]||hU[i]>eps)continue;const a=age0[i]+t;if(a<25||a>=60||gH()>=ACC_RATE*fAcc)continue;
       let v=PRICE_INC*wage[i]*wIdx;if(v<=eps||sx<=eps)continue;
@@ -1838,7 +1854,7 @@ function run(world,seed,P){
         else if(uH<hz){if(margin<=0)fs.bankrupt++;
           fm.dead=true;fs.died++;if(fm.f>=0){if(fm.age<5)fail[fm.f]++;else succ[fm.f]++;}
           // économie bouclée : la trésorerie rembourse d'abord la banque ; ce qui n'appartient à personne lui revient aussi
-          defY+=fm.debt;
+          defY+=fm.debt;fm.R+=fm.wcap||0;fm.wcap=0;
           if(closed&&fm.debt>eps&&fm.R>0){const p=Math.min(fm.R,fm.debt);fm.R-=p;fm.debt-=p;if(credit)Mc-=p;else F+=p;}
           /* crédit : reprise de 40 % du capital par les autres entreprises (après la boucle), qui reprennent la dette à hauteur de cette
              valeur ; si la valeur dépasse la dette, elles empruntent la différence, versée aux propriétaires */
