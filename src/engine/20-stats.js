@@ -2,7 +2,7 @@
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
 // séries annuelles moyennées année par année sur les simulations (monnaie, travail, prix, État, banque, logement, démographie)
-const SERIES_KEYS=['tot','gi','uT','cCov','sDebt','sDef','rCons','rConsMean','rNdp','rUtil','rK','mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff'];
+const SERIES_KEYS=['tot','gi','uT','cCov','sDebt','sDef','rCons','rConsMean','rNdp','rUtil','rK','mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff','cInvR','cDivR'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
@@ -40,7 +40,7 @@ function atkinson(x,eps){
 // résultats scalaires moyennés sur les simulations
 const SUM_KEYS=['funded','refused','loans','debt','indebted','fund','refusedDebt','refusedFund','interest','issues','eqRaised','eqPaid','holders',
   'fCreated','fAlive','fBiz5','fBizEx','fOld0','fOldAlive','fDied','fBankrupt','fBankLoss','fDiv','fWear','fInvested','fExtE','fExtB','fUnowned','fValue',
-  'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T','cDrift','cWageShort','cSaveRate','cWageShare','cMargin','sTau','sTax','sWages','sPurch','sInt','sCut','sBond10'];
+  'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T','cDrift','cWageShort','cSaveRate','cWageShare','cMargin','sTau','sTax','sWages','sPurch','sInt','sCut','sBond10','wTop10G'];
 // indicateurs calculés simulation par simulation, pour mesurer la dispersion d'un tirage à l'autre
 const PER_RUN={
   mean:(x,e)=>e.mean, bottom10:(x,e)=>e.bottom10, top1:(x,e)=>e.top1==null?NaN:e.top1, gini:(x,e,T)=>x.gi[T-1],

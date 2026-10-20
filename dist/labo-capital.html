@@ -589,7 +589,7 @@ details.invlist summary{cursor:pointer;font-size:.9rem;font-weight:500;margin-to
     <p class="ssum" id="btsum">Pas encore lancé.</p>
     <div class="score" id="btrows"></div>
     <h3 class="sub" style="margin-top:18px">Indicateurs témoins</h3>
-    <p class="note" style="margin-top:2px">Jamais regardés pour choisir ou régler une partie du modèle : eux seuls mesurent la ressemblance sans que la mise au point ait pu s'y adapter. Les indicateurs ci-dessus ont servi à juger des versions du modèle pendant le recalage d'octobre 2026.</p>
+    <p class="note" style="margin-top:2px">Jamais regardés pour choisir ou régler une partie du modèle : eux seuls mesurent la ressemblance sans que la mise au point ait pu s'y adapter. Les indicateurs ci-dessus ont servi à juger des versions du modèle pendant le recalage d'octobre 2026. Réserve : le test part de 2010 mais garde les paramètres mesurés sur les années récentes (capital et investissement des entreprises de 2023, forme de la distribution du patrimoine de 2021) ; certains témoins (investissement, parts des plus dotés) en héritent une partie de leur valeur de 2024.</p>
     <p class="ssum" id="btwsum"></p>
     <div class="score" id="btwit"></div>
     <p class="note">« Proche » : l'écart à 2024 est plus petit que le chemin parcouru par la France entre 2010 et 2024 (ou 5 % de la valeur). Le départ du modèle reprend la forme de la distribution du patrimoine de 2021, remise à l'échelle de 2010 : le rapport 9e décile / médiane part donc de 5,07 et non de 4,42.</p>
@@ -1041,7 +1041,18 @@ const BANK_RESERVE=0.01, FUND_CASH=0.05;
    productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026).
    Indicateurs témoins (temoin) : jamais regardés pour choisir ou régler une partie du modèle, ils mesurent la ressemblance sans
    biais de mise au point ; les autres ont servi à juger des versions du modèle pendant le recalage d'octobre 2026. Règle : un témoin
-   qui sert à décider d'un choix perd ce statut (le noter dans le carnet). */
+   qui sert à décider d'un choix perd ce statut (le noter dans le carnet).
+   Témoins ajoutés le 20 octobre 2026, choisis et définis avant tout calcul (pré-enregistrement dans le carnet) :
+   - investissement des sociétés non financières : FBCF 201 868 M€ (2010) et 328 705 M€ (2024) ; valeur ajoutée 996 825 et 1 513 050 M€
+     (Eurostat, nasa_10_nf_tr, S11, prix courants, consulté le 20 octobre 2026) ; modèle : investissement et créations / valeur ajoutée
+     des entreprises, moyenne des trois dernières années ;
+   - dividendes nets des sociétés non financières : D42 versés 212 511 et 301 932 M€, reçus 156 875 et 253 787 M€ ; EBE 313 477 et
+     486 553 M€ (même source) ; modèle : dividendes versés / profit brut, moyenne des trois dernières années ;
+   - patrimoine brut : « les 10 % de ménages les mieux dotés concentrent 48 % de la masse totale de patrimoine brut » (2010, Insee
+     Première n° 1380) ; 47,9 % début 2024 (Insee, « Répartition de la masse totale de patrimoine brut entre les ménages ») ; modèle : fin
+     de période, patrimoine brut = actifs sans déduire les dettes. Le témoin avait été pré-enregistré sur le patrimoine net ; l'Insee ne
+     publie la part de 2010 que pour le patrimoine brut : la mesure du modèle a été alignée avant tout calcul.
+   - en attente : prix des logements rapporté au revenu disponible par ménage (Eurostat indisponible le 20 octobre 2026). */
 const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863,defT:0.072,save:0.069,rB:0.025/0.863,gW:0.132,gP:0.054+0.048,hik:0.061,
     gdpHH:1996.0751e9/27.7859e6/19270,m0:(113500/19270)/(124800/23160),prodG:0.004},
   refs:[
@@ -1056,7 +1067,10 @@ const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863
     {k:'infl',l:'Inflation annuelle moyenne, 2011-2019',yb:'2011-19',a:0.017,b:0.0123,u:'pct',src:'Eurostat, prc_hicp_aind (IPCH)',url:'https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_aind/default/table?lang=fr'},
     {k:'growth',l:'Croissance annuelle moyenne du PIB en volume, 2011-2019',yb:'2011-19',a:0.020,b:0.0134,u:'pct',src:'Eurostat, nama_10_gdp',url:'https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table?lang=fr'},
     {k:'wmed',temoin:1,l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
-    {k:'wd9',temoin:1,l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
+    {k:'wd9',temoin:1,l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'},
+    {k:'inv',temoin:1,l:'Taux d\'investissement des sociétés non financières (FBCF / valeur ajoutée)',a:201868/996825,b:328705/1513050,u:'pct',src:'Eurostat, nasa_10_nf_tr (S11, P51G et B1G)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
+    {k:'div',temoin:1,l:'Dividendes nets versés / excédent brut d\'exploitation des sociétés non financières',a:(212511-156875)/313477,b:(301932-253787)/486553,u:'pct',src:'Eurostat, nasa_10_nf_tr (S11, D42 versés − reçus, B2A3G)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
+    {k:'top10g',temoin:1,l:'Part du patrimoine brut détenue par les 10 % les mieux dotés',a:0.48,b:0.479,u:'pct',src:'Insee Première n° 1380 (2010) ; Insee, enquêtes Histoire de vie et Patrimoine (2024)',url:'https://www.insee.fr/fr/statistiques/2502915'}]};
 
 /* ---------- création monétaire par le crédit ----------
    « Les crédits font les dépôts » (Banque de France, « Comment est créée la monnaie ») : un prêt crée de la monnaie,
@@ -1559,6 +1573,7 @@ function run(world,seed,P){
   const sPub=new Float64Array(T),sPO=new Float64Array(T),deathsT=new Float64Array(T),retSh=new Float64Array(T);let deaths=0;
   // séries annuelles : logement (h…) et banque (k…)
   const hOwn=new Float64Array(T),hMort=new Float64Array(T),hVal=new Float64Array(T),hRent=new Float64Array(T),hAcc=new Float64Array(T);
+  const cInvR=new Float64Array(T),cDivR=new Float64Array(T);
   const kDef=new Float64Array(T),kEq=new Float64Array(T),kBail=new Float64Array(T),kCred=new Float64Array(T),kCET1=new Float64Array(T),kM=new Float64Array(T);
   let rhoS=1,LCsoc0=0;
   // calage de l'épargne : patrimoine / revenu et taux d'épargne par quintile (Q) et par case âge × quintile (Cell)
@@ -1709,10 +1724,12 @@ function run(world,seed,P){
   // variables de l'année, remises à zéro au début de chaque année
   let infl=0,feeB=0,feeQ=0,rentAmt=0,rM=0,ratio=1,sales=0,GW=0,kappa=0,E=0,piPaid=0;
   let levyY=0,subY=0,revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0,benE=0,rentPot=0,mortIntY=0,hInvY=0,rentY=0,accY=0;
+  // mesures des témoins (sans effet sur la simulation) : investissement et dividendes de l'année, valeur ajoutée et profit cumulés jusqu'à l'an passé
+  let invY=0,divY=0,vaPrev=0,profPrev=0,top10G=0;
   for(let t=0;t<T;t++){
     if(t>0)partic.update(pricesOn&&Pnet!==1?Float64Array.from(net,v=>v/Pnet):net,t);
     infl=0;ratio=1;sales=0;GW=0;kappa=0;E=0;piPaid=0;cBase=cBaseY;cBaseY=0;
-    revY=0;trY=0;trF=1;levyY=0;subY=0;tvaY=0;GPy=0;INTy=0;benE=0;rentPot=0;mortIntY=0;hInvY=0;rentY=0;accY=0;
+    revY=0;trY=0;trF=1;levyY=0;subY=0;tvaY=0;GPy=0;INTy=0;benE=0;rentPot=0;mortIntY=0;hInvY=0;rentY=0;accY=0;invY=0;divY=0;
     updatePrices(t);                 // salaires, marge, prix ; réévaluation du capital
     centralBank(t);                  // taux directeur et taux bancaires
     startOfYear(t);                  // prix des logements, retraites, propensions à consommer
@@ -1952,8 +1969,8 @@ function run(world,seed,P){
         let keepE=0;if(credit){const In=Math.max(0,P.invest*fInv*fm.K-wear);keepE=Math.min(piNet,(1-SNF_CREDIT_K)*In+LEV_ADJ*Math.max(0,fm.debt-SNF_CREDIT_K*fm.K));}
         const distr=piNet-keepE;
         // gains libres : une part P.payout du reste est versée ; gains interdits : tout le reste est versé, dans la limite des mises
-        if(world==='L'){const d=distr*P.payout;fm.R+=pi-d+distribute(fm,d,capped,W,funds.income,fs,capInc);}
-        else{const keep=pi-piNet;fm.R+=keep+keepE+distribute(fm,distr,capped,W,funds.income,fs,capInc);fm.Rw=(fm.Rw||0)+keep;}
+        if(world==='L'){const d=distr*P.payout,k=distribute(fm,d,capped,W,funds.income,fs,capInc);divY+=d-k;fm.R+=pi-d+k;}
+        else{const keep=pi-piNet,k=distribute(fm,distr,capped,W,funds.income,fs,capInc);divY+=distr-k;fm.R+=keep+keepE+k;fm.Rw=(fm.Rw||0)+keep;}
         // investissement : d'abord sur les réserves, puis bourse et banque pour le reste
         // gains interdits : les réserves réinvesties n'appartiennent à personne, sauf la part qui ne fait que compenser l'usure (Rw)
         const I=P.invest*fInv*fm.K;const fromR=Math.min(fm.R,I);fm.R-=fromR;
@@ -1966,7 +1983,7 @@ function run(world,seed,P){
             if(world==='L'){const totC=totalStake(fm);const V=Math.max(eps,fm.K+fm.R-fm.debt);const f=V/Math.max(totC,eps);const hc=fm.hc;for(let k=0;k<fm.n;k++)hc[k]*=f;fm.selfC*=f;}
             const res=funds.raise(nE);for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);got+=res.got;fs.extE+=res.got;}
           if(nB>eps){if(credit)Mc+=nB;else F-=nB;fm.debt+=nB;got+=nB;fs.extB+=nB;}}
-        fm.K+=fromR+got;fs.invested+=fromR+got;
+        fm.K+=fromR+got;fs.invested+=fromR+got;invY+=fromR+got;
         if(closed){poolNext+=fromR+got;
           // trésorerie : l'entreprise garde ce qu'il lui faut pour investir l'année suivante et verse le reste à ses propriétaires
           // (sociétés non financières 2023 : épargne brute 320 Md€ pour 336 Md€ d'investissement, autofinancement ≈ 95 %) ;
@@ -1974,7 +1991,7 @@ function run(world,seed,P){
           const target=P.invest*fm.K;
           // la trésorerie en excès rembourse d'abord la dette au-delà de la dette cible (47 % du capital), puis revient aux propriétaires
           if(credit&&fm.R>target){const rp=Math.min(fm.R-target,Math.max(0,fm.debt-SNF_CREDIT_K*fm.K));if(rp>0){fm.R-=rp;fm.debt-=rp;Mc-=rp;}}
-          if(fm.R>target){const ex=fm.R-target;const left=distribute(fm,ex,capped,W,funds.income,fs,capInc);
+          if(fm.R>target){const ex=fm.R-target;const left=distribute(fm,ex,capped,W,funds.income,fs,capInc);divY+=ex-left;
             // gains interdits, règle des SCOP : ce que les propriétaires ne peuvent plus recevoir (mises remboursées) va aux salariés
             if(capped&&closed){scopPot+=left;fs.scopPaid+=left;fm.R=target;}else fm.R=target+left;if(capped)fm.Rw=Math.min(fm.Rw||0,fm.R);}}}
       if(recK>eps){// reprise des actifs des entreprises disparues, au prorata du capital des entreprises restantes, avec la dette correspondante
@@ -2024,7 +2041,7 @@ function run(world,seed,P){
         const totalE=needE+feeQ;res=funds.raise(totalE);
         raised=totalE;st.issues++;st.eqRaised+=totalE;st.holders+=res.hi.length;}
       st.funded++;
-      if(closed){poolNext+=ci;feePot+=(needB>0?feeB:0)+(needE>0?feeQ:0);}
+      if(closed){poolNext+=ci;invY+=ci;feePot+=(needB>0?feeB:0)+(needE>0?feeQ:0);}
       if(firmOn){// le projet devient une entreprise : capital, dette propre, propriétaires (fondateur et fonds)
         const fm=newHoldings({},8);addHolder(fm,i,Math.max(own,1e-6),Math.max(own,1e-6));
         if(raised>0)for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);
@@ -2085,6 +2102,8 @@ function run(world,seed,P){
   }
   // fin d'année (économie bouclée) : frais reversés en salaires, PIB, comptes publics, indicateurs
   function closeYear(t){
+    // témoins : taux d'investissement (investissement et créations / valeur ajoutée des entreprises) et dividendes versés / profit brut
+    {const va=cc.wagePriv+cc.profit+cc.prodTax-cc.sub;cInvR[t]=va-vaPrev>0?invY/(va-vaPrev):0;cDivR[t]=cc.profit-profPrev>0?divY/(cc.profit-profPrev):0;vaPrev=va;profPrev=cc.profit;}
     // les coûts de la banque et des fonds sont les salaires de leurs employés (répartis comme les salaires) ; les dépenses de l'année font les ventes de la suivante
     let sw=0;for(let i=0;i<N;i++)sw+=wage[i]*emp[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]*emp[i]/sw;W[i]+=x;capInc[i]+=x;}
     // part des salariés (gains interdits) : un complément de salaire, au prorata des salaires
@@ -2114,7 +2133,10 @@ function run(world,seed,P){
     {const fv=funds.value(eqv);fs.fundV=fv.total;fs.fundUn=fv.unclaimed;unowned+=fv.unclaimed;}
     fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned/Pidx;Pnet=Pidx;
     wearY=0;
-    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i]+hU[i]*ph-Mg[i];s+=net[i];}tot[t]=s/Pidx;gi[t]=gini(nAlive<N?liveOf(net):net);
+    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i]+hU[i]*ph-Mg[i];s+=net[i];}tot[t]=s/Pidx;
+    // témoin, la dernière année : part du patrimoine brut (actifs, dettes non déduites) détenue par les 10 % les mieux dotés en patrimoine brut
+    if(t===T-1){const g=new Float64Array(nAlive);let k=0;for(let i=0;i<N;i++)if(!vac[i])g[k++]=Math.max(W[i],0)+D[i]+eqSave[i]+eqv[i]+Bh[i]+hU[i]*ph;g.sort();
+      const k10=Math.max(1,Math.round(nAlive*0.1));let tg=0,t10=0;for(let m=0;m<nAlive;m++){tg+=g[m];if(m>=nAlive-k10)t10+=g[m];}top10G=tg>0?t10/tg:0;}gi[t]=gini(nAlive<N?liveOf(net):net);
     {let a=0,d=0,o=0,e=0;for(let i=0;i<N;i++){a+=W[i]+eqSave[i]-L[i];d+=D[i];o+=Bh[i];e+=eqv[i];}bCash[t]=a/nAlive/Pidx;bDep[t]=d/nAlive/Pidx;bBond[t]=o/nAlive/Pidx;bEq[t]=e/nAlive/Pidx;
      let l=0,fd=0;for(let i=0;i<N;i++)l+=L[i];for(const fm of firms)if(!fm.dead)fd+=fm.debt;bSale[t]=(pool+poolNext+feePot+back)/nAlive/Pidx;bBank[t]=(F-d+l+fd+Sc+Bb)/nAlive/Pidx;}
     if(closed&&M0>0){const y=liveOf(net).sort(),c5=y[Math.floor(0.5*y.length)],c9=y[Math.floor(0.9*y.length)];let h0=0,h1=0,h2=0,R=0;
@@ -2159,6 +2181,7 @@ function run(world,seed,P){
     cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     // taux de marge des entreprises au sens de l'Insee : excédent brut / valeur ajoutée des entreprises (salaires privés, coût du travail
     // compris ; impôts sur la production compris dans la valeur ajoutée), sans les salaires publics
+    cInvR,cDivR,wTop10G:top10G,
     cMargin:cc.wagePriv+cc.profit+cc.prodTax-cc.sub>0?cc.profit/(cc.wagePriv+cc.profit+cc.prodTax-cc.sub):0,
     // monnaie : où elle est, et au sens large
     mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,
@@ -2187,7 +2210,7 @@ function endDiagnostics(C,dg,part,vac){const s=new Float64Array(5),c=new Float64
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
 // séries annuelles moyennées année par année sur les simulations (monnaie, travail, prix, État, banque, logement, démographie)
-const SERIES_KEYS=['tot','gi','uT','cCov','sDebt','sDef','rCons','rConsMean','rNdp','rUtil','rK','mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff'];
+const SERIES_KEYS=['tot','gi','uT','cCov','sDebt','sDef','rCons','rConsMean','rNdp','rUtil','rK','mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff','cInvR','cDivR'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
@@ -2225,7 +2248,7 @@ function atkinson(x,eps){
 // résultats scalaires moyennés sur les simulations
 const SUM_KEYS=['funded','refused','loans','debt','indebted','fund','refusedDebt','refusedFund','interest','issues','eqRaised','eqPaid','holders',
   'fCreated','fAlive','fBiz5','fBizEx','fOld0','fOldAlive','fDied','fBankrupt','fBankLoss','fDiv','fWear','fInvested','fExtE','fExtB','fUnowned','fValue',
-  'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T','cDrift','cWageShort','cSaveRate','cWageShare','cMargin','sTau','sTax','sWages','sPurch','sInt','sCut','sBond10'];
+  'fFundPaid','fFundV','fFundUn','fPart0','fPart1','fPart1T','cDrift','cWageShort','cSaveRate','cWageShare','cMargin','sTau','sTax','sWages','sPurch','sInt','sCut','sBond10','wTop10G'];
 // indicateurs calculés simulation par simulation, pour mesurer la dispersion d'un tirage à l'autre
 const PER_RUN={
   mean:(x,e)=>e.mean, bottom10:(x,e)=>e.bottom10, top1:(x,e)=>e.top1==null?NaN:e.top1, gini:(x,e,T)=>x.gi[T-1],
@@ -2299,11 +2322,14 @@ function backtestCard(w,P){
   const med=net&&net.length?net[Math.floor(net.length/2)]:null,d9=net&&net.length?net[Math.floor(net.length*0.9)]:null;
   // moyennes des années 1 à 9 du modèle (2011-2019) ; croissance du produit net réel de l'ensemble des ménages
   const t9=Math.min(9,L),avgI=(()=>{let s=0;for(let t=1;t<=t9;t++)s+=w.pInfl[t];return t9>0?s/t9:null;})();
+  const avg3=a=>{let x=0,n=0;for(let t=Math.max(0,L-2);t<=L;t++){x+=a[t];n++;}return n?x/n:null;};
   const tot=t=>w.rNdp[t]*(w.hhN?w.hhN[t]:1),grow=t9>0&&tot(1)>0?Math.pow(tot(t9)/tot(1),1/(t9-1||1))-1:null;
   const M={unemp:w.lU[L],ulong:w.lLong[L],debt:w.sDebt[L],deficit:w.sDef[L],spend:w.sPub[L],po:w.sPO[L],margin:w.cMargin,save:w.cSaveRate,infl:avgI,growth:grow,
-    wmed:med!=null&&wr>0?med/wr:null,wd9:med>0?d9/med:null};
+    wmed:med!=null&&wr>0?med/wr:null,wd9:med>0?d9/med:null,
+    // témoins ajoutés le 20 octobre 2026 : moyennes des trois dernières années pour les flux
+    inv:w.cInvR?avg3(w.cInvR):null,div:w.cDivR?avg3(w.cDivR):null,top10g:w.wTop10G??null};
   const S0={unemp:w.lU[0],ulong:w.lLong[Math.min(2,L)],debt:w.sDebt[0],deficit:w.sDef[0],spend:w.sPub[0],po:w.sPO[0],margin:null,save:null,infl:null,growth:null,
-    wmed:WEALTH_Q[5][1]*(P.m0||1),wd9:WEALTH_Q[9][1]/WEALTH_Q[5][1]};
+    wmed:WEALTH_Q[5][1]*(P.m0||1),wd9:WEALTH_Q[9][1]/WEALTH_Q[5][1],inv:null,div:null,top10g:null};
   return BACKTEST.refs.map(r=>{const m=M[r.k],m0=S0[r.k];const dirOK=m==null?null:Math.sign(m-r.a)===Math.sign(r.b-r.a)||Math.abs(r.b-r.a)<1e-9;
     const err=m==null?null:Math.abs(m-r.b)/Math.max(Math.abs(r.b-r.a),Math.abs(r.b)*0.05);return {...r,m,m0,dirOK,close:err!=null&&err<=1};});
 }
@@ -2369,7 +2395,7 @@ const INVENTORY=[
   {d:'Entreprises',l:'Rentabilités ramenées au profit que le modèle dégage au départ',c:'A',auto:1,f:'profit d\'ensemble de départ (identité comptable)'},
   {d:'Entreprises',k:'BIG_RHO',l:'Rentabilité des grandes entreprises agrégées',v:'15,6 %',c:'M',s:'Insee 2025'},
   {d:'Entreprises',k:'RHO_CAP',l:'Rentabilité maximale',v:'150 %',c:'C',t:1},
-  {d:'Entreprises',k:'invest',l:'Investissement brut / capital',v:'11 %',c:'M',s:'Insee, tableau 7.101'},
+  {d:'Entreprises',k:'invest',l:'Investissement brut / capital',v:'11 %',c:'M',s:'Insee, tableau 7.101 (2023)',f:'impose en partie le témoin « investissement » du test 2010 → 2024'},
   {d:'Entreprises',k:'depr',l:'Usure du capital',v:'9,3 %',c:'M',s:'Insee, tableau 7.101'},
   {d:'Entreprises',k:'payout',l:'Part du profit net distribuée',v:'50 %',c:'C'},
   {d:'Entreprises',k:'DEBT_AMORT',l:'Remboursement annuel de la dette',v:'10 %',c:'C'},

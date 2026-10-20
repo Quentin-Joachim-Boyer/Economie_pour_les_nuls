@@ -59,7 +59,7 @@ const INVENTORY=[
   {d:'Entreprises',l:'Rentabilités ramenées au profit que le modèle dégage au départ',c:'A',auto:1,f:'profit d\'ensemble de départ (identité comptable)'},
   {d:'Entreprises',k:'BIG_RHO',l:'Rentabilité des grandes entreprises agrégées',v:'15,6 %',c:'M',s:'Insee 2025'},
   {d:'Entreprises',k:'RHO_CAP',l:'Rentabilité maximale',v:'150 %',c:'C',t:1},
-  {d:'Entreprises',k:'invest',l:'Investissement brut / capital',v:'11 %',c:'M',s:'Insee, tableau 7.101'},
+  {d:'Entreprises',k:'invest',l:'Investissement brut / capital',v:'11 %',c:'M',s:'Insee, tableau 7.101 (2023)',f:'impose en partie le témoin « investissement » du test 2010 → 2024'},
   {d:'Entreprises',k:'depr',l:'Usure du capital',v:'9,3 %',c:'M',s:'Insee, tableau 7.101'},
   {d:'Entreprises',k:'payout',l:'Part du profit net distribuée',v:'50 %',c:'C'},
   {d:'Entreprises',k:'DEBT_AMORT',l:'Remboursement annuel de la dette',v:'10 %',c:'C'},

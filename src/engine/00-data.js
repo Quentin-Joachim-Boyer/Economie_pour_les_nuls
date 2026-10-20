@@ -310,7 +310,18 @@ const BANK_RESERVE=0.01, FUND_CASH=0.05;
    productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026).
    Indicateurs témoins (temoin) : jamais regardés pour choisir ou régler une partie du modèle, ils mesurent la ressemblance sans
    biais de mise au point ; les autres ont servi à juger des versions du modèle pendant le recalage d'octobre 2026. Règle : un témoin
-   qui sert à décider d'un choix perd ce statut (le noter dans le carnet). */
+   qui sert à décider d'un choix perd ce statut (le noter dans le carnet).
+   Témoins ajoutés le 20 octobre 2026, choisis et définis avant tout calcul (pré-enregistrement dans le carnet) :
+   - investissement des sociétés non financières : FBCF 201 868 M€ (2010) et 328 705 M€ (2024) ; valeur ajoutée 996 825 et 1 513 050 M€
+     (Eurostat, nasa_10_nf_tr, S11, prix courants, consulté le 20 octobre 2026) ; modèle : investissement et créations / valeur ajoutée
+     des entreprises, moyenne des trois dernières années ;
+   - dividendes nets des sociétés non financières : D42 versés 212 511 et 301 932 M€, reçus 156 875 et 253 787 M€ ; EBE 313 477 et
+     486 553 M€ (même source) ; modèle : dividendes versés / profit brut, moyenne des trois dernières années ;
+   - patrimoine brut : « les 10 % de ménages les mieux dotés concentrent 48 % de la masse totale de patrimoine brut » (2010, Insee
+     Première n° 1380) ; 47,9 % début 2024 (Insee, « Répartition de la masse totale de patrimoine brut entre les ménages ») ; modèle : fin
+     de période, patrimoine brut = actifs sans déduire les dettes. Le témoin avait été pré-enregistré sur le patrimoine net ; l'Insee ne
+     publie la part de 2010 que pour le patrimoine brut : la mesure du modèle a été alignée avant tout calcul.
+   - en attente : prix des logements rapporté au revenu disponible par ménage (Eurostat indisponible le 20 octobre 2026). */
 const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863,defT:0.072,save:0.069,rB:0.025/0.863,gW:0.132,gP:0.054+0.048,hik:0.061,
     gdpHH:1996.0751e9/27.7859e6/19270,m0:(113500/19270)/(124800/23160),prodG:0.004},
   refs:[
@@ -325,7 +336,10 @@ const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863
     {k:'infl',l:'Inflation annuelle moyenne, 2011-2019',yb:'2011-19',a:0.017,b:0.0123,u:'pct',src:'Eurostat, prc_hicp_aind (IPCH)',url:'https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_aind/default/table?lang=fr'},
     {k:'growth',l:'Croissance annuelle moyenne du PIB en volume, 2011-2019',yb:'2011-19',a:0.020,b:0.0134,u:'pct',src:'Eurostat, nama_10_gdp',url:'https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table?lang=fr'},
     {k:'wmed',temoin:1,l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
-    {k:'wd9',temoin:1,l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
+    {k:'wd9',temoin:1,l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'},
+    {k:'inv',temoin:1,l:'Taux d\'investissement des sociétés non financières (FBCF / valeur ajoutée)',a:201868/996825,b:328705/1513050,u:'pct',src:'Eurostat, nasa_10_nf_tr (S11, P51G et B1G)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
+    {k:'div',temoin:1,l:'Dividendes nets versés / excédent brut d\'exploitation des sociétés non financières',a:(212511-156875)/313477,b:(301932-253787)/486553,u:'pct',src:'Eurostat, nasa_10_nf_tr (S11, D42 versés − reçus, B2A3G)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
+    {k:'top10g',temoin:1,l:'Part du patrimoine brut détenue par les 10 % les mieux dotés',a:0.48,b:0.479,u:'pct',src:'Insee Première n° 1380 (2010) ; Insee, enquêtes Histoire de vie et Patrimoine (2024)',url:'https://www.insee.fr/fr/statistiques/2502915'}]};
 
 /* ---------- création monétaire par le crédit ----------
    « Les crédits font les dépôts » (Banque de France, « Comment est créée la monnaie ») : un prêt crée de la monnaie,

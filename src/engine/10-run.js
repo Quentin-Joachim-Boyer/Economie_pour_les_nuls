@@ -102,6 +102,7 @@ function run(world,seed,P){
   const sPub=new Float64Array(T),sPO=new Float64Array(T),deathsT=new Float64Array(T),retSh=new Float64Array(T);let deaths=0;
   // séries annuelles : logement (h…) et banque (k…)
   const hOwn=new Float64Array(T),hMort=new Float64Array(T),hVal=new Float64Array(T),hRent=new Float64Array(T),hAcc=new Float64Array(T);
+  const cInvR=new Float64Array(T),cDivR=new Float64Array(T);
   const kDef=new Float64Array(T),kEq=new Float64Array(T),kBail=new Float64Array(T),kCred=new Float64Array(T),kCET1=new Float64Array(T),kM=new Float64Array(T);
   let rhoS=1,LCsoc0=0;
   // calage de l'épargne : patrimoine / revenu et taux d'épargne par quintile (Q) et par case âge × quintile (Cell)
@@ -252,10 +253,12 @@ function run(world,seed,P){
   // variables de l'année, remises à zéro au début de chaque année
   let infl=0,feeB=0,feeQ=0,rentAmt=0,rM=0,ratio=1,sales=0,GW=0,kappa=0,E=0,piPaid=0;
   let levyY=0,subY=0,revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0,benE=0,rentPot=0,mortIntY=0,hInvY=0,rentY=0,accY=0;
+  // mesures des témoins (sans effet sur la simulation) : investissement et dividendes de l'année, valeur ajoutée et profit cumulés jusqu'à l'an passé
+  let invY=0,divY=0,vaPrev=0,profPrev=0,top10G=0;
   for(let t=0;t<T;t++){
     if(t>0)partic.update(pricesOn&&Pnet!==1?Float64Array.from(net,v=>v/Pnet):net,t);
     infl=0;ratio=1;sales=0;GW=0;kappa=0;E=0;piPaid=0;cBase=cBaseY;cBaseY=0;
-    revY=0;trY=0;trF=1;levyY=0;subY=0;tvaY=0;GPy=0;INTy=0;benE=0;rentPot=0;mortIntY=0;hInvY=0;rentY=0;accY=0;
+    revY=0;trY=0;trF=1;levyY=0;subY=0;tvaY=0;GPy=0;INTy=0;benE=0;rentPot=0;mortIntY=0;hInvY=0;rentY=0;accY=0;invY=0;divY=0;
     updatePrices(t);                 // salaires, marge, prix ; réévaluation du capital
     centralBank(t);                  // taux directeur et taux bancaires
     startOfYear(t);                  // prix des logements, retraites, propensions à consommer
@@ -495,8 +498,8 @@ function run(world,seed,P){
         let keepE=0;if(credit){const In=Math.max(0,P.invest*fInv*fm.K-wear);keepE=Math.min(piNet,(1-SNF_CREDIT_K)*In+LEV_ADJ*Math.max(0,fm.debt-SNF_CREDIT_K*fm.K));}
         const distr=piNet-keepE;
         // gains libres : une part P.payout du reste est versée ; gains interdits : tout le reste est versé, dans la limite des mises
-        if(world==='L'){const d=distr*P.payout;fm.R+=pi-d+distribute(fm,d,capped,W,funds.income,fs,capInc);}
-        else{const keep=pi-piNet;fm.R+=keep+keepE+distribute(fm,distr,capped,W,funds.income,fs,capInc);fm.Rw=(fm.Rw||0)+keep;}
+        if(world==='L'){const d=distr*P.payout,k=distribute(fm,d,capped,W,funds.income,fs,capInc);divY+=d-k;fm.R+=pi-d+k;}
+        else{const keep=pi-piNet,k=distribute(fm,distr,capped,W,funds.income,fs,capInc);divY+=distr-k;fm.R+=keep+keepE+k;fm.Rw=(fm.Rw||0)+keep;}
         // investissement : d'abord sur les réserves, puis bourse et banque pour le reste
         // gains interdits : les réserves réinvesties n'appartiennent à personne, sauf la part qui ne fait que compenser l'usure (Rw)
         const I=P.invest*fInv*fm.K;const fromR=Math.min(fm.R,I);fm.R-=fromR;
@@ -509,7 +512,7 @@ function run(world,seed,P){
             if(world==='L'){const totC=totalStake(fm);const V=Math.max(eps,fm.K+fm.R-fm.debt);const f=V/Math.max(totC,eps);const hc=fm.hc;for(let k=0;k<fm.n;k++)hc[k]*=f;fm.selfC*=f;}
             const res=funds.raise(nE);for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);got+=res.got;fs.extE+=res.got;}
           if(nB>eps){if(credit)Mc+=nB;else F-=nB;fm.debt+=nB;got+=nB;fs.extB+=nB;}}
-        fm.K+=fromR+got;fs.invested+=fromR+got;
+        fm.K+=fromR+got;fs.invested+=fromR+got;invY+=fromR+got;
         if(closed){poolNext+=fromR+got;
           // trésorerie : l'entreprise garde ce qu'il lui faut pour investir l'année suivante et verse le reste à ses propriétaires
           // (sociétés non financières 2023 : épargne brute 320 Md€ pour 336 Md€ d'investissement, autofinancement ≈ 95 %) ;
@@ -517,7 +520,7 @@ function run(world,seed,P){
           const target=P.invest*fm.K;
           // la trésorerie en excès rembourse d'abord la dette au-delà de la dette cible (47 % du capital), puis revient aux propriétaires
           if(credit&&fm.R>target){const rp=Math.min(fm.R-target,Math.max(0,fm.debt-SNF_CREDIT_K*fm.K));if(rp>0){fm.R-=rp;fm.debt-=rp;Mc-=rp;}}
-          if(fm.R>target){const ex=fm.R-target;const left=distribute(fm,ex,capped,W,funds.income,fs,capInc);
+          if(fm.R>target){const ex=fm.R-target;const left=distribute(fm,ex,capped,W,funds.income,fs,capInc);divY+=ex-left;
             // gains interdits, règle des SCOP : ce que les propriétaires ne peuvent plus recevoir (mises remboursées) va aux salariés
             if(capped&&closed){scopPot+=left;fs.scopPaid+=left;fm.R=target;}else fm.R=target+left;if(capped)fm.Rw=Math.min(fm.Rw||0,fm.R);}}}
       if(recK>eps){// reprise des actifs des entreprises disparues, au prorata du capital des entreprises restantes, avec la dette correspondante
@@ -567,7 +570,7 @@ function run(world,seed,P){
         const totalE=needE+feeQ;res=funds.raise(totalE);
         raised=totalE;st.issues++;st.eqRaised+=totalE;st.holders+=res.hi.length;}
       st.funded++;
-      if(closed){poolNext+=ci;feePot+=(needB>0?feeB:0)+(needE>0?feeQ:0);}
+      if(closed){poolNext+=ci;invY+=ci;feePot+=(needB>0?feeB:0)+(needE>0?feeQ:0);}
       if(firmOn){// le projet devient une entreprise : capital, dette propre, propriétaires (fondateur et fonds)
         const fm=newHoldings({},8);addHolder(fm,i,Math.max(own,1e-6),Math.max(own,1e-6));
         if(raised>0)for(let k=0;k<res.hi.length;k++)addHolder(fm,res.hi[k],res.hc[k],res.hc[k]);
@@ -628,6 +631,8 @@ function run(world,seed,P){
   }
   // fin d'année (économie bouclée) : frais reversés en salaires, PIB, comptes publics, indicateurs
   function closeYear(t){
+    // témoins : taux d'investissement (investissement et créations / valeur ajoutée des entreprises) et dividendes versés / profit brut
+    {const va=cc.wagePriv+cc.profit+cc.prodTax-cc.sub;cInvR[t]=va-vaPrev>0?invY/(va-vaPrev):0;cDivR[t]=cc.profit-profPrev>0?divY/(cc.profit-profPrev):0;vaPrev=va;profPrev=cc.profit;}
     // les coûts de la banque et des fonds sont les salaires de leurs employés (répartis comme les salaires) ; les dépenses de l'année font les ventes de la suivante
     let sw=0;for(let i=0;i<N;i++)sw+=wage[i]*emp[i];if(sw>0&&feePot>0)for(let i=0;i<N;i++){const x=feePot*wage[i]*emp[i]/sw;W[i]+=x;capInc[i]+=x;}
     // part des salariés (gains interdits) : un complément de salaire, au prorata des salaires
@@ -657,7 +662,10 @@ function run(world,seed,P){
     {const fv=funds.value(eqv);fs.fundV=fv.total;fs.fundUn=fv.unclaimed;unowned+=fv.unclaimed;}
     fs.unowned=unowned;fs.firmV=firmV;uT[t]=unowned/Pidx;Pnet=Pidx;
     wearY=0;
-    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i]+hU[i]*ph-Mg[i];s+=net[i];}tot[t]=s/Pidx;gi[t]=gini(nAlive<N?liveOf(net):net);
+    let s=0;for(let i=0;i<N;i++){net[i]=W[i]+D[i]+eqSave[i]-L[i]+eqv[i]+Bh[i]+hU[i]*ph-Mg[i];s+=net[i];}tot[t]=s/Pidx;
+    // témoin, la dernière année : part du patrimoine brut (actifs, dettes non déduites) détenue par les 10 % les mieux dotés en patrimoine brut
+    if(t===T-1){const g=new Float64Array(nAlive);let k=0;for(let i=0;i<N;i++)if(!vac[i])g[k++]=Math.max(W[i],0)+D[i]+eqSave[i]+eqv[i]+Bh[i]+hU[i]*ph;g.sort();
+      const k10=Math.max(1,Math.round(nAlive*0.1));let tg=0,t10=0;for(let m=0;m<nAlive;m++){tg+=g[m];if(m>=nAlive-k10)t10+=g[m];}top10G=tg>0?t10/tg:0;}gi[t]=gini(nAlive<N?liveOf(net):net);
     {let a=0,d=0,o=0,e=0;for(let i=0;i<N;i++){a+=W[i]+eqSave[i]-L[i];d+=D[i];o+=Bh[i];e+=eqv[i];}bCash[t]=a/nAlive/Pidx;bDep[t]=d/nAlive/Pidx;bBond[t]=o/nAlive/Pidx;bEq[t]=e/nAlive/Pidx;
      let l=0,fd=0;for(let i=0;i<N;i++)l+=L[i];for(const fm of firms)if(!fm.dead)fd+=fm.debt;bSale[t]=(pool+poolNext+feePot+back)/nAlive/Pidx;bBank[t]=(F-d+l+fd+Sc+Bb)/nAlive/Pidx;}
     if(closed&&M0>0){const y=liveOf(net).sort(),c5=y[Math.floor(0.5*y.length)],c9=y[Math.floor(0.9*y.length)];let h0=0,h1=0,h2=0,R=0;
@@ -702,6 +710,7 @@ function run(world,seed,P){
     cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     // taux de marge des entreprises au sens de l'Insee : excédent brut / valeur ajoutée des entreprises (salaires privés, coût du travail
     // compris ; impôts sur la production compris dans la valeur ajoutée), sans les salaires publics
+    cInvR,cDivR,wTop10G:top10G,
     cMargin:cc.wagePriv+cc.profit+cc.prodTax-cc.sub>0?cc.profit/(cc.wagePriv+cc.profit+cc.prodTax-cc.sub):0,
     // monnaie : où elle est, et au sens large
     mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,
