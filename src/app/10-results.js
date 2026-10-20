@@ -278,7 +278,8 @@ function renderScore(W){
     let lo=Math.min(0,...vals,lo0),hi=Math.max(...vals,hi0)*1.08;if(hi<=lo)hi=lo+1;
     const x=v=>((v-lo)/(hi-lo)*100).toFixed(2)+'%';
     const dot=(v,cls)=>v==null||!isFinite(v)?'':`<span class="dot ${cls}" style="left:${x(v)}" title="${cls==='start'?'départ':'fin'} : ${fv(r,v)}"></span>`;
-    return `<div class="srow${r.set?' set':''}"><div class="slabel">${r.l}<small>France ${r.y} : <a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small></div>
+    const fix=r.fix&&!r.set?`<small>Départ imposé${r.part?' en partie':''} par ${r.fix}.</small>`:'';
+    return `<div class="srow${r.set?' set':''}"><div class="slabel">${r.l}<small>France ${r.y} : <a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small>${fix}</div>
       <div class="strack" role="img" aria-label="${r.l} : France ${fv(r,r.v)}, modèle au départ ${fv(r,r.start)}, à la fin ${fv(r,r.end)}"><span class="axis"></span><span class="band" style="left:${x(lo0)};width:calc(${x(hi0)} - ${x(lo0)})"></span><span class="ref" style="left:${x(r.v)}"></span>${dot(r.start,'start')}${dot(r.end,'end'+(r.okEnd?' ok':''))}</div>
       <div class="sval">France <b>${fv(r,r.v)}</b><br>départ ${fv(r,r.start)}<br>fin <b>${fv(r,r.end)}</b>${r.vEnd!==r.v?`<br>projection ${fv(r,r.vEnd)}`:''}</div></div>`;};
   const meas=S.filter(r=>!r.set),done=meas.filter(r=>r.okEnd!=null),ok=done.filter(r=>r.okEnd).length;
@@ -298,7 +299,9 @@ function renderBacktest(S){
     return `<div class="srow"><div class="slabel">${r.l}<small><a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small></div>
       <div class="strack" role="img" aria-label="${r.l} : France ${BACKTEST.from} ${fv(r,r.a)}, ${r.yb||BACKTEST.to} ${fv(r,r.b)}, modèle ${fv(r,r.m)}"><span class="axis"></span><span class="ref" style="left:${x(r.b)}"></span><span class="dot start" style="left:${x(r.a)}"></span>${r.m!=null&&isFinite(r.m)?`<span class="dot end${r.close?' ok':''}" style="left:${x(r.m)}"></span>`:''}</div>
       <div class="sval">${BACKTEST.from} ${fv(r,r.a)}<br>${r.yb||BACKTEST.to} <b>${fv(r,r.b)}</b><br>modèle <b>${fv(r,r.m)}</b></div></div>`;};
-  const d=S.filter(r=>r.dirOK).length,c=S.filter(r=>r.close).length;
-  setText('btsum',`Évolution dans le bon sens : ${d} indicateurs sur ${S.length} ; proches de la valeur ${BACKTEST.to} : ${c} sur ${S.length}.`);
-  setHTML('btrows',S.map(row).join(''));
+  // indicateurs regardés pendant la mise au point, puis témoins
+  const sum=G=>`Évolution dans le bon sens : ${G.filter(r=>r.dirOK).length} indicateur${G.length>1?'s':''} sur ${G.length} ; proches de la valeur ${BACKTEST.to} : ${G.filter(r=>r.close).length} sur ${G.length}.`;
+  const seen=S.filter(r=>!r.temoin),wit=S.filter(r=>r.temoin);
+  setText('btsum',sum(seen));setHTML('btrows',seen.map(row).join(''));
+  setText('btwsum',wit.length?sum(wit):'');setHTML('btwit',wit.map(row).join(''));
 }

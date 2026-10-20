@@ -5,6 +5,8 @@ const P={...DEF,...ctx.BT.P,N:+process.argv[3]||2000,runs:+process.argv[4]||8,..
 const w=ctx.agg('L',P);const S=ctx.backtestCard(w,P);
 const f=(r,v)=>v==null?'—':r.u==='pct'?(v*100).toFixed(1)+' %':v.toFixed(2);
 console.log(`Test ${ctx.BT.from} → ${ctx.BT.to} (gains libres, ${P.N} ménages, ${P.runs} simulations)`);
-let d=0,c=0;for(const r of S){if(r.dirOK)d++;if(r.close)c++;
-  console.log('  '+r.l.padEnd(60)+` ${ctx.BT.from} ${f(r,r.a).padStart(8)} → ${String(r.yb||ctx.BT.to).padEnd(7)} ${f(r,r.b).padStart(8)} | modèle ${f(r,r.m).padStart(8)} ${r.dirOK?'bon sens':'sens contraire'}${r.close?', proche':''}`);}
-console.log(`Bon sens d'évolution : ${d} / ${S.length} ; proches de ${ctx.BT.to} : ${c} / ${S.length}`);
+// indicateurs regardés pendant la mise au point, puis témoins (jamais utilisés pour choisir ou régler)
+for(const [t,G] of [['regardés pendant la mise au point',S.filter(r=>!r.temoin)],['témoins',S.filter(r=>r.temoin)]]){let d=0,c=0;console.log(' '+t+' :');
+  for(const r of G){if(r.dirOK)d++;if(r.close)c++;
+    console.log('  '+r.l.padEnd(60)+` ${ctx.BT.from} ${f(r,r.a).padStart(8)} → ${String(r.yb||ctx.BT.to).padEnd(7)} ${f(r,r.b).padStart(8)} | modèle ${f(r,r.m).padStart(8)} ${r.dirOK?'bon sens':'sens contraire'}${r.close?', proche':''}`);}
+  console.log(`  bon sens d'évolution : ${d} / ${G.length} ; proches de ${ctx.BT.to} : ${c} / ${G.length}`);}

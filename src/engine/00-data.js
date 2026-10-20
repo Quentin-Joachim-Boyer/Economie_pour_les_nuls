@@ -61,7 +61,7 @@ const FIRM_CATS_TOTAL=FIRM_CATS.reduce((a,c)=>a+c.c,0);
    pour les PME, 49 % en moyenne pondérée pour les grandes entreprises, EBA/Rep/2020/29 ; environ un tiers des défaillances évitent
    la liquidation directe, Altares 2025) ; le reste est perdu. Repère : crédits des entreprises nouvellement défaillantes = 0,45 %
    des crédits aux entreprises par an en moyenne 2010-2019 (0,56 % au pic d'août 2009, mêmes sources). */
-const BIG_FAIL_RATE=0.0012, FIRM_RECOVERY=0.40, DEFAULT_CREDIT_SHARE=0.0045;
+const BIG_FAIL_RATE=0.0012, FIRM_RECOVERY=0.40;
 const FIRM_SIZE_SIGMA=0.8;            // dispersion log-normale de la taille dans une catégorie
 const SHAREHOLDERS_SMALL=10;          // actionnaires d'une PME ou microentreprise existante (en plus du propriétaire)
 const SHAREHOLDERS_BIG=40;            // actionnaires d'une grande entreprise ou ETI existante (pas de propriétaire principal)
@@ -69,8 +69,8 @@ const EXIST_AGE_MIN=5, EXIST_AGE_SPAN=36; // âge des entreprises existantes : 5
 // détenteurs d'entreprises tirés avec un poids patrimoine^2,5 : les 5 % qui en détiennent le plus en ont alors environ 94 % (Insee : 95 %)
 const HOLD_GAMMA=2.5;
 /* usure du capital : compte des sociétés non financières 2023 (Insee, tableau 7.101) : consommation de capital fixe 282 Md€,
-   investissement brut 336 Md€ ; rapportés au capital fixe net (~3 033 Md€, Banque de France) : usure ≈ 9,3 % et investissement ≈ 11 % par an */
-const SNF_CAPITAL_EUR=3033e9, SNF_CCF_EUR=282e9, SNF_GFCF_EUR=336e9;
+   investissement brut 336 Md€ ; rapportés au capital fixe net (~3 033 Md€, Banque de France) : usure ≈ 9,3 % et investissement ≈ 11 % par an
+   (réglages depr et invest de DEF) */
 const RHO_CAP=1.5;                    // rentabilité maximale d'une entreprise
 const HAZARD_MAX=0.9;                 // probabilité annuelle maximale de disparition
 /* vitesse de retour vers la dette cible : plus de 30 % de l'écart résorbé chaque année (Flannery et Rangan, 2006, « Partial adjustment
@@ -137,34 +137,36 @@ const HOURS_PER_JOB=0.88*(0.826*1661+0.174*970)+0.12*1916;
 const WAGE_SHARE0=0.65;
 const MARKUP0=1/WAGE_SHARE0-1;
 const PHILLIPS_THETA=0.30*0.0048*100;
-const WAGE_INDEXATION=4.4/5.2, WAGE_ANCHOR=1;   // part de l'inflation attendue ancrée sur la cible (le reste suit l'inflation de l'année passée)
+const WAGE_ANCHOR=1;   // part de l'inflation attendue ancrée sur la cible (le reste suit l'inflation de l'année passée)
 
 /* ---------- tableau de bord de représentativité : statistiques de référence de la France ----------
    Chaque entrée : valeur de référence, année, source (lien), tolérance (écart jugé acceptable), et nature :
-   « mesure » (résultat du modèle) ou « réglage » (paramètre fixé, montré pour mémoire). Relevé du 15/10/2026. */
+   « mesure » (résultat du modèle) ou « réglage » (set : paramètre fixé, montré pour mémoire). Relevé du 15/10/2026.
+   fix : ce qui impose la valeur de départ du modèle (part : en partie seulement) ; la comparaison au départ n'est alors pas un test,
+   seule l'évolution l'est. Sans fix, l'indicateur est libre dès le départ. Voir l'inventaire des paramètres (40-inventory.js). */
 const REF_FR=[
-  {k:'gini',l:'Gini du patrimoine net',v:0.676,y:'2021',tol:0.03,u:'idx',src:'Insee, RPM 2024, fiche 2.9 (enquête européenne HFCS)',url:'https://www.insee.fr/fr/statistiques/fichier/7941427/RPM2024-F29.pdf'},
-  {k:'top10',l:'Part du patrimoine net détenue par les 10 % les plus dotés',v:0.50,y:'2021',tol:0.05,u:'pct',src:'Insee, RPM 2024, fiche 2.9 (HFCS)',url:'https://www.insee.fr/fr/statistiques/fichier/7941427/RPM2024-F29.pdf'},
-  {k:'wmed',l:'Patrimoine net médian par ménage',v:148100,y:'2024',tol:0.15,rel:1,u:'eur',src:'Insee Focus n° 371 (enquête Histoire de vie et Patrimoine 2023-2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
-  {k:'save',l:'Taux d\'épargne financière des ménages (hors logement)',v:0.090,y:'2025',tol:0.02,u:'pct',src:'Insee Première n° 2105 (taux d\'épargne total : 17,9 %, dont l\'investissement en logement, absent du modèle)',url:'https://www.insee.fr/fr/statistiques/8996855'},
-  {k:'margin',l:'Taux de marge des entreprises, entrepreneurs individuels compris',v:486553/(1513050+138445),y:'2024',tol:0.03,u:'pct',src:'Eurostat, nasa_10_nf_tr : EBE des sociétés non financières / (leur valeur ajoutée + revenu mixte des entrepreneurs individuels). Le modèle compte le revenu des indépendants comme un revenu d\'activité ; sans eux, le taux de marge des sociétés est de 32,2 % en 2025 (Insee Première n° 2105)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
-  {k:'unemp',l:'Taux de chômage',v:0.077,y:'2025',tol:0.015,u:'pct',src:'Insee Première n° 2096 (enquête Emploi)',url:'https://www.insee.fr/fr/statistiques/8901327'},
+  {k:'gini',fix:'la distribution du patrimoine (Insee 2021)',l:'Gini du patrimoine net',v:0.676,y:'2021',tol:0.03,u:'idx',src:'Insee, RPM 2024, fiche 2.9 (enquête européenne HFCS)',url:'https://www.insee.fr/fr/statistiques/fichier/7941427/RPM2024-F29.pdf'},
+  {k:'top10',fix:'la distribution du patrimoine (Insee 2021)',l:'Part du patrimoine net détenue par les 10 % les plus dotés',v:0.50,y:'2021',tol:0.05,u:'pct',src:'Insee, RPM 2024, fiche 2.9 (HFCS)',url:'https://www.insee.fr/fr/statistiques/fichier/7941427/RPM2024-F29.pdf'},
+  {k:'wmed',fix:'la distribution du patrimoine (Insee 2021)',l:'Patrimoine net médian par ménage',v:148100,y:'2024',tol:0.15,rel:1,u:'eur',src:'Insee Focus n° 371 (enquête Histoire de vie et Patrimoine 2023-2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
+  {k:'save',fix:'le taux d\'épargne réglé',l:'Taux d\'épargne financière des ménages (hors logement)',v:0.090,y:'2025',tol:0.02,u:'pct',src:'Insee Première n° 2105 (taux d\'épargne total : 17,9 %, dont l\'investissement en logement, absent du modèle)',url:'https://www.insee.fr/fr/statistiques/8996855'},
+  {k:'margin',fix:'la part des salaires de départ (65 %)',part:1,l:'Taux de marge des entreprises, entrepreneurs individuels compris',v:486553/(1513050+138445),y:'2024',tol:0.03,u:'pct',src:'Eurostat, nasa_10_nf_tr : EBE des sociétés non financières / (leur valeur ajoutée + revenu mixte des entrepreneurs individuels). Le modèle compte le revenu des indépendants comme un revenu d\'activité ; sans eux, le taux de marge des sociétés est de 32,2 % en 2025 (Insee Première n° 2105)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
+  {k:'unemp',fix:'le chômage de départ (7,4 %)',l:'Taux de chômage',v:0.077,y:'2025',tol:0.015,u:'pct',src:'Insee Première n° 2096 (enquête Emploi)',url:'https://www.insee.fr/fr/statistiques/8901327'},
   {k:'ulong',l:'Part des chômeurs depuis un an ou plus',v:0.231,y:'2025',tol:0.05,u:'pct',src:'Insee, L\'essentiel sur le chômage',url:'https://www.insee.fr/fr/statistiques/4805248'},
-  {k:'hours',l:'Heures travaillées par ménage et par an',v:46.27e9/31.27e6,y:'2024',tol:0.05,rel:1,u:'h',src:'Eurostat nama_10_a10_e (46,27 Md d\'heures) ; Insee, 31,27 millions de ménages (2023)',url:'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_a10_e?geo=FR&na_item=EMP_DC&unit=THS_HW&nace_r2=TOTAL&lang=fr'},
-  {k:'infl',l:'Inflation annuelle',v:0.02,y:'cible',tol:0.01,u:'pct',src:'Cible de la BCE (observé : 5,2 % en 2022, 4,9 % en 2023, 2,0 % en 2024, 0,9 % en 2025, Insee)',url:'https://www.insee.fr/fr/statistiques/8726461'},
-  {k:'growth',l:'Croissance annuelle du PIB réel',v:0.0124,y:'2014-2024',tol:0.005,u:'pct',src:'Eurostat tec00115, moyenne géométrique des taux annuels (calcul)',url:'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/tec00115?geo=FR&unit=CLV_PCH_PRE&na_item=B1GQ&lang=fr'},
-  {k:'debt',l:'Dette publique / PIB',v:1.157,y:'2025',tol:0.10,u:'pct',src:'Insee Première n° 2106 (comptes des administrations publiques 2025)',url:'https://www.insee.fr/fr/statistiques/8997691'},
-  {k:'deficit',l:'Déficit public / PIB',v:0.051,y:'2025',tol:0.01,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-  {k:'stock',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
-  {k:'spend',l:'Dépenses publiques / PIB, hors « autres transferts »',v:0.124+0.054+0.044+0.064+0.194+0.022+0.019,y:'2025',tol:0.05,u:'pct',src:'Eurostat, gov_10a_main : rémunérations, consommations intermédiaires, investissement, prestations en nature et en espèces, intérêts, subventions (57,2 % du PIB en tout, dont 5,1 % d\'autres transferts que le modèle n\'a pas)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table?lang=fr'},
-  {k:'po',l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
-  {k:'dep',l:'Personnes de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
+  {k:'hours',fix:'les heures par emploi et les emplois par ménage',l:'Heures travaillées par ménage et par an',v:46.27e9/31.27e6,y:'2024',tol:0.05,rel:1,u:'h',src:'Eurostat nama_10_a10_e (46,27 Md d\'heures) ; Insee, 31,27 millions de ménages (2023)',url:'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_a10_e?geo=FR&na_item=EMP_DC&unit=THS_HW&nace_r2=TOTAL&lang=fr'},
+  {k:'infl',fix:'la cible de la banque centrale et l\'ancrage des salaires',part:1,l:'Inflation annuelle',v:0.02,y:'cible',tol:0.01,u:'pct',src:'Cible de la BCE (observé : 5,2 % en 2022, 4,9 % en 2023, 2,0 % en 2024, 0,9 % en 2025, Insee)',url:'https://www.insee.fr/fr/statistiques/8726461'},
+  {k:'growth',fix:'les gains de productivité réglés',part:1,l:'Croissance annuelle du PIB réel',v:0.0124,y:'2014-2024',tol:0.005,u:'pct',src:'Eurostat tec00115, moyenne géométrique des taux annuels (calcul)',url:'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/tec00115?geo=FR&unit=CLV_PCH_PRE&na_item=B1GQ&lang=fr'},
+  {k:'debt',fix:'la dette de départ',l:'Dette publique / PIB',v:1.157,y:'2025',tol:0.10,u:'pct',src:'Insee Première n° 2106 (comptes des administrations publiques 2025)',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'deficit',fix:'le déficit de départ (impôt résiduel)',l:'Déficit public / PIB',v:0.051,y:'2025',tol:0.01,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'stock',fix:'la part de ménages qui épargnent en actions',l:'Part des ménages détenant des valeurs mobilières',v:0.174,y:'2024',tol:0.03,u:'pct',src:'Insee Focus n° 354',url:'https://www.insee.fr/fr/statistiques/8569009'},
+  {k:'spend',fix:'les salaires et achats publics de départ',part:1,l:'Dépenses publiques / PIB, hors « autres transferts »',v:0.124+0.054+0.044+0.064+0.194+0.022+0.019,y:'2025',tol:0.05,u:'pct',src:'Eurostat, gov_10a_main : rémunérations, consommations intermédiaires, investissement, prestations en nature et en espèces, intérêts, subventions (57,2 % du PIB en tout, dont 5,1 % d\'autres transferts que le modèle n\'a pas)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table?lang=fr'},
+  {k:'po',fix:'les dépenses et le déficit de départ (identité du budget)',part:1,l:'Prélèvements obligatoires / PIB',v:0.436,y:'2025',tol:0.03,u:'pct',src:'Insee Première n° 2106',url:'https://www.insee.fr/fr/statistiques/8997691'},
+  {k:'dep',fix:'la pyramide des âges',l:'Personnes de 65 ans ou plus pour 100 de 20 à 64 ans',v:0.401,y:'2026',tol:0.04,u:'pct',endProj:1,src:'Insee Première n° 2108 (personnes de 65 ans ou plus pour 100 de 20 à 64 ans : 40 en 2026 ; à la fin, comparé à la projection centrale : 49 en 2040, 62 en 2070)',url:'https://www.insee.fr/fr/statistiques/9004289'},
   {k:'fail',l:'Crédits des entreprises défaillantes / crédits aux entreprises (par an, médiane sur 10 ans)',v:0.0045,y:'2010-2019',tol:0.003,u:'pct',src:'Banque de France, calculs BNP Paribas (Eco Flash 24.09, 2024) : moyenne 2010-2019 de 0,45 % ; pic d\'août 2009 : 0,56 %',url:'https://economic-research.bnpparibas.com/pdf/fr-FR/France-Poids-economique-defaillances-entreprises-niveaux-eleves-relativiser-20/06/2024,49702'},
-  {k:'credit',l:'Crédits bancaires aux entreprises / PIB',v:1437.1/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, Financement des entreprises, août 2026 (1 437,1 Md€ de crédits aux sociétés non financières) ; PIB 2025 : 2 991,1 Md€ (Insee)',url:'https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08'},
-  {k:'own',l:'Ménages propriétaires d\'un logement',v:0.612,y:'2024',tol:0.05,u:'pct',src:'Insee, taux de détention du patrimoine immobilier, début 2024 (enquête Histoire de vie et Patrimoine)',url:'https://www.insee.fr/fr/statistiques/2412784'},
+  {k:'credit',fix:'la dette des entreprises de départ (47 % du capital)',l:'Crédits bancaires aux entreprises / PIB',v:1437.1/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, Financement des entreprises, août 2026 (1 437,1 Md€ de crédits aux sociétés non financières) ; PIB 2025 : 2 991,1 Md€ (Insee)',url:'https://www.banque-france.fr/fr/statistiques/credit/financement-des-entreprises-2026-08'},
+  {k:'own',fix:'les propriétaires par décile et la primo-accession',l:'Ménages propriétaires d\'un logement',v:0.612,y:'2024',tol:0.05,u:'pct',src:'Insee, taux de détention du patrimoine immobilier, début 2024 (enquête Histoire de vie et Patrimoine)',url:'https://www.insee.fr/fr/statistiques/2412784'},
   {k:'prod',l:'Croissance de la productivité horaire',v:0.007,y:'2000-2025',tol:0.003,u:'pct',set:1,src:'COR, tendances démographiques et économiques, avril 2026 (« autour de 0,7 % par an » sur 25 ans)',url:'https://www.cor-retraites.fr/sites/default/files/2026-04/Doc_04_tendances_d%C3%A9mo_%C3%A9co.pdf'},
   {k:'surv5',l:'Survie à 5 ans des entreprises créées',v:0.69,y:'2018-2023',tol:0.05,u:'pct',set:1,src:'Insee Première n° 2070 (Sine, génération 2018, hors micro-entrepreneurs)',url:'https://insee.fr/fr/statistiques/8634190'},
-  {k:'hhdebt',l:'Crédits à l\'habitat des ménages / PIB',v:1288/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, crédits aux particuliers, août 2026 (1 288 Md€) ; PIB 2025 (Insee)',url:'https://www.banque-france.fr/system/files/2026-10/Stat_info_Credits_aux_particuliers_202608.pdf'}];
+  {k:'hhdebt',fix:'l\'encours de départ et la part de l\'investissement à crédit',l:'Crédits à l\'habitat des ménages / PIB',v:1288/2991.1,y:'2026',tol:0.10,u:'pct',src:'Banque de France, crédits aux particuliers, août 2026 (1 288 Md€) ; PIB 2025 (Insee)',url:'https://www.banque-france.fr/system/files/2026-10/Stat_info_Credits_aux_particuliers_202608.pdf'}];
 
 /* ---------- gains de productivité ----------
    productivité horaire du travail : « le rythme tendanciel de croissance de la productivité horaire s'est établi autour de 0,7 % par an »
@@ -305,12 +307,15 @@ const BANK_RESERVE=0.01, FUND_CASH=0.05;
      médian de 19 270 € : 3,73 années de niveau de vie médian par ménage.
    Hors comptes nationaux : taux d'épargne financière 6,9 % (Insee, base 2005) ; patrimoine net médian 113 500 € pour un niveau de vie
    médian de 19 270 € (5,89 années, contre 5,39 en 2021 : la distribution 2021 est remise à cette échelle) ; taux directeur 0,25 % ;
-   productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026). */
+   productivité horaire : 0,4 % par an sur 15 ans (COR, avril 2026).
+   Indicateurs témoins (temoin) : jamais regardés pour choisir ou régler une partie du modèle, ils mesurent la ressemblance sans
+   biais de mise au point ; les autres ont servi à juger des versions du modèle pendant le recalage d'octobre 2026. Règle : un témoin
+   qui sert à décider d'un choix perd ce statut (le noter dans le carnet). */
 const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863,defT:0.072,save:0.069,rB:0.025/0.863,gW:0.132,gP:0.054+0.048,hik:0.061,
     gdpHH:1996.0751e9/27.7859e6/19270,m0:(113500/19270)/(124800/23160),prodG:0.004},
   refs:[
     {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Eurostat, une_rt_a (définition du BIT)',url:'https://ec.europa.eu/eurostat/databrowser/view/une_rt_a/default/table?lang=fr'},
-    {k:'ulong',l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},
+    {k:'ulong',temoin:1,l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},
     {k:'debt',l:'Dette publique / PIB',a:0.863,b:1.126,u:'pct',src:'Eurostat, gov_10dd_edpt1 (base 2020)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table?lang=fr'},
     {k:'deficit',l:'Déficit public / PIB',a:0.072,b:0.058,u:'pct',src:'Eurostat, gov_10dd_edpt1 (base 2020)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10dd_edpt1/default/table?lang=fr'},
     {k:'spend',l:'Dépenses publiques / PIB, hors « autres transferts »',a:0.132+0.054+0.048+0.061+0.191+0.025+0.017,b:0.124+0.055+0.043+0.063+0.192+0.020+0.020,u:'pct',src:'Eurostat, gov_10a_main (57,7 % et 57,0 % en tout ; les autres transferts, environ 5 % du PIB, sont hors du modèle)',url:'https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table?lang=fr'},
@@ -319,8 +324,8 @@ const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863
     {k:'save',l:'Taux d\'épargne financière (moyenne de la période)',a:0.069,b:0.097,u:'pct',src:'Insee Première n° 1349 et n° 2105',url:'https://www.insee.fr/fr/statistiques/8996855'},
     {k:'infl',l:'Inflation annuelle moyenne, 2011-2019',yb:'2011-19',a:0.017,b:0.0123,u:'pct',src:'Eurostat, prc_hicp_aind (IPCH)',url:'https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_aind/default/table?lang=fr'},
     {k:'growth',l:'Croissance annuelle moyenne du PIB en volume, 2011-2019',yb:'2011-19',a:0.020,b:0.0134,u:'pct',src:'Eurostat, nama_10_gdp',url:'https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table?lang=fr'},
-    {k:'wmed',l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
-    {k:'wd9',l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
+    {k:'wmed',temoin:1,l:'Patrimoine net médian, en années de niveau de vie médian',a:113500/19270,b:148100/26740,u:'x',src:'Insee Première n° 1380 et n° 1412 (2010) ; Insee Focus n° 371 et Insee Première n° 2117 (2024)',url:'https://www.insee.fr/fr/statistiques/8672665'},
+    {k:'wd9',temoin:1,l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'}]};
 
 /* ---------- création monétaire par le crédit ----------
    « Les crédits font les dépôts » (Banque de France, « Comment est créée la monnaie ») : un prêt crée de la monnaie,

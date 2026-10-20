@@ -3,4 +3,4 @@
    ===================================================================== */
 bindPanel();bindTabs();
 $('run').addEventListener('click',launch);
-sync();syncEps();drawPreviews();launch();
+sync();syncEps();drawPreviews();renderInventory();launch();
