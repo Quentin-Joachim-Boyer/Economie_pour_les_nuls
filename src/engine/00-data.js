@@ -4,6 +4,8 @@
    Unité monétaire du modèle : une année de niveau de vie médian.
    ===================================================================== */
 const UNIT_EUR=25760;                 // niveau de vie médian 2023 (Insee)
+// PIB par ménage en unités (provisoire, à sourcer) : 2 991,1 Md€ en 2025 (Insee Première n° 2105) / 31,27 millions de ménages / niveau de vie médian
+const GDP_HH=2991.1e9/31.27e6/26740/1.02;
 const toUnit=e=>e/UNIT_EUR;
 // patrimoine 2021 : converti avec le niveau de vie médian de la même année, 23 160 € (Insee Première n° 1973), pour garder le rapport patrimoine / revenu
 const WEALTH_UNIT_EUR=23160, toUnit21=e=>e/WEALTH_UNIT_EUR;
@@ -69,6 +71,9 @@ const HOLD_GAMMA=2.5;
 const SNF_CAPITAL_EUR=3033e9, SNF_CCF_EUR=282e9, SNF_GFCF_EUR=336e9;
 const RHO_CAP=1.5;                    // rentabilité maximale d'une entreprise
 const HAZARD_MAX=0.9;                 // probabilité annuelle maximale de disparition
+/* vitesse de retour vers la dette cible : plus de 30 % de l'écart résorbé chaque année (Flannery et Rangan, 2006, « Partial adjustment
+   toward target capital structures », Journal of Financial Economics) */
+const LEV_ADJ=0.3;
 const DEBT_AMORT=0.1;                 // remboursement annuel du capital emprunté
 
 /* ---------- consommation (économie bouclée) ----------
@@ -196,7 +201,7 @@ const BEN_UC=[5600,1720,820,500,260], NV_MEAN=30900, HEALTH_INKIND=186/2920;
    impôts sur les produits comme les accises sur l'énergie, impôts sur le patrimoine des ménages, ventes des administrations, revenus
    de la propriété…) est prélevé sur la consommation des ménages, à un taux calé pour que le déficit de départ soit celui observé.
    Recettes publiques totales 2024 : 1 500,6 Md€, 51,4 % du PIB (même source). */
-const PROD_TAX_GDP=72/2920;
+const PROD_TAX_GDP=(79.4-45.9)/2991.1;
 // emplois par ménage actif : 46,27 milliards d'heures (Eurostat, 2024) / 1 586 h par emploi, pour 31,27 millions de ménages dont
 // ceux dont la personne de référence a moins de 62 ans et 9 mois (pyramide des ménages, Insee)
 const ACTIVE_HH_SHARE=(()=>{let a=0,t=0;for(const [lo,hi,n] of AGE_PYRAMID){t+=n;a+=n*Math.max(0,Math.min(1,(RET_AGE-lo)/(hi-lo)));}return a/t;})();
@@ -387,4 +392,4 @@ const FISC_DEF=0.03, FISC_STEP=0.005, FISC_PO=3.1/(3.1+1.6);
    0.4 of a percentage point ») ; la propension à les consommer est donc inférieure de 0,4 à celle des autres revenus. Cohérent avec
    les dividendes versés, consommés à 40-60 % dans l'année (Di Maggio, Kermani et Majlesi, 2020). À long terme, l'équation de la
    Banque de France (Ouvrard et Thubin, 2020) va plus loin : propension « quasi nulle ». */
-const MPC_CAP_GAP=0.4, CAP_INC_SHARE=0.10;
+const MPC_CAP_GAP=0.4, CAP_INC_SHARE=0.12;
