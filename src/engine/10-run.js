@@ -514,7 +514,10 @@ function run(world,seed,P){
           // trésorerie : l'entreprise garde ce qu'il lui faut pour investir l'année suivante et verse le reste à ses propriétaires
           // (sociétés non financières 2023 : épargne brute 320 Md€ pour 336 Md€ d'investissement, autofinancement ≈ 95 %) ;
           // avec gains interdits, ce qui dépasse les mises des propriétaires reste dans l'entreprise
-          const target=P.invest*fm.K;if(fm.R>target){const ex=fm.R-target;const left=distribute(fm,ex,capped,W,funds.income,fs,capInc);
+          const target=P.invest*fm.K;
+          // la trésorerie en excès rembourse d'abord la dette au-delà de la dette cible (47 % du capital), puis revient aux propriétaires
+          if(credit&&fm.R>target){const rp=Math.min(fm.R-target,Math.max(0,fm.debt-SNF_CREDIT_K*fm.K));if(rp>0){fm.R-=rp;fm.debt-=rp;Mc-=rp;}}
+          if(fm.R>target){const ex=fm.R-target;const left=distribute(fm,ex,capped,W,funds.income,fs,capInc);
             // gains interdits, règle des SCOP : ce que les propriétaires ne peuvent plus recevoir (mises remboursées) va aux salariés
             if(capped&&closed){scopPot+=left;fs.scopPaid+=left;fm.R=target;}else fm.R=target+left;if(capped)fm.Rw=Math.min(fm.Rw||0,fm.R);}}}
       if(recK>eps){// reprise des actifs des entreprises disparues, au prorata du capital des entreprises restantes, avec la dette correspondante
