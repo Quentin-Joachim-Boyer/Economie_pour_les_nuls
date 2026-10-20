@@ -71,10 +71,12 @@ Dans `run()`, les étapes de l'année sont des fonctions internes qui partagent 
 - `tests/consistency.js` : les réglages par défaut recopiés des données (`DEF`) correspondent toujours à `00-data.js`, et chaque constante et réglage figure dans l'inventaire des paramètres.
 - `tests/ui.py` : charge la page, lance 4 configurations, compare tout le texte affiché et les tracés SVG. `--shots` enregistre des captures des onglets, `--nospace` ignore les espaces.
 - `tests/backtest.js` : test de validation 2010 → 2024, **mesure principale de la ressemblance avec la France** : le modèle part des conditions de 2010 et est comparé aux données de 2024 (comptes nationaux en base 2020, Eurostat) ; informatif, lancé par `check.sh`. Les indicateurs **témoins** (`temoin:1` dans `BACKTEST.refs`) sont comptés à part : ils ne servent jamais à choisir ou régler une partie du modèle ; un témoin qui a servi à décider perd ce statut (le noter dans le carnet).
-- `tests/score.js` : tableau de bord, départ et fin de simulation comparés à la France d'aujourd'hui ; la fin juge surtout la stabilité sur la durée (informatif, lancé par `check.sh`).
+- `tests/score.js` : tableau de bord, départ et valeurs après 10 ans comparés à la France d'aujourd'hui, et stabilité sur toute la durée (part des simulations où le capital s'effondre, dans les deux mondes) ; informatif, lancé par `check.sh`.
 - `tests/perf.js` : temps par simulation selon le nombre de ménages.
 
 Outils d'analyse (informatifs, hors `check.sh`) :
 
 - `tests/tools/traj.js` : trajectoires moyennes de quelques séries (chômage, inflation, taux, déficit, dette, crédits, capital, Gini), pour des réglages et des mondes donnés ; `--backtest` part de 2010.
+- `tests/tools/compare.js` : deux versions du modèle (deux pages assemblées) sur les mêmes graines, par lots : différence d'écart moyen et intervalle à 95 %. Un progrès n'est retenu que si l'intervalle exclut zéro.
+- `tests/tools/stability.js` : simulations où le capital s'effondre, et l'année, dans chaque monde.
 - `tests/tools/seeds.js` : le tableau de bord (ou, avec `--backtest`, le test 2010 → 2024, témoins à part) sur plusieurs lots de graines, pour juger si un écart entre deux versions dépasse le hasard. Un écart de ±1 indicateur ou de ±0,1 d'écart moyen entre lots est du hasard.

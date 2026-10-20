@@ -277,13 +277,16 @@ function renderScore(W){
     const lo0=r.rel?r.v*(1-r.tol):r.v-r.tol,hi0=r.rel?r.v*(1+r.tol):r.v+r.tol;
     let lo=Math.min(0,...vals,lo0),hi=Math.max(...vals,hi0)*1.08;if(hi<=lo)hi=lo+1;
     const x=v=>((v-lo)/(hi-lo)*100).toFixed(2)+'%';
-    const dot=(v,cls)=>v==null||!isFinite(v)?'':`<span class="dot ${cls}" style="left:${x(v)}" title="${cls==='start'?'départ':'fin'} : ${fv(r,v)}"></span>`;
+    const dot=(v,cls)=>v==null||!isFinite(v)?'':`<span class="dot ${cls}" style="left:${x(v)}" title="${cls==='start'?'départ':'à '+r.hz+' ans'} : ${fv(r,v)}"></span>`;
     const fix=r.fix&&!r.set?`<small>Départ imposé${r.part?' en partie':''} par ${r.fix}.</small>`:'';
     return `<div class="srow${r.set?' set':''}"><div class="slabel">${r.l}<small>France ${r.y} : <a href="${r.url}" target="_blank" rel="noopener">${r.src}</a></small>${fix}</div>
-      <div class="strack" role="img" aria-label="${r.l} : France ${fv(r,r.v)}, modèle au départ ${fv(r,r.start)}, à la fin ${fv(r,r.end)}"><span class="axis"></span><span class="band" style="left:${x(lo0)};width:calc(${x(hi0)} - ${x(lo0)})"></span><span class="ref" style="left:${x(r.v)}"></span>${dot(r.start,'start')}${dot(r.end,'end'+(r.okEnd?' ok':''))}</div>
-      <div class="sval">France <b>${fv(r,r.v)}</b><br>départ ${fv(r,r.start)}<br>fin <b>${fv(r,r.end)}</b>${r.vEnd!==r.v?`<br>projection ${fv(r,r.vEnd)}`:''}</div></div>`;};
+      <div class="strack" role="img" aria-label="${r.l} : France ${fv(r,r.v)}, modèle au départ ${fv(r,r.start)}, à ${r.hz} ans ${fv(r,r.end)}"><span class="axis"></span><span class="band" style="left:${x(lo0)};width:calc(${x(hi0)} - ${x(lo0)})"></span><span class="ref" style="left:${x(r.v)}"></span>${dot(r.start,'start')}${dot(r.end,'end'+(r.okEnd?' ok':''))}</div>
+      <div class="sval">France <b>${fv(r,r.v)}</b><br>départ ${fv(r,r.start)}<br>à ${r.hz} ans <b>${fv(r,r.end)}</b>${r.vEnd!==r.v?`<br>projection ${fv(r,r.vEnd)}`:''}</div></div>`;};
   const meas=S.filter(r=>!r.set),done=meas.filter(r=>r.okEnd!=null),ok=done.filter(r=>r.okEnd).length;
-  setText('scoresum',done.length?`${ok} indicateur${ok>1?'s':''} sur ${done.length} dans l'écart acceptable à la fin de la simulation.`:'Activer l\'économie bouclée pour comparer le modèle à la France.');
+  const hz=S.length?S[0].hz:10,cL=collapseShare(W[0]),cI=collapseShare(W[1]),R=W[0]&&W[0].per&&W[0].per.collapse?W[0].per.collapse.length:0;
+  const pc=v=>v==null?'—':fr(Math.round(v*R))+' sur '+R;
+  setText('scoresum',done.length?`${ok} indicateur${ok>1?'s':''} sur ${done.length} dans l'écart acceptable après ${hz} ans.`:'Activer l\'économie bouclée pour comparer le modèle à la France.');
+  setText('stabsum',done.length&&R?`Stabilité sur ${P.T} ans : le capital des entreprises s'effondre (moins de la moitié du départ) dans ${pc(cL)} simulations avec gains libres, ${pc(cI)} avec gains interdits. Objectif : aucune.`:'');
   setHTML('scorerows',meas.map(row).join(''));setHTML('scoreset',S.filter(r=>r.set).map(row).join(''));
 }
 

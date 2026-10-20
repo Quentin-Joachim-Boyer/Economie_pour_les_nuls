@@ -4,32 +4,34 @@
    Fonction pure : utilisée par la page et par tests/score.js.
    ===================================================================== */
 function scoreCard(w,P){
-  const T=P.T,L=T-1,closed=P.firm&&P.closed;
+  /* horizon de jugement (20 octobre 2026) : année 10 (P.hz), et non la fin de la simulation ; flux en moyenne des années H−4 à H,
+     stocks l'année H. La stabilité sur toute la durée est mesurée à part (part des simulations où le capital s'effondre). */
+  const T=P.T,L=T-1,H=Math.min(L,P.hz??10),closed=P.firm&&P.closed;
   const avg=(a,i0,i1)=>{if(!a)return null;let s=0,n=0;for(let i=Math.max(0,i0);i<=Math.min(a.length-1,i1);i++){s+=a[i];n++;}return n?s/n:null;};
   const growth=(a,i0,i1)=>a&&a[i0]>0&&a[i1]>0&&i1>i0?Math.pow(a[i1]/a[i0],1/(i1-i0))-1:null;
   const medY=(a,i0,i1)=>{const v=Array.from(a).slice(Math.max(0,i0),i1+1).sort((x,y)=>x-y);return v.length?v[Math.floor(v.length/2)]:null;};
   const top10=lor=>lor?1-lor[36]:null;
-  const net=w.eq&&w.eq.net,med=net&&net.length?net[Math.floor(net.length/2)]*UNIT_EUR:null;
-  let topEnd=null;if(net&&net.length){let t=0,s=0;const k=Math.round(net.length*0.1);for(let i=0;i<net.length;i++){t+=net[i];if(i>=net.length-k)s+=net[i];}topEnd=t>0?s/t:null;}
   const M={
-    gini:[w.gini0,w.gi[L]],top10:[top10(w.lor0),topEnd],wmed:[null,med],
-    save:closed?[null,w.cSaveRate]:[null,null],margin:closed?[null,w.cMargin]:[null,null],
-    unemp:P.unemp&&closed?[w.lU[0],w.lU[L]]:[null,null],ulong:P.unemp&&closed?[avg(w.lLong,2,6),avg(w.lLong,L-4,L)]:[null,null],
-    hours:P.unemp&&closed?[w.lHours[0],w.lHours[L]]:[null,null],
-    infl:P.prices&&closed?[avg(w.pInfl,1,10),avg(w.pInfl,L-9,L)]:[null,null],
-    growth:closed?[growth(w.rNdp,0,Math.min(10,L)),growth(w.rNdp,Math.max(0,L-10),L)]:[null,null],
-    debt:P.state&&closed?[w.sDebt[0],w.sDebt[L]]:[null,null],deficit:P.state&&closed?[w.sDef[0],w.sDef[L]]:[null,null],
-    stock:P.stock?[w.fPart0,w.fPart1]:[null,null],
-    fail:closed&&P.bank&&P.credit&&w.kDef?[medY(w.kDef,1,10),medY(w.kDef,L-9,L)]:[null,null],dep:closed&&P.demo&&w.depR?[w.depR[0],w.depR[L]]:[null,null],credit:closed&&P.bank&&P.credit&&w.kCred?[w.kCred[0],w.kCred[L]]:[null,null],
-    spend:P.state&&closed?(P.social?[avg(w.sPub,0,2),avg(w.sPub,L-2,L)]:[P.gW+P.gP+P.rB*P.debt0,null]):[null,null],
-    po:P.state&&closed&&P.social?[avg(w.sPO,0,2),avg(w.sPO,L-2,L)]:[null,null],prod:closed?[P.prodG||0,P.prodG||0]:[0,0],surv5:P.firm?[P.pok,null]:[null,null],
-    hhdebt:closed&&P.housing&&w.hMort?[w.hMort[0],w.hMort[L]]:[null,null],own:closed&&P.housing&&w.hOwn?[w.hOwn[0],w.hOwn[L]]:[null,null]};
-  // vEnd : référence pour la fin (projection Insee pour la démographie, sinon la valeur actuelle)
-  return REF_FR.map(r=>{const [s,e]=M[r.k]||[null,null];const vEnd=r.endProj?DEP_PROJ((P.y0||START_YEAR)+L):r.v;
+    gini:[w.gini0,w.gi[H]],top10:[top10(w.lor0),w.wTop10S?w.wTop10S[H]:null],wmed:[null,w.wMedS?w.wMedS[H]*UNIT_EUR:null],
+    save:closed?[null,avg(w.cSaveS,H-4,H)]:[null,null],margin:closed?[null,avg(w.cMarginS,H-4,H)]:[null,null],
+    unemp:P.unemp&&closed?[w.lU[0],w.lU[H]]:[null,null],ulong:P.unemp&&closed?[avg(w.lLong,2,6),avg(w.lLong,H-4,H)]:[null,null],
+    hours:P.unemp&&closed?[w.lHours[0],w.lHours[H]]:[null,null],
+    infl:P.prices&&closed?[avg(w.pInfl,1,Math.min(10,L)),avg(w.pInfl,H-4,H)]:[null,null],
+    growth:closed?[growth(w.rNdp,0,Math.min(10,L)),growth(w.rNdp,Math.max(0,H-5),H)]:[null,null],
+    debt:P.state&&closed?[w.sDebt[0],w.sDebt[H]]:[null,null],deficit:P.state&&closed?[w.sDef[0],w.sDef[H]]:[null,null],
+    stock:P.stock?[w.fPart0,w.fPartS?w.fPartS[H]:null]:[null,null],
+    fail:closed&&P.bank&&P.credit&&w.kDef?[medY(w.kDef,1,10),medY(w.kDef,Math.max(1,H-9),H)]:[null,null],dep:closed&&P.demo&&w.depR?[w.depR[0],w.depR[H]]:[null,null],credit:closed&&P.bank&&P.credit&&w.kCred?[w.kCred[0],w.kCred[H]]:[null,null],
+    spend:P.state&&closed?(P.social?[avg(w.sPub,0,2),avg(w.sPub,H-2,H)]:[P.gW+P.gP+P.rB*P.debt0,null]):[null,null],
+    po:P.state&&closed&&P.social?[avg(w.sPO,0,2),avg(w.sPO,H-2,H)]:[null,null],prod:closed?[P.prodG||0,P.prodG||0]:[0,0],surv5:P.firm?[P.pok,null]:[null,null],
+    hhdebt:closed&&P.housing&&w.hMort?[w.hMort[0],w.hMort[H]]:[null,null],own:closed&&P.housing&&w.hOwn?[w.hOwn[0],w.hOwn[H]]:[null,null]};
+  // vEnd : référence à l'horizon (projection Insee pour la démographie, sinon la valeur actuelle)
+  return REF_FR.map(r=>{const [s,e]=M[r.k]||[null,null];const vEnd=r.endProj?DEP_PROJ((P.y0||START_YEAR)+H):r.v;
     const gap=(v,ref)=>v==null||!isFinite(v)?null:(r.rel?(v-ref)/ref:v-ref);
     const ok=(v,ref)=>{const g=gap(v,ref);return g==null?null:Math.abs(g)<=r.tol;};
-    return {...r,vEnd,start:s,end:e,gapEnd:gap(e,vEnd),okStart:ok(s,r.v),okEnd:ok(e,vEnd)};});
+    return {...r,vEnd,start:s,end:e,gapEnd:gap(e,vEnd),okStart:ok(s,r.v),okEnd:ok(e,vEnd),hz:H};});
 }
+// stabilité sur toute la durée : part des simulations où le capital des entreprises tombe sous la moitié de son départ
+const collapseShare=w=>w&&w.per&&w.per.collapse?Array.from(w.per.collapse).reduce((a,v)=>a+v,0)/w.per.collapse.length:null;
 
 /* Test de validation : valeur du modèle à la fin (année BACKTEST.to) pour chaque indicateur de BACKTEST.refs */
 function backtestCard(w,P){

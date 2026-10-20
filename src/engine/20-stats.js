@@ -2,7 +2,7 @@
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
 // séries annuelles moyennées année par année sur les simulations (monnaie, travail, prix, État, banque, logement, démographie)
-const SERIES_KEYS=['tot','gi','uT','cCov','sDebt','sDef','rCons','rConsMean','rNdp','rUtil','rK','mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff','cInvR','cDivR','hPI'];
+const SERIES_KEYS=['tot','gi','uT','cCov','sDebt','sDef','rCons','rConsMean','rNdp','rUtil','rK','mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff','cInvR','cDivR','hPI','cMarginS','cSaveS','wMedS','wTop10S','fPartS'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();
@@ -45,7 +45,7 @@ const SUM_KEYS=['funded','refused','loans','debt','indebted','fund','refusedDebt
 const PER_RUN={
   mean:(x,e)=>e.mean, bottom10:(x,e)=>e.bottom10, top1:(x,e)=>e.top1==null?NaN:e.top1, gini:(x,e,T)=>x.gi[T-1],
   funded:x=>x.funded, refused:x=>x.refused, indebted:(x,e)=>e.indebted, totE:(x,e,T)=>x.tot[T-1]+x.uT[T-1],
-  fUnowned:x=>x.fUnowned, cons:(x,e,T)=>x.rCons[T-1], util:(x,e,T)=>x.rUtil[T-1], unemp:(x,e,T)=>x.lU[T-1], hours:(x,e,T)=>x.lHours[T-1], infl:x=>x.pInflAvg, fDied:x=>x.fDied, interest:x=>x.interest, qratio:(x,e,T,q)=>q[0].mean>0?q[4].mean/q[0].mean:NaN};
+  fUnowned:x=>x.fUnowned, cons:(x,e,T)=>x.rCons[T-1], util:(x,e,T)=>x.rUtil[T-1], unemp:(x,e,T)=>x.lU[T-1], hours:(x,e,T)=>x.lHours[T-1], infl:x=>x.pInflAvg, fDied:x=>x.fDied, collapse:x=>x.rK.findIndex(v=>v<0.5*x.rK[0])>=0?1:0, interest:x=>x.interest, qratio:(x,e,T,q)=>q[0].mean>0?q[4].mean/q[0].mean:NaN};
 // moyenne élément par élément des diagnostics (tableaux), en ignorant les cases vides
 function meanDiagnostics(xs){const dg={},R=xs.length;for(const k in xs[0].dg){const v=xs[0].dg[k];
   if(Array.isArray(v)){const sm=v.map(()=>0),cn=v.map(()=>0);for(const x of xs)x.dg[k].forEach((y,g)=>{if(isFinite(y)){sm[g]+=y;cn[g]++;}});dg[k]=sm.map((y,g)=>cn[g]?y/cn[g]:NaN);}

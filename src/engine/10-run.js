@@ -106,6 +106,8 @@ function run(world,seed,P){
   // séries annuelles : logement (h…) et banque (k…)
   const hOwn=new Float64Array(T),hMort=new Float64Array(T),hVal=new Float64Array(T),hRent=new Float64Array(T),hAcc=new Float64Array(T);
   const cInvR=new Float64Array(T),cDivR=new Float64Array(T),hPI=new Float64Array(T);
+  // séries annuelles du tableau de bord à 10 ans : marge, épargne, patrimoine médian et part des 10 % les plus dotés, détention d'actions
+  const cMarginS=new Float64Array(T),cSaveS=new Float64Array(T),wMedS=new Float64Array(T),wTop10S=new Float64Array(T),fPartS=new Float64Array(T);
   const kDef=new Float64Array(T),kEq=new Float64Array(T),kBail=new Float64Array(T),kCred=new Float64Array(T),kCET1=new Float64Array(T),kM=new Float64Array(T);
   let rhoS=1,LCsoc0=0;
   // calage de l'épargne : patrimoine / revenu et taux d'épargne par quintile (Q) et par case âge × quintile (Cell)
@@ -257,7 +259,7 @@ function run(world,seed,P){
   let infl=0,feeB=0,feeQ=0,rentAmt=0,rM=0,ratio=1,sales=0,GW=0,kappa=0,E=0,piPaid=0;
   let levyY=0,subY=0,revY=0,trY=0,trF=1,tvaY=0,GPy=0,INTy=0,benE=0,rentPot=0,mortIntY=0,hInvY=0,rentY=0,accY=0;
   // mesures des témoins (sans effet sur la simulation) : investissement et dividendes de l'année, valeur ajoutée et profit cumulés jusqu'à l'an passé
-  let invY=0,divY=0,vaPrev=0,profPrev=0,top10G=0,incPrev=0,hpi0=0;
+  let invY=0,divY=0,vaPrev=0,profPrev=0,top10G=0,incPrev=0,hpi0=0,savePrev=0;
   for(let t=0;t<T;t++){
     if(t>0)partic.update(pricesOn&&Pnet!==1?Float64Array.from(net,v=>v/Pnet):net,t);
     infl=0;ratio=1;sales=0;GW=0;kappa=0;E=0;piPaid=0;cBase=cBaseY;cBaseY=0;
@@ -635,7 +637,9 @@ function run(world,seed,P){
   // fin d'année (économie bouclée) : frais reversés en salaires, PIB, comptes publics, indicateurs
   function closeYear(t){
     // témoins : taux d'investissement (investissement et créations / valeur ajoutée des entreprises) et dividendes versés / profit brut
-    {const va=cc.wagePriv+cc.profit+cc.prodTax-cc.sub;cInvR[t]=va-vaPrev>0?invY/(va-vaPrev):0;cDivR[t]=cc.profit-profPrev>0?divY/(cc.profit-profPrev):0;vaPrev=va;profPrev=cc.profit;
+    {const va=cc.wagePriv+cc.profit+cc.prodTax-cc.sub;cInvR[t]=va-vaPrev>0?invY/(va-vaPrev):0;cDivR[t]=cc.profit-profPrev>0?divY/(cc.profit-profPrev):0;
+     // taux de marge et taux d'épargne de l'année (tableau de bord à 10 ans)
+     cMarginS[t]=va-vaPrev>0?(cc.profit-profPrev)/(va-vaPrev):0;cSaveS[t]=cc.inc-incPrev>0?(cc.save-savePrev)/(cc.inc-incPrev):0;savePrev=cc.save;vaPrev=va;profPrev=cc.profit;
      // prix des logements / revenu disponible moyen par ménage, rapporté à sa valeur de départ
      const iy=cc.inc-incPrev;incPrev=cc.inc;const r=iy>0?ph*nAlive/iy:0;if(t===0)hpi0=r;hPI[t]=hpi0>0?r/hpi0:0;}
     // les coûts de la banque et des fonds sont les salaires de leurs employés (répartis comme les salaires) ; les dépenses de l'année font les ventes de la suivante
@@ -671,6 +675,8 @@ function run(world,seed,P){
     // témoin, la dernière année : part du patrimoine brut (actifs, dettes non déduites) détenue par les 10 % les mieux dotés en patrimoine brut
     if(t===T-1){const g=new Float64Array(nAlive);let k=0;for(let i=0;i<N;i++)if(!vac[i])g[k++]=Math.max(W[i],0)+D[i]+eqSave[i]+eqv[i]+Bh[i]+hU[i]*ph;g.sort();
       const k10=Math.max(1,Math.round(nAlive*0.1));let tg=0,t10=0;for(let m=0;m<nAlive;m++){tg+=g[m];if(m>=nAlive-k10)t10+=g[m];}top10G=tg>0?t10/tg:0;}gi[t]=gini(nAlive<N?liveOf(net):net);
+    {const y=liveOf(net).sort(),n=y.length;let tt=0,t10=0;const k10=Math.max(1,Math.round(n*0.1));for(let m=0;m<n;m++){tt+=y[m];if(m>=n-k10)t10+=y[m];}
+     wMedS[t]=n?y[Math.floor(n/2)]/Pidx:0;wTop10S[t]=tt>0?t10/tt:0;let pa=0;for(let i=0;i<N;i++)if(!vac[i])pa+=part[i];fPartS[t]=nAlive?pa/nAlive:0;}
     {let a=0,d=0,o=0,e=0;for(let i=0;i<N;i++){a+=W[i]+eqSave[i]-L[i];d+=D[i];o+=Bh[i];e+=eqv[i];}bCash[t]=a/nAlive/Pidx;bDep[t]=d/nAlive/Pidx;bBond[t]=o/nAlive/Pidx;bEq[t]=e/nAlive/Pidx;
      let l=0,fd=0;for(let i=0;i<N;i++)l+=L[i];for(const fm of firms)if(!fm.dead)fd+=fm.debt;bSale[t]=(pool+poolNext+feePot+back)/nAlive/Pidx;bBank[t]=(F-d+l+fd+Sc+Bb)/nAlive/Pidx;}
     if(closed&&M0>0){const y=liveOf(net).sort(),c5=y[Math.floor(0.5*y.length)],c9=y[Math.floor(0.9*y.length)];let h0=0,h1=0,h2=0,R=0;
@@ -715,7 +721,7 @@ function run(world,seed,P){
     cWageShare:cc.wagePaid+cc.profit>0?cc.wagePaid/(cc.wagePaid+cc.profit):0,
     // taux de marge des entreprises au sens de l'Insee : excédent brut / valeur ajoutée des entreprises (salaires privés, coût du travail
     // compris ; impôts sur la production compris dans la valeur ajoutée), sans les salaires publics
-    cInvR,cDivR,hPI,wTop10G:top10G,
+    cInvR,cDivR,hPI,wTop10G:top10G,cMarginS,cSaveS,wMedS,wTop10S,fPartS,
     cMargin:cc.wagePriv+cc.profit+cc.prodTax-cc.sub>0?cc.profit/(cc.wagePriv+cc.profit+cc.prodTax-cc.sub):0,
     // monnaie : où elle est, et au sens large
     mPoor,mMid,mTop,mFirm,mSale,mOther,bCash,bDep,bBond,bEq,bSale,bBank,
