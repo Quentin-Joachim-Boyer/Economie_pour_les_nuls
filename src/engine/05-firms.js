@@ -36,7 +36,7 @@ function seedExistingFirms(C){
   const pick=()=>{const x=er()*cdf[nH-1];let lo=0,hi=nH-1;while(lo<hi){const m=(lo+hi)>>1;if(cdf[m]<x)lo=m+1;else hi=m;}return H[lo];};
   // économie bouclée : chaque entreprise détient au départ la trésorerie d'une année d'investissement (sa règle d'autofinancement),
   // payée par ses détenteurs comme le capital : la valeur d'une entreprise est K + R
-  const r0=P.closed?P.invest:0,lam=C.creditOn?SNF_CREDIT_K:0;   // dette bancaire de départ (crédit)
+  const r0=P.closed?P.invest:0,lam=C.creditOn?(P.creditK??SNF_CREDIT_K):0;   // dette bancaire de départ (crédit)
   /* une grande entreprise ou une ETI du modèle représente des centaines ou des milliers d'entreprises : sa rentabilité est la
      rentabilité médiane, et non un tirage individuel (le tirage est fait quand même, pour ne pas décaler les suivants) */
   for(const ls of landscape(n0,P.k0*N0,er)){const K=ls.K,isBig=FIRM_CATS[ls.cat].big;const rho0=drawRho(er,P),rho=isBig&&P.vary?BIG_RHO:rho0;

@@ -161,6 +161,7 @@ const INVENTORY=[
   {d:'Banque centrale',l:'Règle de Taylor lissée',c:'C',r:1,s:'BCE, Taylor (1993)'},
   // ---------- logement ----------
   {d:'Logement',k:'HOUSING_DEC',l:'Part de l\'immobilier par décile',c:'M',s:'Insee 2024'},
+  {d:'Logement',k:'OWN_REF',l:'Ménages détenant un patrimoine immobilier',v:'61,2 %',c:'M',s:'Insee 2024'},
   {d:'Logement',k:'OWN_DEC',l:'Propriétaires par décile',c:'M',s:'Insee 2024',f:'impose own au départ'},
   {d:'Logement',k:'MORT_TO_HOUSING',l:'Crédits à l\'habitat / valeur des logements',v:'14,6 %',c:'M',s:'Banque de France, Insee',f:'impose hhdebt au départ'},
   {d:'Logement',k:'MORT_DEBT_AGE',l:'Dette selon l\'âge',c:'M',s:'Insee Focus n° 371'},
@@ -202,6 +203,6 @@ const INVENTORY=[
 // constantes de 00-data.js qui ne sont pas des paramètres à part : fonctions, conversions, valeurs dérivées, références de comparaison,
 // et valeurs sourcées recopiées dans DEF (inventoriées sous leur clé de DEF ; tests/consistency.js vérifie qu'elles concordent)
 const INV_IGNORE=['toUnit','toUnit21','FIRM_CATS_TOTAL','MARKUP0','REF_FR','FUND_ID_BASE','deathProb','births','START_YEAR','ENTRY_RATE','DEP_PROJ',
-  'HH_INCOME_MEDIAN','HH_INCOME_SIGMA','MPC_WEALTH','PROD_GROWTH','STATE_DEFAULTS'];
+  'HH_INCOME_MEDIAN','HH_INCOME_SIGMA','MPC_WEALTH','PROD_GROWTH','STATE_DEFAULTS','gompertzA'];
 // clés de DEF qui ne sont pas des paramètres : taille, durée, nombre de simulations
 const INV_IGNORE_DEF=['N','T','runs'];

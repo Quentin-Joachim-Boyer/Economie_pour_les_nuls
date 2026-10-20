@@ -2,7 +2,7 @@
    Mesures d'équité et agrégation de plusieurs simulations
    ===================================================================== */
 // séries annuelles moyennées année par année sur les simulations (monnaie, travail, prix, État, banque, logement, démographie)
-const SERIES_KEYS=['tot','gi','uT','cCov','sDebt','sDef','rCons','rConsMean','rNdp','rUtil','rK','mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff','cInvR','cDivR'];
+const SERIES_KEYS=['tot','gi','uT','cCov','sDebt','sDef','rCons','rConsMean','rNdp','rUtil','rK','mPoor','mMid','mTop','mFirm','mSale','mOther','bCash','bDep','bBond','bEq','bSale','bBank','lU','lLong','lHours','lUnmet','pP','pInfl','pWr','pGap','sPub','sPO','dDeaths','dRet','kCred','kCET1','kM','kBail','kEq','depR','hhN','dWid','kDef','hOwn','hMort','hVal','hRent','hAcc','cbRate','fEff','cInvR','cDivR','hPI'];
 // indicateurs de répartition du patrimoine final (net trié dans .net)
 function equity(net,grp,owes){
   const n=net.length;const x=Float64Array.from(net).sort();

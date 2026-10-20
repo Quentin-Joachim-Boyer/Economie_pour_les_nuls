@@ -232,9 +232,11 @@ const JOBS_PER_ACTIVE_HH=(46.27e9/HOURS_PER_JOB)/(31.27e6*ACTIVE_HH_SHARE);
    moins : âge moyen des mères à la naissance 31 ans ; âge moyen des héritiers ≈ 50 ans, CAE 2021), après des droits de
    succession effectifs de 5 % (France Stratégie 2017). */
 const GOMPERTZ_B=Math.log(2)/8.5;
-const GOMPERTZ_A=(()=>{const e60=a=>{let s=0,S=1;for(let x=60;x<130;x+=0.1){S*=Math.exp(-a*Math.exp(GOMPERTZ_B*x)*0.1);s+=S*0.1;}return s;};
-  let lo=1e-9,hi=1e-2;for(let k=0;k<80;k++){const m=Math.sqrt(lo*hi);if(e60(m)>25.9)lo=m;else hi=m;}return Math.sqrt(lo*hi);})();
-const deathProb=age=>1-Math.exp(-GOMPERTZ_A*Math.exp(GOMPERTZ_B*(age+0.5))*1);
+// niveau de la mortalité calé sur une espérance de vie à 60 ans donnée (25,9 ans en 2025 ; une autre valeur pour le test 2010 → 2024)
+const gompertzA=target=>{const e60=a=>{let s=0,S=1;for(let x=60;x<130;x+=0.1){S*=Math.exp(-a*Math.exp(GOMPERTZ_B*x)*0.1);s+=S*0.1;}return s;};
+  let lo=1e-9,hi=1e-2;for(let k=0;k<80;k++){const m=Math.sqrt(lo*hi);if(e60(m)>target)lo=m;else hi=m;}return Math.sqrt(lo*hi);};
+const GOMPERTZ_A=gompertzA(25.9);
+const deathProb=(age,A=GOMPERTZ_A)=>1-Math.exp(-A*Math.exp(GOMPERTZ_B*(age+0.5))*1);
 const NEW_HH_AGE=25, HEIR_GAP=[25,35], ESTATE_TAX=0.05;
 
 /* ---------- entrées selon les générations réelles, et allongement de la vie ----------
@@ -321,7 +323,12 @@ const BANK_RESERVE=0.01, FUND_CASH=0.05;
      Première n° 1380) ; 47,9 % début 2024 (Insee, « Répartition de la masse totale de patrimoine brut entre les ménages ») ; modèle : fin
      de période, patrimoine brut = actifs sans déduire les dettes. Le témoin avait été pré-enregistré sur le patrimoine net ; l'Insee ne
      publie la part de 2010 que pour le patrimoine brut : la mesure du modèle a été alignée avant tout calcul.
-   - en attente : prix des logements rapporté au revenu disponible par ménage (Eurostat indisponible le 20 octobre 2026). */
+   - prix des logements rapporté au revenu disponible par ménage (méthode de J. Friggit, IGEDD) : indice des prix des logements 99,74 (2010)
+     et 126,39 (2024), base 2015 (Eurostat, prc_hpi_a) ; revenu disponible brut des ménages 1 306 007 et 1 937 425 M€ (Eurostat,
+     nasa_10_nf_tr, S14_S15, B6G) ; ménages 27,79 millions (recensement 2010) et 31,27 millions (recensement 2023), prolongés jusqu'en 2024
+     au rythme moyen de 2010-2023 (+0,91 % par an) ; d'où 0,970 en 2024 (2010 = 1). Repère : 1,55 au 3e trimestre 2024 en base 2000
+     (J. Friggit, IGEDD, 2025). Modèle : prix / revenu disponible moyen par ménage, rapporté à sa valeur de départ. Il teste la règle
+     « le prix suit le revenu ». */
 const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863,defT:0.072,save:0.069,rB:0.025/0.863,gW:0.132,gP:0.054+0.048,hik:0.061,
     gdpHH:1996.0751e9/27.7859e6/19270,m0:(113500/19270)/(124800/23160),prodG:0.004},
   refs:[
@@ -339,7 +346,8 @@ const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863
     {k:'wd9',temoin:1,l:'Patrimoine net : 9e décile / médiane',a:501600/113500,b:750400/148100,u:'x',src:'Insee Première n° 1380 (2010) ; Insee, distribution du patrimoine 2024',url:'https://www.insee.fr/fr/statistiques/2388851'},
     {k:'inv',temoin:1,l:'Taux d\'investissement des sociétés non financières (FBCF / valeur ajoutée)',a:201868/996825,b:328705/1513050,u:'pct',src:'Eurostat, nasa_10_nf_tr (S11, P51G et B1G)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
     {k:'div',temoin:1,l:'Dividendes nets versés / excédent brut d\'exploitation des sociétés non financières',a:(212511-156875)/313477,b:(301932-253787)/486553,u:'pct',src:'Eurostat, nasa_10_nf_tr (S11, D42 versés − reçus, B2A3G)',url:'https://ec.europa.eu/eurostat/databrowser/view/nasa_10_nf_tr/default/table?lang=fr'},
-    {k:'top10g',temoin:1,l:'Part du patrimoine brut détenue par les 10 % les mieux dotés',a:0.48,b:0.479,u:'pct',src:'Insee Première n° 1380 (2010) ; Insee, enquêtes Histoire de vie et Patrimoine (2024)',url:'https://www.insee.fr/fr/statistiques/2502915'}]};
+    {k:'top10g',temoin:1,l:'Part du patrimoine brut détenue par les 10 % les mieux dotés',a:0.48,b:0.479,u:'pct',src:'Insee Première n° 1380 (2010) ; Insee, enquêtes Histoire de vie et Patrimoine (2024)',url:'https://www.insee.fr/fr/statistiques/2502915'},
+    {k:'hpi',temoin:1,l:'Prix des logements rapporté au revenu disponible par ménage (2010 = 1)',a:1,b:(126.39/99.74)/((1937425/(31274741e-6*Math.pow(31274741/27785900,1/13)))/(1306007/27.7859)),u:'x',src:'Eurostat, prc_hpi_a (prix des logements) et nasa_10_nf_tr (revenu disponible brut des ménages) ; Insee, recensements 2010 et 2023 (ménages)',url:'https://ec.europa.eu/eurostat/databrowser/view/prc_hpi_a/default/table?lang=fr'}]};
 
 /* ---------- création monétaire par le crédit ----------
    « Les crédits font les dépôts » (Banque de France, « Comment est créée la monnaie ») : un prêt crée de la monnaie,
@@ -388,6 +396,8 @@ const CET1_TARGET=0.161, CET1_MIN=0.112, LEVERAGE_MIN=0.03, SNF_CREDIT_K=1437/30
 const HOUSING_DEC=[0,.006,.019,.266,.670,.750,.751,.725,.693,.533];
 // taux de détention d'un patrimoine immobilier par décile de patrimoine brut, début 2024 (Insee, « Taux de détention »)
 const OWN_DEC=[0,.010,.028,.308,.863,.963,.983,.992,.982,.993];
+// part des ménages qui détiennent un patrimoine immobilier, début 2024 (Insee, même source) : sert à remettre OWN_DEC à l'échelle d'une autre année
+const OWN_REF=0.612;
 const MORT_TO_HOUSING=1288/8850;
 const MORT_DEBT_AGE=a=>a<40?0.42:a<50?0.26:a<60?0.13:0.03;
 const MORT_RATE=0.0332, MORT_YEARS=22.7, MORT_LTV=0.777, RW_MORT=0.094;

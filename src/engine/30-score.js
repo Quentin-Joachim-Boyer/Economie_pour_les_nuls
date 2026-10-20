@@ -42,9 +42,13 @@ function backtestCard(w,P){
   const M={unemp:w.lU[L],ulong:w.lLong[L],debt:w.sDebt[L],deficit:w.sDef[L],spend:w.sPub[L],po:w.sPO[L],margin:w.cMargin,save:w.cSaveRate,infl:avgI,growth:grow,
     wmed:med!=null&&wr>0?med/wr:null,wd9:med>0?d9/med:null,
     // témoins ajoutés le 20 octobre 2026 : moyennes des trois dernières années pour les flux
-    inv:w.cInvR?avg3(w.cInvR):null,div:w.cDivR?avg3(w.cDivR):null,top10g:w.wTop10G??null};
+    inv:w.cInvR?avg3(w.cInvR):null,div:w.cDivR?avg3(w.cDivR):null,top10g:w.wTop10G??null,hpi:w.hPI&&w.hPI[L]>0?w.hPI[L]:null};
   const S0={unemp:w.lU[0],ulong:w.lLong[Math.min(2,L)],debt:w.sDebt[0],deficit:w.sDef[0],spend:w.sPub[0],po:w.sPO[0],margin:null,save:null,infl:null,growth:null,
-    wmed:WEALTH_Q[5][1]*(P.m0||1),wd9:WEALTH_Q[9][1]/WEALTH_Q[5][1],inv:null,div:null,top10g:null};
-  return BACKTEST.refs.map(r=>{const m=M[r.k],m0=S0[r.k];const dirOK=m==null?null:Math.sign(m-r.a)===Math.sign(r.b-r.a)||Math.abs(r.b-r.a)<1e-9;
-    const err=m==null?null:Math.abs(m-r.b)/Math.max(Math.abs(r.b-r.a),Math.abs(r.b)*0.05);return {...r,m,m0,dirOK,close:err!=null&&err<=1};});
+    wmed:WEALTH_Q[5][1]*(P.m0||1),wd9:WEALTH_Q[9][1]/WEALTH_Q[5][1],inv:null,div:null,top10g:null,hpi:1};
+  /* critère (20 octobre 2026) : « bon sens » = le modèle bouge dans la même direction que la France, depuis son propre départ s'il en a un
+     (sinon depuis la valeur française de 2010) ; « proche » = écart à 2024 au plus la moitié du chemin parcouru par la France (au moins 5 %
+     de la valeur) : un modèle resté figé à sa valeur de départ n'est pas proche */
+  return BACKTEST.refs.map(r=>{const m=M[r.k],m0=S0[r.k],from=m0!=null&&isFinite(m0)?m0:r.a;
+    const dirOK=m==null?null:Math.sign(m-from)===Math.sign(r.b-r.a)||Math.abs(r.b-r.a)<1e-9;
+    const err=m==null?null:Math.abs(m-r.b)/Math.max(Math.abs(r.b-r.a),Math.abs(r.b)*0.05);return {...r,m,m0,dirOK,close:err!=null&&err<=0.5};});
 }
