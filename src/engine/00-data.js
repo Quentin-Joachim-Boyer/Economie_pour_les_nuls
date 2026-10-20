@@ -4,8 +4,10 @@
    Unité monétaire du modèle : une année de niveau de vie médian.
    ===================================================================== */
 const UNIT_EUR=25760;                 // niveau de vie médian 2023 (Insee)
-// PIB par ménage en unités (provisoire, à sourcer) : 2 991,1 Md€ en 2025 (Insee Première n° 2105) / 31,27 millions de ménages / niveau de vie médian
-const GDP_HH=2991.1e9/31.27e6/26740/1.02;
+/* PIB par ménage, en années de niveau de vie médian, même année 2023 : PIB 2 822,5 Md€ (Insee, comptes 2023 publiés le 31 mai 2024 ;
+   révisé depuis à environ 2 834) / 31 274 741 ménages (recensement 2023) / 25 760 €. Sert à convertir en euros les grandeurs publiques
+   données en part du PIB français, et à exprimer les ratios du modèle comme ceux de l'Insee. */
+const GDP_HH=2822.5e9/31274741/25760;
 const toUnit=e=>e/UNIT_EUR;
 // patrimoine 2021 : converti avec le niveau de vie médian de la même année, 23 160 € (Insee Première n° 1973), pour garder le rapport patrimoine / revenu
 const WEALTH_UNIT_EUR=23160, toUnit21=e=>e/WEALTH_UNIT_EUR;
@@ -74,6 +76,9 @@ const HAZARD_MAX=0.9;                 // probabilité annuelle maximale de dispa
 /* vitesse de retour vers la dette cible : plus de 30 % de l'écart résorbé chaque année (Flannery et Rangan, 2006, « Partial adjustment
    toward target capital structures », Journal of Financial Economics) */
 const LEV_ADJ=0.3;
+// rentabilité des grandes entreprises agrégées : celle de l'ensemble des sociétés non financières, EBE 497,5 Md€ (Insee Première n° 2105)
+// pour un capital fixe net de 3 195 Md€ (Insee, comptes de patrimoine 2025, tableau 1.111)
+const BIG_RHO=497.5/3195;
 const DEBT_AMORT=0.1;                 // remboursement annuel du capital emprunté
 
 /* ---------- consommation (économie bouclée) ----------
@@ -201,7 +206,7 @@ const BEN_UC=[5600,1720,820,500,260], NV_MEAN=30900, HEALTH_INKIND=186/2920;
    impôts sur les produits comme les accises sur l'énergie, impôts sur le patrimoine des ménages, ventes des administrations, revenus
    de la propriété…) est prélevé sur la consommation des ménages, à un taux calé pour que le déficit de départ soit celui observé.
    Recettes publiques totales 2024 : 1 500,6 Md€, 51,4 % du PIB (même source). */
-const PROD_TAX_GDP=(79.4-45.9)/2991.1;
+const PROD_TAX_GDP=72/2920;
 // emplois par ménage actif : 46,27 milliards d'heures (Eurostat, 2024) / 1 586 h par emploi, pour 31,27 millions de ménages dont
 // ceux dont la personne de référence a moins de 62 ans et 9 mois (pyramide des ménages, Insee)
 const ACTIVE_HH_SHARE=(()=>{let a=0,t=0;for(const [lo,hi,n] of AGE_PYRAMID){t+=n;a+=n*Math.max(0,Math.min(1,(RET_AGE-lo)/(hi-lo)));}return a/t;})();
@@ -383,7 +388,10 @@ const SE_INV=3.4, SE_HINV=3.0, SE_ACC=19;
    2014-2018 par les dépenses. Dans le modèle, les prélèvements supplémentaires portent sur la consommation (le levier fiscal
    résiduel) et les économies sur les salaires et achats publics, au prorata. Pas d'effort l'année qui suit un recul du PIB en
    volume : le dépassement n'est alors pas « excessif » (règlement 1467/97, art. 2 : « a negative annual GDP volume growth rate »). */
-const FISC_DEF=0.03, FISC_STEP=0.005, FISC_PO=3.1/(3.1+1.6);
+/* Seuils observés en France (choix de l'utilisateur, 20 octobre 2026) : la règle prévoit un effort au-delà de 3 %, mais la France
+   n'a resserré nettement qu'au-delà de 5 % (effort de 0,7 point en 2025 après 5,8 % en 2024 ; nul en 2024 après 5,4 % en 2023, HCFP)
+   et a relâché sous 3 % (efforts de −0,2 point en 2017 et 2019, baisses d'impôts de 2018-2022, Sénat). Entre les deux, rien ne change. */
+const FISC_DEF=0.05, FISC_REL=0.03, FISC_STEP=0.005, FISC_PO=3.1/(3.1+1.6);
 
 /* ---------- consommation des revenus du capital ----------
    Les ménages consomment une part plus faible de leurs revenus du capital (intérêts, dividendes, loyers, versements des fonds) que
@@ -392,4 +400,6 @@ const FISC_DEF=0.03, FISC_STEP=0.005, FISC_PO=3.1/(3.1+1.6);
    0.4 of a percentage point ») ; la propension à les consommer est donc inférieure de 0,4 à celle des autres revenus. Cohérent avec
    les dividendes versés, consommés à 40-60 % dans l'année (Di Maggio, Kermani et Majlesi, 2020). À long terme, l'équation de la
    Banque de France (Ouvrard et Thubin, 2020) va plus loin : propension « quasi nulle ». */
+/* part des revenus du patrimoine dans le revenu disponible des ménages : 12,6 % (Insee, ERFS 2024) et 12,2 % (Filosofi 2023), la
+   même dans les deux scénarios (mêmes ménages, mêmes comportements) */
 const MPC_CAP_GAP=0.4, CAP_INC_SHARE=0.12;

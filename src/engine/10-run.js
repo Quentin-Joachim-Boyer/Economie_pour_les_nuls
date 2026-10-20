@@ -4,8 +4,8 @@
    Organisation : le départ (population, logement, bilans, calage), puis la boucle des années, qui appelle les étapes de l'année
    (fonctions définies sous la boucle, qui partagent l'état de la simulation), puis les résultats.
    Économie bouclée (P.closed, avec la brique entreprises) : la monnaie est en quantité fixe. Les ménages reçoivent leurs salaires
-   des entreprises et leur achètent des biens ; ce que dépensent ménages et entreprises (consommation, investissement, créations)
-   forme les ventes de l'année suivante ; les ventes moins les salaires forment le profit brut des entreprises, réparti selon leur
+   des entreprises et leur achètent des biens ; la consommation et les achats publics font les ventes de l'année (les
+   salaires sont avancés sur un fonds de roulement), l'investissement et les créations celles de l'année suivante ; les ventes moins les salaires forment le profit brut des entreprises, réparti selon leur
    rentabilité (qui n'est plus qu'une rentabilité « notionnelle ») ; les coûts de la banque et des fonds paient des salaires.
    État minimal (P.state, en économie bouclée) : il prélève un impôt sur les ventes des entreprises, paie une partie des salaires
    (fonctionnaires), achète des biens aux entreprises et finance son déficit en vendant des obligations aux ménages, qui lui paient
@@ -341,11 +341,11 @@ function run(world,seed,P){
   // État
   function stateBudget(t){
     // impôt sur les ventes, puis dépenses (fonctionnaires, achats, intérêts) ; le déficit est emprunté aux ménages
-      // règle budgétaire : au-delà de 3 % de déficit l'an passé, 0,5 point de PIB d'effort de plus, 2/3 en prélèvements, 1/3 en dépenses
+      // règle budgétaire : au-delà de 5 % de déficit l'an passé, 0,5 point de PIB d'effort de plus, 2/3 en prélèvements, 1/3 en dépenses
       // clause de récession : pas d'effort l'année qui suit un recul du PIB en volume
       if(fisc&&t>0&&defR[t-1]>FISC_DEF&&!(t>1&&gdpR[t-1]<gdpR[t-2])){effPO+=FISC_STEP*FISC_PO;effG+=FISC_STEP*(1-FISC_PO);}
-      // sous 2,5 % de déficit, les mesures sont levées de 0,5 point par an (baisses d'impôts de 2018-2022 une fois la procédure close)
-      else if(fisc&&t>0&&defR[t-1]<FISC_DEF-FISC_STEP&&effPO+effG>0){const e=effPO+effG,x=Math.min(FISC_STEP,e);effPO-=x*effPO/e;effG-=x*effG/e;}
+      // sous 3 % de déficit, les mesures sont levées de 0,5 point par an (baisses d'impôts de 2018-2022)
+      else if(fisc&&t>0&&defR[t-1]<FISC_REL&&effPO+effG>0){const e=effPO+effG,x=Math.min(FISC_STEP,e);effPO-=x*effPO/e;effG-=x*effG/e;}
       if(fisc){fEff[t]=effPO+effG;dTauC=cBase>0?effPO*GDPprev*kY/cBase:0;}
       const sG=fisc?Math.max(0,1-effG/(P.gW+gPe)):1;
       GW=gWm*sG*GDPprev;let GP=gPm*sG*GDPprev,INT=rB*pubDebt;
