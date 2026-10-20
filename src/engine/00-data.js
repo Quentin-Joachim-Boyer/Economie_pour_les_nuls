@@ -328,9 +328,32 @@ const BANK_RESERVE=0.01, FUND_CASH=0.05;
      nasa_10_nf_tr, S14_S15, B6G) ; ménages 27,79 millions (recensement 2010) et 31,27 millions (recensement 2023), prolongés jusqu'en 2024
      au rythme moyen de 2010-2023 (+0,91 % par an) ; d'où 0,970 en 2024 (2010 = 1). Repère : 1,55 au 3e trimestre 2024 en base 2000
      (J. Friggit, IGEDD, 2025). Modèle : prix / revenu disponible moyen par ménage, rapporté à sa valeur de départ. Il teste la règle
-     « le prix suit le revenu ». */
+     « le prix suit le revenu ».
+   Paramètres de 2010 (20 octobre 2026) : le test ne garde plus les valeurs récentes là où elles feraient fuir 2024 dans le résultat.
+   - capital fixe net des sociétés non financières 1 942 496 M€ fin 2010 (Eurostat, nama_10_nfa_bs, N11N, S11 ; 3 007 Md€ en 2023 dans
+     la même série, proche des 3 033 Md€ retenus pour le départ de 2026) pour 28,345 millions d'actifs (Insee Première n° 1391, France
+     métropolitaine : le capital par actif est un peu surestimé, d'environ 3 %) et un niveau de vie médian de 19 270 € ;
+   - investissement 201 868 M€, usure 180 108 M€ (P51C), rémunération des salariés 658 310 M€ pour une valeur ajoutée de 996 825 M€
+     (Eurostat, nasa_10_nf_tr, S11, 2010) : investissement 10,4 % et usure 9,3 % du capital, part des salaires 66,0 % ;
+   - crédits aux sociétés non financières 780,8 Md€ fin 2010 (Banque de France, Insee TEF 2013) : 40 % du capital ;
+   - 61,7 % des ménages détiennent un patrimoine immobilier, 18,9 % des valeurs mobilières, 15,7 % un patrimoine professionnel
+     (Insee Première n° 1325, enquête Patrimoine 2010) ; la part qui épargne en actions (20 % pour 17,4 % de détenteurs de valeurs
+     mobilières en 2024) est remise à la même échelle : 21,7 % ;
+   - crédits à l'habitat 796,6 Md€ (Banque de France, Insee TEF 2013) pour 3 262 Md€ de logements et 3 565 Md€ de terrains bâtis des
+     ménages fin 2010 (Insee Première n° 1382, base 2005) : 11,7 % ; taux des crédits nouveaux à l'habitat 3,36 % et aux sociétés non
+     financières 3,01 % en décembre 2010 (Bulletin de la Banque de France n° 183 ; il n'y a pas de taux propre aux PME) ;
+   - non-résidents : « 70,6 % de la dette négociable était détenue par les non-résidents, au mois de juin 2010 » (réponse ministérielle,
+     JO de l'Assemblée nationale, 28 décembre 2010, question n° 93357) ;
+   - espérance de vie à 60 ans : 22,4 ans pour les hommes et 27,1 pour les femmes en 2010 (Insee, bilan démographique 2023, tableaux
+     rétrospectifs) : 24,75 ans.
+   Restent aux valeurs récentes, faute de source comparable : la pyramide des âges des ménages (recensement 2010 non accessible) et les
+   fonds propres des banques (l'ACP donne pour 2010 le ratio Tier 1, 10,6 %, pas le CET1, et les exigences de l'époque n'étaient pas
+   comparables), ainsi que tous les paramètres hors de la liste pré-enregistrée (âge de la retraite, taux d'imposition, etc.). */
 const BACKTEST={from:2010,to:2024,P:{T:14,y0:2010,i0:0.0025,u0:0.093,debt0:0.863,defT:0.072,save:0.069,rB:0.025/0.863,gW:0.132,gP:0.054+0.048,hik:0.061,
-    gdpHH:1996.0751e9/27.7859e6/19270,m0:(113500/19270)/(124800/23160),prodG:0.004},
+    gdpHH:1996.0751e9/27.7859e6/19270,m0:(113500/19270)/(124800/23160),prodG:0.004,
+    // paramètres de 2010 à la place des valeurs récentes (étape 2 de la feuille de route, voir le commentaire plus haut)
+    k0:1942496.3e6/28.345e6/19270,invest:201868/1942496.3,depr:180108/1942496.3,ws0:658310/996825,creditK:780.8e3/1942496.3,
+    own0:0.617,mortK:796.6/(3262+3565),rMort:0.0336,nonres:0.706,e60:(22.4+27.1)/2,rl:0.0301,part:0.20*18.9/17.4,hold:0.157},
   refs:[
     {k:'unemp',l:'Taux de chômage',a:0.093,b:0.074,u:'pct',src:'Eurostat, une_rt_a (définition du BIT)',url:'https://ec.europa.eu/eurostat/databrowser/view/une_rt_a/default/table?lang=fr'},
     {k:'ulong',temoin:1,l:'Part des chômeurs depuis un an ou plus',a:0.404,b:0.233,u:'pct',src:'Insee Première n° 1391 (2010, métropole) ; Insee Références 2025',url:'https://www.insee.fr/fr/statistiques/8376836'},
