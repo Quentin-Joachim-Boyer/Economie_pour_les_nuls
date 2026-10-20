@@ -128,13 +128,16 @@ const HOURS_PER_JOB=0.88*(0.826*1661+0.174*970)+0.12*1916;
    (la production de départ correspond au chômage de départ, pris comme chômage « sans tension »).
    θ ≈ 0,14 : courbe de Phillips française estimée par l'Insee (Note de conjoncture, mars 2018, dossier) : un point de chômage en plus
    réduit la hausse annuelle des salaires d'environ 0,48 point (1,2·10⁻³ par trimestre), et les prix en répercutent 0,30 : 0,30 × 0,48 ≈ 0,14.
-   Salaires : ils rattrapent 85 % de l'inflation de l'année précédente (Banque de France, Bulletin 245, 2023 : hausses négociées
-   de 4,4 % pour 2023 après 5,2 % d'inflation en 2022, Smic indexé), et ne baissent pas en euros (rigidité à la baisse des salaires
+   Salaires : ils suivent la productivité et l'inflation attendue, ancrée sur la cible de 2 % de la BCE : depuis la crise de 1992-1993,
+   « l'inflation passée n'est plus un déterminant significatif des salaires » (Insee, « Les déterminants de la dynamique des salaires
+   en France », 2024) ; la même norme vaut dans les deux scénarios (mêmes ménages, mêmes négociations). Lors d'un choc comme en 2022,
+   l'inflation passée redevient déterminante (hausses négociées de 4,4 % pour 2023 après 5,2 % d'inflation en 2022, Banque de France,
+   Bulletin 245) : le modèle ne reproduit pas ces chocs. Les salaires ne baissent pas en euros (rigidité à la baisse des salaires
    nominaux : Le Bihan, Montornès et Heckel, 2012, données françaises). */
 const WAGE_SHARE0=0.65;
 const MARKUP0=1/WAGE_SHARE0-1;
 const PHILLIPS_THETA=0.30*0.0048*100;
-const WAGE_INDEXATION=4.4/5.2;
+const WAGE_INDEXATION=4.4/5.2, WAGE_ANCHOR=1;   // part de l'inflation attendue ancrée sur la cible (le reste suit l'inflation de l'année passée)
 
 /* ---------- tableau de bord de représentativité : statistiques de référence de la France ----------
    Chaque entrée : valeur de référence, année, source (lien), tolérance (écart jugé acceptable), et nature :

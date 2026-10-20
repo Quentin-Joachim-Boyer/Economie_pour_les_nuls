@@ -284,7 +284,7 @@ function run(world,seed,P){
   function updatePrices(t){
     /* ---------- prix : les salaires rattrapent l'inflation passée, la marge suit la tension ; le capital est réévalué ---------- */
     if(gA&&t>0){Aprod*=1+gA;if(!pricesOn)wIdx*=1+gA;}
-    if(pricesOn&&t>0){wIdx*=(1+gA)*(1+Math.max(0,WAGE_INDEXATION*inflPrev));mk=Math.max(0,(1+mk)*(1+PHILLIPS_THETA*gapPrev)-1);
+    if(pricesOn&&t>0){wIdx*=(1+gA)*(1+Math.max(0,WAGE_ANCHOR*CB_PI+(1-WAGE_ANCHOR)*inflPrev));mk=Math.max(0,(1+mk)*(1+PHILLIPS_THETA*gapPrev)-1);
       const Pn=wIdx/Aprod*(1+mk)/(1+MARKUP0);infl=Pn/Pidx-1;Pidx=Pn;inflPrev=infl;
       for(const fm of firms)if(!fm.dead)fm.K*=1+infl;     // capital au coût de remplacement
       if(capped){// gains interdits, règle réelle : les mises restantes, dettes, dépôts et obligations sont indexés sur les prix
